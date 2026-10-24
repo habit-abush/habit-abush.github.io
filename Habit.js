@@ -2210,19 +2210,7 @@ return;
 const name=
 input.value.trim();
 
-if(!name){
-
-toast(
-state.lang==='ru'
-?
-'Напиши название фокуса'
-:
-'Enter a focus name'
-);
-
-return;
-
-}
+const finalName=name || (state.lang==='ru' ? 'Новый фокус' : 'New focus');
 
 if(editingId){
 
@@ -2233,7 +2221,7 @@ x=>x.id===editingId
 
 if(h){
 
-h.name=name;
+h.name=finalName;
 h.icon=selectedIcon;
 h.color=selectedColor;
 h.days=[...selectedDays].sort((a,b)=>a-b);
@@ -2246,7 +2234,7 @@ state.habits.push({
 
 id:Date.now(),
 
-name,
+name:finalName,
 
 icon:selectedIcon,
 
@@ -3549,7 +3537,7 @@ if(colorPicker){
 if(!$('#mobileNav')){
 const nav=document.createElement('nav');
 nav.id='mobileNav';
-nav.className='mobile-nav';
+nav.className='mobile-nav bottom-nav';
 nav.innerHTML=`
 <div class="mobile-nav-heading"><strong>${state.lang==='ru'?'Навигация':'Navigation'}</strong><span>${state.lang==='ru'?'Твой Habit':'Your Habit space'}</span></div>
 <button data-mobile-page="home" type="button"><span>⌂</span><b data-i18n="home">Главная</b></button>
