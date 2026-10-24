@@ -1139,3 +1139,99 @@ body.mobile-menu-open::before{content:"";position:fixed;inset:0;z-index:1490;bac
   .mobile-nav.bottom-nav{padding-left:5px!important;padding-right:5px!important;}
   .mobile-brand{margin-left:5px!important;font-size:22px!important;}
 }
+
+
+/* Habit v27 — refined mobile motion, aligned navigation, subtle success states. */
+@media(max-width:760px){
+  /* A true edge-to-edge bar with evenly sized, consistently aligned destinations. */
+  .mobile-nav.bottom-nav{
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    align-items:stretch!important;
+    gap:0!important;
+    padding:6px 7px calc(6px + env(safe-area-inset-bottom,0px))!important;
+    border-top-color:color-mix(in srgb,var(--line) 92%,var(--accent))!important;
+    border-radius:16px 16px 0 0!important;
+    box-shadow:0 -5px 22px rgba(0,0,0,.10),inset 0 1px rgba(255,255,255,.035)!important;
+    transition:background-color .22s ease,box-shadow .22s ease!important;
+  }
+  .mobile-nav.bottom-nav button{
+    position:relative!important;
+    height:58px!important;min-height:58px!important;
+    align-self:stretch!important;
+    display:flex!important;flex-direction:column!important;
+    justify-content:center!important;align-items:center!important;
+    gap:4px!important;padding:4px 1px 6px!important;margin:0!important;
+    border:0!important;border-radius:12px!important;
+    background:transparent!important;box-shadow:none!important;
+    transform:none!important;
+    transition:color .2s ease,background-color .2s ease,opacity .2s ease!important;
+  }
+  .mobile-nav.bottom-nav button span,
+  .mobile-nav.bottom-nav button.active span{
+    display:grid!important;place-items:center!important;
+    width:26px!important;height:25px!important;min-width:26px!important;min-height:25px!important;
+    font-size:21px!important;line-height:1!important;
+    transition:transform .2s cubic-bezier(.2,.75,.25,1),color .2s ease!important;
+  }
+  .mobile-nav.bottom-nav button b{
+    display:block!important;width:100%!important;max-width:100%!important;
+    min-height:11px!important;font-size:9px!important;line-height:11px!important;
+    text-align:center!important;white-space:nowrap!important;
+    overflow:hidden!important;text-overflow:ellipsis!important;
+  }
+  /* Replace the old rising purple bar with a quiet, rounded selection surface and a tiny dot. */
+  .mobile-nav.bottom-nav button.active{
+    color:var(--accent)!important;
+    background:color-mix(in srgb,var(--accent) 8%,transparent)!important;
+    box-shadow:none!important;
+  }
+  .mobile-nav.bottom-nav button.active::before{
+    content:""!important;position:absolute!important;
+    width:4px!important;height:4px!important;border-radius:50%!important;
+    left:calc(50% - 2px)!important;bottom:2px!important;
+    background:color-mix(in srgb,var(--accent) 72%,#d9d0ff)!important;
+    box-shadow:0 0 5px rgba(145,120,235,.16)!important;
+  }
+  .mobile-nav.bottom-nav button.active span{transform:translateY(-1px)!important;filter:none!important;}
+  .mobile-nav.bottom-nav button[data-mobile-page="home"] span{font-size:27px!important;transform:scaleX(1.14)!important;}
+  .mobile-nav.bottom-nav button[data-mobile-page="home"].active span{transform:translateY(-1px) scaleX(1.14)!important;}
+  .mobile-nav.bottom-nav button:active{opacity:.78!important;transform:none!important;}
+
+  /* Slightly richer violet on the Habit wordmark, without a strong glow. */
+  .mobile-brand{
+    margin-left:8px!important;margin-right:2px!important;
+    background:linear-gradient(105deg,#c7bcff 0%,#a99af8 48%,#a18af0 100%)!important;
+    -webkit-background-clip:text!important;background-clip:text!important;
+    -webkit-text-fill-color:transparent!important;
+    text-shadow:0 2px 13px rgba(142,119,230,.11)!important;
+    transition:opacity .18s ease!important;
+  }
+
+  /* Classic, restrained motion: short transitions, no large bounce or layout shifts. */
+  .page.active{animation:mobilePageSettle .22s ease-out both;}
+  .focus-card{transition:border-color .18s ease,background-color .18s ease,box-shadow .18s ease!important;}
+  .focus-card.completed{animation:mobileCompleteSettle .22s ease-out both;}
+  .focus-card .check{transition:background-color .18s ease,border-color .18s ease,color .18s ease,transform .18s ease!important;}
+  .focus-card.completed .check{animation:mobileCheckSettle .22s ease-out both!important;}
+  .achievement{transition:opacity .22s ease,border-color .22s ease,background-color .22s ease,box-shadow .22s ease!important;}
+  .achievement:not(.locked){
+    border-color:color-mix(in srgb,#43b581 34%,var(--line))!important;
+    background:linear-gradient(135deg,color-mix(in srgb,#43b581 5%,var(--surface)),var(--surface))!important;
+    box-shadow:inset 0 0 0 1px color-mix(in srgb,#43b581 5%,transparent)!important;
+  }
+  .achievement:not(.locked) .achievement-icon{
+    border:1px solid color-mix(in srgb,#43b581 32%,var(--line))!important;
+    background:color-mix(in srgb,#43b581 10%,var(--surface2))!important;
+    transition:background-color .22s ease,border-color .22s ease!important;
+  }
+  button,.primary-btn,.segmented button,.check,.more{ -webkit-tap-highlight-color:transparent; }
+  .primary-btn,.segmented button{transition:background-color .18s ease,border-color .18s ease,color .18s ease,box-shadow .18s ease,transform .18s ease!important;}
+  .primary-btn:active,.segmented button:active{transform:scale(.985)!important;}
+}
+@keyframes mobilePageSettle{from{opacity:.82;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@keyframes mobileCompleteSettle{0%{box-shadow:0 0 0 rgba(67,181,129,0)}55%{box-shadow:0 0 0 2px rgba(67,181,129,.08)}100%{box-shadow:0 0 0 rgba(67,181,129,0)}}
+@keyframes mobileCheckSettle{0%{transform:scale(.94)}65%{transform:scale(1.035)}100%{transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){
+  .page.active,.focus-card.completed,.focus-card.completed .check{animation:none!important;}
+  .mobile-nav.bottom-nav button,.mobile-nav.bottom-nav button span,.focus-card,.focus-card .check,.achievement,.primary-btn,.segmented button{transition:none!important;}
+}
