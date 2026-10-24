@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090a0f">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Habit">
+<title>Habit</title>
+<link rel="stylesheet" href="Habit.css">
+<link rel="stylesheet" href="habit-mobile.css?v=24">
+<link rel="icon" type="image/png" href="Habit.png">
+</head>
+<body>
+<div class="app" id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand" aria-label="Habit">
+      <span class="brand-mark">H</span><span>Habit</span>
+    </div>
+    <nav class="nav">
+      <button class="nav-link active" data-page="home" type="button"><span>⌂</span><b data-i18n="home">Главная</b></button>
+      <button class="nav-link" data-page="habits" type="button"><span>☷</span><b data-i18n="habits">Привычки</b></button>
+      <button class="nav-link" data-page="stats" type="button"><span>◒</span><b data-i18n="stats">Статистика</b></button>
+      <button class="nav-link" data-page="achievements" type="button"><span>✦</span><b data-i18n="achievements">Достижения</b></button>
+      <button class="nav-link" data-page="settings" type="button"><span>⚙</span><b data-i18n="settings">Настройки</b></button>
+    </nav>
+    <div class="sidebar-progress">
+      <div class="mini-level"><span data-i18n="level">Уровень</span><strong id="sideLevel">1</strong></div>
+      <div class="xp-track"><i id="sideXp"></i></div>
+      <small id="sideXpText">0 / 100 XP</small>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="mobile-menu" id="menuBtn" type="button" aria-label="Открыть меню" aria-expanded="false"><span class="menu-bars" aria-hidden="true"><i></i><i></i><i></i></span></button>
+      <button class="mobile-brand" id="mobileBrand" type="button" aria-label="На главную">Habit</button>
+      <div class="top-heading"><span class="eyebrow">YOUR RHYTHM</span><h1 id="pageTitle">Главная</h1></div>
+      <div class="top-tools">
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Переключить тему">
+          <span class="theme-icon" id="themeIcon">☾</span>
+          <span class="theme-label" id="themeLabel">Тёмная</span>
+        </button>
+        <button class="avatar" id="avatarButton" type="button"></button>
+      </div>
+    </header>
+
+    <section class="page active" id="home">
+      <div class="welcome-line"><span id="welcomeText">Добро пожаловать в Habit.</span><span class="level-pill">LVL <b id="topLevel">1</b></span></div>
+
+      <div class="day-picker" id="dayPicker" aria-label="Выбор дня"></div>
+
+      <section class="streak-hero">
+        <div class="streak-visual">
+          <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div><div class="orbit orbit-c"></div>
+          <div class="streak-glow"></div>
+          <div class="streak-core">
+            <span>STREAK</span>
+            <strong id="bigStreak">0</strong>
+            <small data-i18n="days">дней</small>
+          </div>
+          <div class="flame-orbit">🔥</div>
+          <div class="star star-a">✦</div><div class="star star-b">✧</div><div class="star star-c">•</div>
+        </div>
+        <div class="streak-copy">
+          <div class="streak-badges"><div class="live-badge"><i></i><span data-i18n="active">Серия активна</span></div><div class="recovery-pill" title="Восстановления огонька"><span>🛟</span><b id="recoveryCount">2</b><span data-recovery-label>восст.</span></div></div>
+          <h2 id="streakTitle">Сегодня — ещё один шаг.</h2>
+          <p id="streakHint">Сделай хотя бы один фокус сегодня, чтобы сохранить огонь.</p>
+          <div class="streak-stats">
+            <div><b id="bestStreak">0</b><span data-i18n="record">рекорд</span></div>
+            <div><b id="totalDone">0</b><span data-i18n="completed">отметок</span></div>
+            <div><b id="completionRate">0%</b><span data-i18n="success">успешность</span></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-head">
+        <div><span class="eyebrow" id="dayEyebrow">СЕГОДНЯ</span><h2 data-i18n="focus">Твои фокусы</h2></div>
+        <button class="primary-btn" id="addHabitBtn" type="button"><span>＋</span><span data-i18n="add">Добавить фокус</span></button>
+      </div>
+      <div class="filters" id="filters">
+        <button class="filter active" data-filter="all" type="button" data-i18n="all">Все</button>
+        <button class="filter" data-filter="open" type="button" data-i18n="open">Нужно сделать</button>
+        <button class="filter" data-filter="done" type="button" data-i18n="done">Готово</button>
+      </div>
+      <div class="focus-list" id="habitList"></div>
+
+      <section class="activity-card">
+        <div class="activity-head">
+          <div><span class="eyebrow" data-i18n="activity">АКТИВНОСТЬ</span><h2 data-i18n="activityTitle">Вся история в одном ритме</h2></div>
+          <div class="activity-total"><b id="activityPercent">0%</b><span data-i18n="successPeriod">выполнено</span></div>
+        </div>
+        <div class="activity-modes" id="activityModes"></div>
+        <div class="heatmap-wrap">
+          <div class="weekday-labels" id="weekdayLabels"></div>
+          <div class="heatmap-scroll"><div class="month-labels" id="monthLabels"></div><div class="activity-grid" id="activityGrid"></div></div>
+        </div>
+
+      </section>
+    </section>
+
+    <section class="page" id="habits">
+      <div class="section-head">
+        <div><span class="eyebrow" data-i18n="allFocusesEyebrow">МОИ ФОКУСЫ</span><h2 data-i18n="habits">Привычки</h2></div>
+        <button class="primary-btn" id="addHabitFromHabitsBtn" type="button"><span>＋</span><span data-i18n="add">Добавить фокус</span></button>
+      </div>
+      <p class="habits-page-hint" data-i18n="habitsPageHint">Здесь собраны все фокусы — даже те, которые не запланированы на выбранный день. Нажми на ⋯, чтобы изменить фокус.</p>
+      <div class="manage-habits-list" id="allHabitsList"></div>
+    </section>
+
+    <section class="page" id="stats">
+      <div class="section-head"><div><span class="eyebrow" data-i18n="overview">ОБЗОР</span><h2 data-i18n="stats">Статистика</h2></div></div>
+      <div class="stats-switch"><button class="stats-tab active" data-range="30" type="button" data-i18n="days30">30 дней</button><button class="stats-tab" data-range="90" type="button" data-i18n="days90">90 дней</button><button class="stats-tab" data-range="365" type="button" data-i18n="year">Год</button></div>
+      <div class="stat-cards">
+        <article><span data-i18n="current">Текущая серия</span><strong id="statStreak">0</strong><small data-i18n="days">дней</small></article>
+        <article><span data-i18n="record">Лучший результат</span><strong id="statBest">0</strong><small data-i18n="days">дней</small></article>
+        <article><span data-i18n="completed">Всего отметок</span><strong id="statDone">0</strong><small>XP <span id="statXp">0</span></small></article>
+        <article><span data-i18n="success">Успешность</span><strong id="statRate">0%</strong><small data-i18n="period">за период</small></article>
+      </div>
+      <div class="chart-panel"><div class="panel-title"><div><span class="eyebrow" data-i18n="pace">РИТМ</span><h2 data-i18n="chart">Твой темп</h2></div><span class="chart-value" id="chartValue">0%</span></div><div class="bar-chart" id="barChart"></div></div>
+    </section>
+
+    <section class="page" id="achievements">
+      <div class="section-head"><div><span class="eyebrow" data-i18n="rewards">НАГРАДЫ</span><h2 data-i18n="achievements">Достижения</h2></div></div>
+      <div class="achievement-grid" id="achievementGrid"></div>
+    </section>
+
+    <section class="page" id="settings">
+      <div class="section-head"><div><span class="eyebrow" data-i18n="control">CONTROL</span><h2 data-i18n="settings">Настройки</h2></div></div>
+      <div class="settings-card">
+        <div class="setting-row"><div><strong data-i18n="profile">Профиль</strong><p data-i18n="profileHint">Имя появится в приветствии и на аватаре.</p></div><input class="name-input" id="nameInput" maxlength="24" placeholder="Твоё имя"></div>
+        <div class="setting-row"><div><strong data-i18n="appearance">Внешний вид</strong><p data-i18n="appearanceHint">Основной переключатель темы также находится сверху.</p></div><div class="segmented"><button data-theme="light" type="button">☀ <span data-i18n="light">Светлая</span></button><button data-theme="dark" type="button">☾ <span data-i18n="dark">Тёмная</span></button></div></div>
+        <div class="setting-row"><div><strong data-i18n="language">Язык</strong><p data-i18n="languageHint">Русский или English.</p></div><div class="segmented lang"><button data-lang="ru" type="button">RU</button><button data-lang="en" type="button">EN</button></div></div>
+        <div class="setting-row danger-row"><div><strong data-i18n="reset">Сбросить прогресс</strong><p data-i18n="resetHint">Удалит данные только на этом устройстве.</p></div><button id="resetBtn" class="danger-btn" type="button" data-i18n="resetBtn">Сбросить</button></div>
+      </div>
+      <section class="about-card" aria-labelledby="aboutTitle">
+        <div class="about-topline"><span class="about-mark">H</span><div><span class="eyebrow" data-i18n="aboutEyebrow">MADE FOR YOUR RHYTHM</span><h3 id="aboutTitle" data-i18n="aboutTitle">О программе</h3><p data-i18n="aboutDescription">Личное пространство для привычек, фокуса и ежедневного прогресса.</p></div><span class="about-version">v19</span></div>
+        <div class="about-details">
+          <div class="about-detail"><span class="about-detail-icon">✦</span><div><small data-i18n="creatorLabel">Создатель</small><strong>Abush</strong></div><span class="about-chip" data-i18n="creatorChip">Автор</span></div>
+          <div class="about-detail"><span class="about-detail-icon">◷</span><div><small data-i18n="createdLabel">Дата создания</small><strong data-i18n="createdDate">4 октября 2026</strong></div></div>
+          <div class="about-detail"><span class="about-detail-icon">↻</span><div><small data-i18n="updatedLabel">Последнее обновление</small><strong data-i18n="updatedDate">24 октября 2026</strong></div></div>
+        </div>
+        <div class="about-footer"><span class="about-status-dot"></span><span data-i18n="aboutFooter">Создано для маленьких шагов и больших целей</span></div>
+      </section>
+    </section>
+  </main>
+</div>
+
+<div class="modal" id="habitModal" aria-hidden="true"><div class="modal-card"><button class="modal-close" id="closeModal" type="button">×</button><span class="eyebrow" id="modalEyebrow">ФОКУС</span><h2 id="modalTitle">Добавить фокус</h2><label><span data-i18n="name">Название</span><input id="habitName" maxlength="42" placeholder="Например, читать 20 минут"></label><label><span data-i18n="icon">Значок</span><div class="icon-picker" id="iconPicker"></div></label><label><span data-i18n="color">Цвет</span><div class="color-picker" id="colorPicker"></div></label><label><span>Дни активности</span><div class="schedule-hint">Фокус будет активен только в выбранные дни</div><div class="schedule-picker" id="dayPickerModal"></div></label><div class="modal-actions"><button class="danger-btn modal-delete" id="deleteHabit" type="button" data-i18n="delete">Удалить</button><button class="primary-btn wide" id="saveHabit" type="button" data-i18n="save">Сохранить</button></div></div></div>
+<div class="info-pop" id="infoPop"><button id="infoClose" type="button">×</button><div class="info-symbol">H</div><div><strong>Habit</strong><p data-i18n="infoText">Твоё пространство для фокуса, дисциплины и маленьких побед каждый день.</p></div></div>
+<div class="toast" id="toast"></div><div class="confetti-layer" id="confetti"></div>
+<script src="Habit.js?v=24"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js?v=18', { updateViaCache: 'none' })
+      .then(() => console.log('Habit offline mode enabled'))
+      .catch(error => console.error('Service Worker error:', error));
+  });
+}
+</script>
+</body>
+</html>
