@@ -300,10 +300,26 @@ function updateSegmentSliders(){
     container.style.setProperty('--slider-width',`${active.offsetWidth}px`);
     container.style.setProperty('--slider-height',`${active.offsetHeight}px`);
   };
-  requestAnimationFrame(()=>{
+  const updateNav=()=>{
+    const nav=$('#mobileNav');
+    if(!nav) return;
+    const active=nav.querySelector('button.active');
+    if(!active){nav.classList.remove('has-nav-slider');return;}
+    nav.classList.add('has-nav-slider');
+    nav.style.setProperty('--nav-slider-left',`${active.offsetLeft}px`);
+    nav.style.setProperty('--nav-slider-width',`${active.offsetWidth}px`);
+    nav.style.setProperty('--nav-slider-top',`${active.offsetTop}px`);
+    nav.style.setProperty('--nav-slider-height',`${active.offsetHeight}px`);
+  };
+  const measure=()=>{
     $$('.segmented, .stats-switch').forEach(update);
-  });
+    updateNav();
+  };
+  requestAnimationFrame(()=>requestAnimationFrame(measure));
 }
+
+window.addEventListener('resize',updateSegmentSliders,{passive:true});
+window.addEventListener('load',updateSegmentSliders,{once:true});
 
 function applyTheme(){
 
@@ -2435,6 +2451,8 @@ b.dataset.mobilePage===page
 )
 );
 
+updateSegmentSliders();
+
 if($('#pageTitle')){
 
 $('#pageTitle').textContent=
@@ -3566,6 +3584,7 @@ nav.innerHTML=`
 <button data-mobile-page="achievements" type="button"><span>✦</span><b data-i18n="achievements">Достижения</b></button>
 <button data-mobile-page="settings" type="button"><span>⚙</span><b data-i18n="settings">Настройки</b></button>`;
 document.body.appendChild(nav);
+updateSegmentSliders();
 $('#menuBtn')?.setAttribute('aria-label',state.lang==='ru'?'Открыть меню':'Open menu');
 $('#menuBtn')?.setAttribute('aria-expanded','false');
 nav.addEventListener('click',e=>{

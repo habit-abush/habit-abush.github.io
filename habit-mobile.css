@@ -1262,3 +1262,15 @@ body.mobile-menu-open::before{content:"";position:fixed;inset:0;z-index:1490;bac
 @media(prefers-reduced-motion:reduce){
   .segmented.has-slider::before,.stats-switch.has-slider::before,.segmented button,.stats-switch .stats-tab{transition:none!important;}
 }
+
+/* Habit v29 — keep the shared slider visible on first paint and smoothly animate bottom navigation. */
+@media(max-width:760px){
+  .segmented.has-slider::before,.stats-switch.has-slider::before{opacity:1!important;visibility:visible!important;}
+  .mobile-nav.bottom-nav{isolation:isolate!important;}
+  .mobile-nav.bottom-nav button.active{box-shadow:none!important;}
+  .mobile-nav.bottom-nav button.active span{transform:translateY(-1px)!important;}
+}
+@media(max-width:760px){
+  .stats-switch{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;}
+  .segmented.has-slider::before,.stats-switch.has-slider::before{transition:left .36s cubic-bezier(.22,.75,.25,1),width .36s cubic-bezier(.22,.75,.25,1),height .22s ease,background-color .25s ease,border-color .25s ease!important;}
+}
