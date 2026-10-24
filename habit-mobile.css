@@ -1274,3 +1274,22 @@ body.mobile-menu-open::before{content:"";position:fixed;inset:0;z-index:1490;bac
   .stats-switch{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;}
   .segmented.has-slider::before,.stats-switch.has-slider::before{transition:left .36s cubic-bezier(.22,.75,.25,1),width .36s cubic-bezier(.22,.75,.25,1),height .22s ease,background-color .25s ease,border-color .25s ease!important;}
 }
+
+
+/* Habit v30 — mobile: calm selection tint, subtle page entrance, same sliding motion. */
+@media(max-width:760px){
+  .page.active{animation:mobilePageSoft .16s ease-out both!important;}
+  @keyframes mobilePageSoft{from{opacity:.96;transform:translateY(1px)}to{opacity:1;transform:translateY(0)}}
+  .segmented.has-slider::before,.stats-switch.has-slider::before{
+    background:color-mix(in srgb,var(--accent) 3%,var(--surface))!important;
+    border-color:color-mix(in srgb,var(--accent) 8%,var(--line))!important;
+    box-shadow:0 1px 4px rgba(0,0,0,.04)!important;
+  }
+  .segmented button.active,.stats-switch .stats-tab.active{color:color-mix(in srgb,var(--text) 92%,var(--accent))!important;}
+  .mobile-nav.bottom-nav.has-nav-slider::after{
+    background:color-mix(in srgb,var(--accent) 4%,transparent)!important;
+    border-color:color-mix(in srgb,var(--accent) 7%,var(--line))!important;
+    box-shadow:0 1px 4px rgba(0,0,0,.035)!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){.page.active{animation:none!important;}}

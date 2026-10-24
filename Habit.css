@@ -437,3 +437,15 @@ button:disabled{cursor:not-allowed}
 @media(prefers-reduced-motion:reduce){
   .segmented.has-slider::before,.stats-switch.has-slider::before,.segmented button,.stats-switch .stats-tab,.achievement,.achievement-icon,.mobile-nav.bottom-nav.has-nav-slider::after{transition:none!important;}
 }
+
+
+/* Habit v30 — softer selected states and understated page transitions. */
+.page{animation:pageInSoft .18s ease-out both;}
+@keyframes pageInSoft{from{opacity:.94;transform:translateY(2px)}to{opacity:1;transform:translateY(0)}}
+.segmented.has-slider::before,.stats-switch.has-slider::before{
+  background:color-mix(in srgb,var(--accent) 3%,var(--surface))!important;
+  border-color:color-mix(in srgb,var(--accent) 8%,var(--line))!important;
+  box-shadow:0 1px 4px rgba(0,0,0,.045)!important;
+}
+.segmented button.active,.stats-switch .stats-tab.active{color:color-mix(in srgb,var(--text) 92%,var(--accent))!important;}
+@media(prefers-reduced-motion:reduce){.page{animation:none!important;}}
