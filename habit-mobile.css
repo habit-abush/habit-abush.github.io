@@ -1235,3 +1235,30 @@ body.mobile-menu-open::before{content:"";position:fixed;inset:0;z-index:1490;bac
   .page.active,.focus-card.completed,.focus-card.completed .check{animation:none!important;}
   .mobile-nav.bottom-nav button,.mobile-nav.bottom-nav button span,.focus-card,.focus-card .check,.achievement,.primary-btn,.segmented button{transition:none!important;}
 }
+
+/* Habit v28 — smooth sliding selectors for theme, language and statistics ranges. */
+@media(max-width:760px){
+  .segmented,.stats-switch{position:relative!important;isolation:isolate!important;}
+  .segmented.has-slider::before,.stats-switch.has-slider::before{
+    content:""!important;display:block!important;position:absolute!important;z-index:0!important;
+    left:var(--slider-left,4px)!important;top:50%!important;
+    width:var(--slider-width,0px)!important;height:var(--slider-height,0px)!important;
+    transform:translateY(-50%)!important;border-radius:9px!important;
+    background:var(--surface)!important;
+    border:1px solid color-mix(in srgb,var(--accent) 12%,var(--line))!important;
+    box-shadow:0 2px 7px rgba(0,0,0,.07)!important;
+    pointer-events:none!important;
+    transition:left .28s cubic-bezier(.22,.75,.25,1),width .28s cubic-bezier(.22,.75,.25,1),height .2s ease,background-color .22s ease,border-color .22s ease!important;
+  }
+  .segmented button,.stats-switch .stats-tab{position:relative!important;z-index:1!important;transition:color .22s ease,opacity .22s ease,transform .18s ease!important;}
+  .segmented button.active,.stats-switch .stats-tab.active{background:transparent!important;box-shadow:none!important;color:var(--text)!important;}
+  .stats-switch{gap:2px!important;}
+  .stats-tab{padding-left:7px!important;padding-right:7px!important;}
+  .segmented button:active,.stats-switch .stats-tab:active{transform:scale(.97)!important;}
+  /* A little more room for the four date ranges without changing the layout rhythm. */
+  .stats-switch{width:100%!important;max-width:100%!important;box-sizing:border-box!important;}
+  .stats-switch .stats-tab{flex:1 1 0!important;min-width:0!important;white-space:nowrap!important;font-size:10px!important;}
+}
+@media(prefers-reduced-motion:reduce){
+  .segmented.has-slider::before,.stats-switch.has-slider::before,.segmented button,.stats-switch .stats-tab{transition:none!important;}
+}

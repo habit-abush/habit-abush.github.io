@@ -74,6 +74,7 @@ more:'больше',
 overview:'ОБЗОР',
 days30:'30 дней',
 days90:'90 дней',
+days180:'180 дней',
 year:'Год',
 current:'Текущая серия',
 period:'за период',
@@ -143,6 +144,7 @@ more:'more',
 overview:'OVERVIEW',
 days30:'30 days',
 days90:'90 days',
+days180:'180 days',
 year:'Year',
 current:'Current streak',
 period:'for period',
@@ -288,6 +290,21 @@ c=>({
 
 }
 
+function updateSegmentSliders(){
+  const update=container=>{
+    if(!container) return;
+    const active=container.querySelector('button.active');
+    if(!active){container.classList.remove('has-slider');return;}
+    container.classList.add('has-slider');
+    container.style.setProperty('--slider-left',`${active.offsetLeft}px`);
+    container.style.setProperty('--slider-width',`${active.offsetWidth}px`);
+    container.style.setProperty('--slider-height',`${active.offsetHeight}px`);
+  };
+  requestAnimationFrame(()=>{
+    $$('.segmented, .stats-switch').forEach(update);
+  });
+}
+
 function applyTheme(){
 
 document.documentElement.dataset.theme=
@@ -359,6 +376,7 @@ b.dataset.theme===state.theme
 )
 );
 
+updateSegmentSliders();
 }
 
 function applyLang(){
@@ -399,6 +417,7 @@ state.lang==='ru'
 
 }
 
+updateSegmentSliders();
 }
 
 function streak(h){
@@ -1857,6 +1876,7 @@ b.classList.toggle(
 )
 );
 
+updateSegmentSliders();
 }
 
 function rateForDay(d){
