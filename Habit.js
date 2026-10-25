@@ -105,7 +105,7 @@ infoText:'Твоё пространство для фокуса, дисципл�
 aboutEyebrow:'СОЗДАНО ДЛЯ ТВОЕГО РИТМА',
 aboutTitle:'О программе',
 aboutDescription:'Личное пространство для привычек, фокуса и ежедневного прогресса.',
-creatorLabel:'Создатель',
+creatorLabel:'Автор',
 creatorChip:'Автор',
 createdLabel:'Дата создания',
 createdDate:'4 октября 2026',
@@ -177,7 +177,7 @@ infoText:'Your space for focus, discipline and small wins every day.',
 aboutEyebrow:'MADE FOR YOUR RHYTHM',
 aboutTitle:'About',
 aboutDescription:'Your personal space for habits, focus, and daily progress.',
-creatorLabel:'Creator',
+creatorLabel:'Author',
 creatorChip:'Author',
 createdLabel:'Created on',
 createdDate:'October 4, 2026',
@@ -2400,6 +2400,8 @@ render();
 
 function showPage(page){
 
+document.body.classList.toggle('home-page', page === 'home');
+
 if(page==='settings' && $('#nameInput')) $('#nameInput').value=state.name || '';
 
 $$('.page').forEach(
@@ -3717,27 +3719,49 @@ $('#infoPop')?.classList.remove(
 }
 
 function setupAboutInteractions(){
-  const dialog = document.getElementById('aboutInfoDialog');
-  if(!dialog) return;
+  const popover = document.getElementById('aboutInfoDialog');
+  if(!popover) return;
   const title = document.getElementById('aboutDialogTitle');
   const text = document.getElementById('aboutDialogText');
-  const symbol = document.getElementById('aboutDialogSymbol');
-  const close = () => { dialog.hidden = true; document.body.classList.remove('about-dialog-open'); };
-  const open = (titleKey, textKey, icon) => {
+  let activeTrigger = null;
+  let activeKeys = null;
+  let dismissTimer = null;
+  const close = () => {
+    popover.hidden = true;
+    popover.classList.remove('is-visible');
+    activeTrigger = null;
+    activeKeys = null;
+    if(dismissTimer) clearTimeout(dismissTimer);
+  };
+  const open = (trigger, titleKey, textKey) => {
     const lang = (typeof state !== 'undefined' && state.lang === 'en') ? 'en' : 'ru';
     const dictionary = tr[lang] || tr.ru;
     title.textContent = dictionary[titleKey] || tr.ru[titleKey] || '';
     text.textContent = dictionary[textKey] || tr.ru[textKey] || '';
-    symbol.textContent = icon; dialog.hidden = false; document.body.classList.add('about-dialog-open');
+    activeTrigger = trigger;
+    activeKeys = [titleKey, textKey];
+    popover.hidden = false;
+    popover.classList.add('is-visible');
+    const anchor = trigger.getBoundingClientRect();
+    const width = Math.min(310, window.innerWidth - 28);
+    popover.style.width = width + 'px';
+    let left = Math.min(Math.max(14, anchor.left), window.innerWidth - width - 14);
+    let top = anchor.bottom + 10;
+    popover.style.left = left + 'px';
+    popover.style.top = '0px';
+    const height = popover.offsetHeight;
+    if(top + height > window.innerHeight - 12) top = Math.max(12, anchor.top - height - 10);
+    popover.style.top = top + 'px';
+    dismissTimer = setTimeout(close, 7000);
   };
-  document.getElementById('aboutVersionBtn')?.addEventListener('click', () => open('versionDialogTitle','versionDialogText','✦'));
-  document.getElementById('aboutUpdatedBtn')?.addEventListener('click', () => open('updatedDialogTitle','updatedDialogText','↻'));
-  document.getElementById('aboutCreatedBtn')?.addEventListener('click', () => open('createdDialogTitle','createdDialogText','◷'));
-  document.getElementById('aboutCreatorBtn')?.addEventListener('click', () => open('creatorDialogTitle','creatorDialogText','✧'));
-  document.getElementById('aboutDialogClose')?.addEventListener('click', close);
-  document.getElementById('aboutDialogOk')?.addEventListener('click', close);
-  dialog.addEventListener('click', e => { if(e.target === dialog) close(); });
-  document.addEventListener('keydown', e => { if(e.key === 'Escape' && !dialog.hidden) close(); });
+  document.getElementById('aboutVersionBtn')?.addEventListener('click', e => { e.stopPropagation(); open(e.currentTarget,'versionDialogTitle','versionDialogText'); });
+  document.getElementById('aboutUpdatedBtn')?.addEventListener('click', e => { e.stopPropagation(); open(e.currentTarget,'updatedDialogTitle','updatedDialogText'); });
+  document.getElementById('aboutCreatedBtn')?.addEventListener('click', e => { e.stopPropagation(); open(e.currentTarget,'createdDialogTitle','createdDialogText'); });
+  document.getElementById('aboutCreatorBtn')?.addEventListener('click', e => { e.stopPropagation(); open(e.currentTarget,'creatorDialogTitle','creatorDialogText'); });
+  document.addEventListener('click', e => { if(!popover.hidden && !popover.contains(e.target)) close(); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape' && !popover.hidden) close(); });
+  window.addEventListener('resize', () => { if(!popover.hidden && activeTrigger && activeKeys) open(activeTrigger, activeKeys[0], activeKeys[1]); });
+  window.addEventListener('scroll', () => { if(!popover.hidden) close(); }, true);
 }
 
 document.addEventListener(

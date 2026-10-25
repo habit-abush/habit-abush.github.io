@@ -1,4 +1,4 @@
-const CACHE_NAME = 'habit-v1-5-20261025-r3';
+const CACHE_NAME = 'habit-v1-5-about-popover-20261025-r3';
 
 const FILES_TO_CACHE = [
   './',

@@ -501,3 +501,15 @@ body.about-dialog-open{overflow:hidden}
 @keyframes aboutDialogIn{from{opacity:0;transform:translateY(9px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(max-width:520px){.about-dialog-card{padding:26px 22px 21px;border-radius:22px}.about-dialog-card h3{font-size:21px}}
 @media(prefers-reduced-motion:reduce){.about-dialog-card{animation:none!important}}
+
+/* About popover: compact, anchored, click-away dismissal */
+.about-logo{width:42px!important;height:42px!important;max-width:42px!important;max-height:42px!important;flex:0 0 42px;object-fit:contain;border-radius:12px}
+.about-popover{position:fixed;z-index:10050;display:flex;align-items:flex-start;gap:12px;max-width:calc(100vw - 28px);padding:15px 17px;border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));border-radius:17px;background:var(--surface);color:var(--text);box-shadow:0 14px 45px rgba(0,0,0,.24);opacity:0;transform:translateY(5px) scale(.985);transition:opacity .16s ease,transform .16s ease;pointer-events:none}
+.about-popover[hidden]{display:none!important}
+.about-popover.is-visible{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+.about-popover-symbol{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border-radius:11px;background:color-mix(in srgb,var(--accent) 13%,var(--surface2));color:var(--accent);font-size:19px;font-weight:800}
+.about-popover-copy{min-width:0}.about-popover-copy strong{display:block;margin:1px 0 5px;font-size:14px;font-weight:850;line-height:1.35}.about-popover-copy p{margin:0;color:var(--muted);font-size:12px;line-height:1.55}
+.about-detail .about-icon-button{flex:0 0 38px;width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:color-mix(in srgb,var(--accent) 8%,var(--surface2));color:var(--accent)}
+.about-detail .about-icon-button:hover{background:color-mix(in srgb,var(--accent) 15%,var(--surface2))}
+/* Keep the existing desktop page layout: hide only the repeated eyebrow on non-home sections. */
+@media(min-width:761px){body:not(.home-page) .top-heading .eyebrow{display:none}}
