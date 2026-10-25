@@ -72,12 +72,11 @@ successPeriod:'выполнено',
 less:'меньше',
 more:'больше',
 overview:'ОБЗОР',
+statsSubtitle:'Смотри на тенденцию, а не на один отдельный день.',
+totalCompleted:'Всего выполнено',allTime:'за всё время',activeDays:'Активные дни',selectedPeriod:'в выбранном периоде',byHabit:'ПО ПРИВЫЧКАМ',stableHabits:'Самые стабильные',consistencyMap:'КАРТА РИТМА',activityCalendar:'Календарь активности',activeDaysShort:'активных дней',noData:'Пока недостаточно данных',
 days30:'30 дней',
 days90:'90 дней',
 year:'Год',
-statsActivityTitle:'Календарь активности',
-statsActivityDays:'активных дней',
-todayDateLabel:'Сегодня',
 current:'Текущая серия',
 period:'за период',
 pace:'РИТМ',
@@ -112,7 +111,7 @@ creatorChip:'Автор',
 createdLabel:'Дата создания',
 createdDate:'4 октября 2026',
 updatedLabel:'Последнее обновление',
-updatedDate:'25 октября 2026',
+updatedDate:'24 октября 2026',
 aboutFooter:'Создано для маленьких шагов и больших целей'
 },
 
@@ -144,12 +143,11 @@ successPeriod:'completed',
 less:'less',
 more:'more',
 overview:'OVERVIEW',
+statsSubtitle:'Look at the trend, not just one day.',
+totalCompleted:'Total completions',allTime:'all time',activeDays:'Active days',selectedPeriod:'in selected period',byHabit:'BY HABIT',stableHabits:'Most consistent',consistencyMap:'CONSISTENCY MAP',activityCalendar:'Activity calendar',activeDaysShort:'active days',noData:'Not enough data yet',
 days30:'30 days',
 days90:'90 days',
 year:'Year',
-statsActivityTitle:'Activity calendar',
-statsActivityDays:'active days',
-todayDateLabel:'Today',
 current:'Current streak',
 period:'for period',
 pace:'RHYTHM',
@@ -184,7 +182,7 @@ creatorChip:'Author',
 createdLabel:'Created on',
 createdDate:'October 4, 2026',
 updatedLabel:'Last updated',
-updatedDate:'October 25, 2026',
+updatedDate:'October 24, 2026',
 aboutFooter:'Built for small steps and big goals'
 }
 };
@@ -1083,10 +1081,6 @@ renderActivity();
 
 renderStats();
 
-renderStatsActivity();
-
-renderTodayDate();
-
 renderAchievements();
 
 }
@@ -1798,122 +1792,45 @@ done/total*100
 }
 
 function renderStats(){
+  const range=Math.max(1,Number(statsRange)||30);
+  const dates=Array.from({length:range},(_,i)=>dateShift(i-(range-1)));
+  const dateKeys=dates.map(key);
+  let due=0,completed=0;
+  state.habits.forEach(h=>dateKeys.forEach(k=>{if(habitActiveOn(h,k)){due++;if(h.done?.[k])completed++;}}));
+  const pct=due?Math.min(100,Math.round(completed/due*100)):0;
+  const activeDays=dateKeys.filter(k=>state.habits.some(h=>!!h.done?.[k])).length;
+  const ids={statRate:pct+'%',statDone:overall().total,statActive:activeDays,statBest:overall().best,chartValue:pct+'%'};
+  Object.entries(ids).forEach(([id,value])=>{const el=$('#'+id);if(el)el.textContent=value;});
+  const rateBar=$('#statRateBar');if(rateBar)rateBar.style.width=pct+'%';
+  $$('.stats-tab').forEach(b=>b.classList.toggle('active',Number(b.dataset.range)===range));
 
-const data=
-Array.from(
-{
-length:
-statsRange===365
-?
-52
-:
-statsRange
-},
-(_,i)=>{
+  // Trend chart: group the selected period into readable, evenly sized buckets.
+  const bucketCount=range<=30?10:range<=90?13:range<=180?15:12;
+  const buckets=Array.from({length:bucketCount},(_,i)=>{
+    const a=Math.floor(i*range/bucketCount),b=Math.max(a+1,Math.floor((i+1)*range/bucketCount));
+    const keys=dateKeys.slice(a,b);let n=0,total=0;
+    state.habits.forEach(h=>keys.forEach(k=>{if(habitActiveOn(h,k)){total++;if(h.done?.[k])n++;}}));
+    const label=keys.length?new Date(keys[keys.length-1]+'T12:00:00').toLocaleDateString(state.lang==='ru'?'ru-RU':'en-US',{month:'short',day:range<=30?'numeric':undefined}):'';
+    return {value:total?Math.round(n/total*100):0,label};
+  });
+  const chart=$('#barChart');if(chart){chart.innerHTML=buckets.map((b,i)=>`<div class="stats-chart-col"><div class="stats-chart-bar-wrap"><i class="stats-chart-bar" style="height:${Math.max(3,b.value)}%" title="${b.value}%"></i></div>${(bucketCount<=13||i%2===0)?`<small>${esc(b.label)}</small>`:'<small></small>'}</div>`).join('');}
 
-const offset=
-statsRange===365
-?
-(51-i)*7
-:
-(statsRange-1-i);
+  const breakdown=$('#statsBreakdown');
+  if(breakdown){
+    const rows=state.habits.map(h=>{let dueCount=0,doneCount=0;dateKeys.forEach(k=>{if(habitActiveOn(h,k)){dueCount++;if(h.done?.[k])doneCount++;}});return {h,p:dueCount?Math.round(doneCount/dueCount*100):0,done:doneCount};}).sort((a,b)=>b.p-a.p||b.done-a.done).slice(0,6);
+    breakdown.innerHTML=rows.length?rows.map(({h,p,done})=>`<div class="stats-breakdown-item"><span class="stats-breakdown-icon" style="--habit-color:${esc(h.color||'#9275ff')}">${esc(h.icon||'✦')}</span><div class="stats-breakdown-main"><div class="stats-breakdown-name">${esc(h.name)}</div><div class="stats-breakdown-track"><i style="width:${p}%;--habit-color:${esc(h.color||'#9275ff')}"></i></div><small>${done} ${state.lang==='ru'?'выполнено':'completed'}</small></div><b>${p}%</b></div>`).join(''):`<p class="stats-empty">${t('noData')}</p>`;
+  }
 
-return rateForDay(
-dateShift(-offset)
-);
-
-}
-);
-
-const chart=
-$('#barChart');
-
-if(chart){
-
-chart.innerHTML=
-data.map(
-v=>
-`
-
-<i
-class="bar"
-style="height:${Math.max(4,v)}%"
-title="${v}%"
-></i>
-
-`
-).join('');
-
-}
-
-const avg=
-Math.round(
-data.reduce(
-(a,b)=>a+b,
-0
-)/
-(data.length||1)
-);
-
-if($('#chartValue'))
-$('#chartValue').textContent=
-avg+'%';
-
-$$('.stats-tab').forEach(
-b=>
-b.classList.toggle(
-'active',
-+b.dataset.range===statsRange
-)
-);
-
-}
-
-function renderTodayDate(){
-const el=$('#todayDate');
-if(!el) return;
-const now=new Date();
-el.textContent=now.toLocaleDateString(state.lang==='ru'?'ru-RU':'en-US',{weekday:'short',day:'numeric',month:'short'});
-el.setAttribute('title', (state.lang==='ru'?'Сегодня, ':'Today, ')+now.toLocaleDateString(state.lang==='ru'?'ru-RU':'en-US',{weekday:'long',day:'numeric',month:'long',year:'numeric'}));
-}
-
-function renderStatsActivity(){
-const grid=$('#statsActivityGrid');
-if(!grid) return;
-const monthLabels=$('#statsMonthLabels');
-const weekdayLabels=$('#statsWeekdayLabels');
-const ru=state.lang==='ru';
-const weekdayNames=ru?['Пн','Вт','Ср','Чт','Пт','Сб','Вс']:['M','T','W','T','F','S','S'];
-if(weekdayLabels) weekdayLabels.innerHTML=weekdayNames.map(x=>`<span>${x}</span>`).join('');
-const today=new Date(); today.setHours(12,0,0,0);
-const start=new Date(today); start.setDate(start.getDate()-(statsRange-1));
-const offset=(start.getDay()+6)%7;
-const cells=[];
-for(let i=0;i<offset;i++) cells.push(null);
-const months=[];
-for(let d=new Date(start);d<=today;d.setDate(d.getDate()+1)){
- const date=new Date(d); cells.push(date);
- const label=date.toLocaleDateString(ru?'ru-RU':'en-US',{month:'short'});
- if(date.getDate()===1 || date.getTime()===start.getTime()) months.push({index:cells.length-1,label});
-}
-while(cells.length%7) cells.push(null);
-const activeDays=new Set();
-state.habits.forEach(h=>Object.keys(h.done||{}).forEach(k=>{if(h.done[k])activeDays.add(k)}));
-if($('#statsActivityCount')) $('#statsActivityCount').textContent=[...activeDays].filter(k=>k>=key(start)&&k<=key(today)).length;
-if(monthLabels){
- const weeks=Math.ceil(cells.length/7); const labels=Array(weeks).fill('');
- months.forEach(m=>{const week=Math.floor(m.index/7); if(week<labels.length) labels[week]=m.label;});
- monthLabels.innerHTML=labels.map(x=>`<span>${esc(x)}</span>`).join('');
-}
-grid.innerHTML=cells.map(d=>{
- if(!d) return '<i class="stats-activity-cell blank" aria-hidden="true"></i>';
- const k=key(d); const n=state.habits.filter(h=>h.done?.[k]).length;
- const percent=state.habits.length?Math.round(n/state.habits.length*100):0;
- const level=percent===0?0:percent<25?1:percent<50?2:percent<80?3:4;
- const dateLabel=d.toLocaleDateString(ru?'ru-RU':'en-US',{day:'numeric',month:'short',year:'numeric'});
- const title=`${dateLabel}: ${n}/${state.habits.length} · ${percent}%`;
- return `<i class="stats-activity-cell l${level}${k===key(today)?' today':''}" title="${esc(title)}" aria-label="${esc(title)}"></i>`;
-}).join('');
+  // Activity heatmap. Blank cells align the first date to its weekday.
+  const grid=$('#statsActivityGrid'),months=$('#statsMonthLabels');
+  if(grid&&months){
+    const first=new Date(dateKeys[0]+'T12:00:00');const blanks=first.getDay();
+    const cells=Array(blanks).fill(null).concat(dateKeys.map(k=>({k,n:state.habits.reduce((sum,h)=>sum+(h.done?.[k]?1:0),0)})));
+    const max=Math.max(1,...cells.filter(Boolean).map(c=>c.n));
+    grid.innerHTML=cells.map(c=>{if(!c)return '<span class="stats-heat-cell blank" aria-hidden="true"></span>';const level=c.n===0?0:Math.min(4,Math.ceil(c.n/max*4));const d=new Date(c.k+'T12:00:00').toLocaleDateString(state.lang==='ru'?'ru-RU':'en-US',{day:'numeric',month:'short',year:'numeric'});return `<span class="stats-heat-cell level-${level}" title="${esc(d)} · ${c.n} ${state.lang==='ru'?'отметок':'checks'}" aria-label="${esc(d)}: ${c.n}"></span>`;}).join('');
+    let lastMonth='';months.innerHTML=cells.map((c,i)=>{if(!c)return '<span></span>';const d=new Date(c.k+'T12:00:00');const m=d.getFullYear()+'-'+d.getMonth();if(m===lastMonth)return '<span></span>';lastMonth=m;return `<span style="grid-column:${Math.floor(i/7)+1}">${esc(d.toLocaleDateString(state.lang==='ru'?'ru-RU':'en-US',{month:'short'}))}</span>`;}).join('');
+  }
+  const count=$('#statsActivityCount');if(count)count.innerHTML=`${activeDays} <small>${esc(t('activeDaysShort'))}</small>`;
 }
 
 function rateForDay(d){
@@ -1946,19 +1863,116 @@ const lvl=
 level();
 
 const a=[
-['✦',state.lang==='ru'?'Первый шаг':'First step',state.lang==='ru'?'Первая отметка — начало системы.':'Your first completion starts the system.',o.total>=1],
-['🔥',state.lang==='ru'?'Пульс недели':'Weekly Pulse',state.lang==='ru'?'7 дней подряд.':'7 days in a row.',o.best>=7],
-['🌱',state.lang==='ru'?'Привычка растёт':'Growing habit',state.lang==='ru'?'Создай 3 привычки.':'Create 3 habits.',state.habits.length>=3],
-['💎',state.lang==='ru'?'Тридцать дней':'Thirty Days',state.lang==='ru'?'30 дней дисциплины.':'30 days of discipline.',o.best>=30],
-['💯',state.lang==='ru'?'Сотня':'Quiet Hundred',state.lang==='ru'?'100 выполнений.':'100 completions.',o.total>=100],
-['🏆',state.lang==='ru'?'Десятый уровень':'Level Ten',state.lang==='ru'?'Достигни 10 уровня.':'Reach level 10.',lvl>=10],
-['🎵',state.lang==='ru'?'Стабильный ритм':'Steady Rhythm',state.lang==='ru'?'60 дней устойчивого ритма.':'60 days of steady rhythm.',o.best>=60],
-['⚡',state.lang==='ru'?'Десять побед':'Ten wins',state.lang==='ru'?'Выполни 10 фокусов.':'Complete 10 focuses.',o.total>=10],
-['🌟',state.lang==='ru'?'Пятьсот отметок':'Five Hundred',state.lang==='ru'?'Отметь привычки 500 раз.':'Complete habits 500 times.',o.total>=500],
-['🗓️',state.lang==='ru'?'Две недели':'Two Weeks',state.lang==='ru'?'14 дней подряд.':'14 days in a row.',o.best>=14]
+
+[
+'✦',
+
+state.lang==='ru'
+?
+'Первый шаг'
+:
+'First step',
+
+state.lang==='ru'
+?
+'Первая отметка — начало системы.'
+:
+'Your first completion starts the system.',
+
+o.total>=1
+],
+
+[
+'🔥',
+
+state.lang==='ru'
+?
+'Пульс недели'
+:
+'Weekly Pulse',
+
+state.lang==='ru'
+?
+'7 дней подряд.'
+:
+'7 days in a row.',
+
+o.best>=7
+],
+
+[
+'💎',
+
+state.lang==='ru'
+?
+'Тридцать дней'
+:
+'Thirty Days',
+
+state.lang==='ru'
+?
+'30 дней дисциплины.'
+:
+'30 days of discipline.',
+
+o.best>=30
+],
+
+[
+'💯',
+
+state.lang==='ru'
+?
+'Сотня'
+:
+'Quiet Hundred',
+
+state.lang==='ru'
+?
+'100 выполнений.'
+:
+'100 completions.',
+
+o.total>=100
+],
+
+[
+'🏆',
+
+state.lang==='ru'
+?
+'Десятый уровень'
+:
+'Level Ten',
+
+state.lang==='ru'
+?
+'Достигни 10 уровня.'
+:
+'Reach level 10.',
+
+lvl>=10
+],
+
+[
+'🎵',
+
+state.lang==='ru'
+?
+'Стабильный ритм'
+:
+'Steady Rhythm',
+
+state.lang==='ru'
+?
+'60 дней устойчивого ритма.'
+:
+'60 days of steady rhythm.',
+
+o.best>=60
+]
+
 ];
-const allOthersUnlocked=a.every(x=>x[3]);
-a.push(['👑',state.lang==='ru'?'Коллекционер':'Completionist',state.lang==='ru'?'Открой все остальные достижения.':'Unlock every other achievement.',allOthersUnlocked]);
 
 if($('#achievementGrid')){
 
@@ -3180,19 +3194,6 @@ b.dataset.range
 );
 
 renderStats();
-
-if($('#statRate')){
-
-$('#statRate').textContent=
-rate(
-statsRange===365
-?
-365
-:
-statsRange
-)+'%';
-
-}
 
 }
 )

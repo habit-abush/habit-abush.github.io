@@ -1073,15 +1073,14 @@ body.mobile-menu-open::before{content:"";position:fixed;inset:0;z-index:1490;bac
   }
 }
 
-
-/* Habit v25 mobile support for date and stats calendar */
+/* Habit v1.5 mobile refinements — keep the existing mobile navigation unchanged. */
 @media(max-width:760px){
- .today-date{min-width:0;font-size:10px;white-space:nowrap;text-align:right}
- .stats-activity-card{padding:16px;border-radius:20px}
- .stats-activity-card .activity-head{gap:8px}
- .stats-activity-card .activity-head h2{font-size:17px}
- .stats-heatmap-scroll{max-width:100%}
- .stats-month-labels{margin-left:25px}
- .stats-activity-legend{font-size:9px}
+  .stats-intro{margin-top:3px;margin-bottom:14px}.stats-intro h2{font-size:23px}.stats-intro p{max-width:42ch;font-size:11px}
+  .stats-switch{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%;gap:4px;padding:4px;border-radius:13px}.stats-switch .stats-tab{justify-content:center;padding:9px 3px;font-size:11px;gap:3px}.stats-switch .stats-tab small{font-size:9px}
+  .stats-summary{gap:8px}.stats-summary article{padding:13px 12px;border-radius:17px}.stats-summary article>strong{font-size:25px}.stats-summary article>span{font-size:10px}.stats-summary article>small{font-size:9px}
+  .stats-columns{grid-template-columns:minmax(0,1fr);gap:11px}.stats-panel{padding:17px;border-radius:19px}.stats-panel-head h3{font-size:16px}.stats-chart{height:175px;gap:3px;margin-top:17px}.stats-chart-bar-wrap{height:140px}.stats-chart-col small{font-size:8px}
+  .stats-breakdown{gap:13px;margin-top:16px}.stats-calendar-panel{padding:16px 13px}.stats-calendar-scroll{margin-right:-4px}.stats-month-labels,.stats-calendar-grid{grid-auto-columns:12px;column-gap:3px}.stats-calendar-grid{grid-template-rows:repeat(7,12px);row-gap:3px}.stats-heat-cell{width:12px;height:12px;border-radius:3px}.stats-calendar-count{font-size:17px}.stats-calendar-count small{font-size:9px}
+  .setting-row{gap:13px;padding:17px}.about-topline{flex-direction:row;gap:12px}.about-mark.logo-mark{width:43px;height:43px;padding:9px}.about-version{font-size:10px}
 }
-@media(max-width:390px){.today-date{max-width:70px;overflow:hidden;text-overflow:ellipsis}.top-tools{gap:5px}}
+@media(max-width:380px){.stats-summary article{padding:11px 9px}.stats-summary article>strong{font-size:23px}.stats-panel{padding:14px}.stats-switch .stats-tab{font-size:10px}.stats-calendar-count small{max-width:78px;white-space:normal;text-align:right}}
+@media(max-width:900px){.settings-layout{grid-template-columns:minmax(0,1fr);gap:13px}.settings-side .about-card{padding:18px}}
