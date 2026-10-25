@@ -481,3 +481,10 @@ button:disabled{cursor:not-allowed}
 /* v1.5.1: desktop sidebar tagline replaces the old Habit wordmark */
 .brand{min-height:43px;padding-bottom:30px;font-size:17px;letter-spacing:-.35px;color:var(--text)}
 .brand .brand-logo{display:none}
+
+/* Brand image: use the single canonical asset Habit.png */
+.brand-mark{display:none!important}
+.brand-logo{display:block;width:39px;height:39px;flex:0 0 39px;object-fit:cover;border-radius:13px;box-shadow:0 10px 30px rgba(118,82,240,.22)}
+.about-heading{display:flex;align-items:flex-start;gap:13px;min-width:0}
+.about-logo{display:block;width:44px;height:44px;flex:0 0 44px;object-fit:cover;border-radius:13px}
+.about-heading>div{min-width:0}

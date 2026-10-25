@@ -10,13 +10,13 @@
 <meta name="apple-mobile-web-app-title" content="Habit">
 <title>Habit</title>
 <link rel="stylesheet" href="Habit.css">
-<link rel="stylesheet" href="habit-mobile.css?v=33">
+<link rel="stylesheet" href="habit-mobile.css?v=34">
 <link rel="icon" type="image/png" href="Habit.png">
 </head>
 <body>
 <div class="app" id="app">
   <aside class="sidebar" id="sidebar">
-    <div class="brand" aria-label="Habit"><span class="brand-mark">H</span><span>Habit</span></div>
+    <div class="brand" aria-label="Habit"><img class="brand-logo" src="Habit.png" alt=""><span>Habit</span></div>
     <nav class="nav">
       <button class="nav-link active" data-page="home" type="button"><span>⌂</span><b data-i18n="home">Главная</b></button>
       <button class="nav-link" data-page="habits" type="button"><span>☷</span><b data-i18n="habits">Привычки</b></button>
@@ -34,7 +34,7 @@
   <main class="main">
     <header class="topbar">
       <button class="mobile-menu" id="menuBtn" type="button" aria-label="Открыть меню" aria-expanded="false"><span class="menu-bars" aria-hidden="true"><i></i><i></i><i></i></span></button>
-      <div class="mobile-brand" id="mobileBrand" aria-label="Habit"><span>Habit</span></div>
+      <div class="mobile-brand" id="mobileBrand" aria-label="Habit" aria-hidden="true"><span>Habit</span></div>
       <div class="top-heading"><span class="eyebrow">YOUR RHYTHM</span><h1 id="pageTitle">Главная</h1></div>
       <div class="top-tools">
         <button class="theme-toggle" id="themeToggle" type="button" aria-label="Переключить тему">
@@ -136,7 +136,7 @@
       </div>
 
       <section class="about-card" aria-labelledby="aboutTitle">
-        <div class="about-topline"><div><span class="eyebrow" data-i18n="aboutEyebrow">MADE FOR YOUR RHYTHM</span><h3 id="aboutTitle" data-i18n="aboutTitle">О программе</h3><p data-i18n="aboutDescription">Личное пространство для привычек, фокуса и ежедневного прогресса.</p></div><span class="about-version">v1.5</span></div>
+        <div class="about-topline"><div class="about-heading"><img class="about-logo" src="Habit.png" alt=""><div><span class="eyebrow" data-i18n="aboutEyebrow">MADE FOR YOUR RHYTHM</span><h3 id="aboutTitle" data-i18n="aboutTitle">О программе</h3><p data-i18n="aboutDescription">Личное пространство для привычек, фокуса и ежедневного прогресса.</p></div></div><span class="about-version">v1.5</span></div>
         <div class="about-details">
           <div class="about-detail"><span class="about-detail-icon">✦</span><div><small data-i18n="creatorLabel">Создатель</small><strong>Abush</strong></div><span class="about-chip" data-i18n="creatorChip">Автор</span></div>
           <div class="about-detail"><span class="about-detail-icon">◷</span><div><small data-i18n="createdLabel">Дата создания</small><strong data-i18n="createdDate">4 октября 2026</strong></div></div>
