@@ -7,7 +7,7 @@
   "theme_color": "#ffffff",
   "icons": [
     {
-      "src": "Habit-v15.png?v=1",
+      "src": "Habit.png",
       "sizes": "512x512",
       "type": "image/png"
     }
