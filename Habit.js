@@ -72,10 +72,9 @@ successPeriod:'выполнено',
 less:'меньше',
 more:'больше',
 overview:'ОБЗОР',
-statsSubtitle:'Смотри на тенденцию, а не на один отдельный день.',
-totalCompleted:'Всего выполнено',allTime:'за всё время',activeDays:'Активные дни',selectedPeriod:'в выбранном периоде',byHabit:'ПО ПРИВЫЧКАМ',stableHabits:'Самые стабильные',consistencyMap:'КАРТА РИТМА',activityCalendar:'Календарь активности',activeDaysShort:'активных дней',noData:'Пока недостаточно данных',
 days30:'30 дней',
 days90:'90 дней',
+days180:'180 дней',
 year:'Год',
 current:'Текущая серия',
 period:'за период',
@@ -111,8 +110,9 @@ creatorChip:'Автор',
 createdLabel:'Дата создания',
 createdDate:'4 октября 2026',
 updatedLabel:'Последнее обновление',
-updatedDate:'24 октября 2026',
-aboutFooter:'Создано для маленьких шагов и больших целей'
+updatedDate:'25 октября 2026',
+aboutFooter:'Создано для маленьких шагов и больших целей',
+dataPrivacy:'Данные и приватность',dataSub:'Твои данные остаются в этом браузере.',exportData:'Экспортировать данные',importData:'Импортировать копию',dataHelp:'Регулярно сохраняй резервную копию, чтобы не потерять прогресс.',stableHabits:'Самые стабильные',activityCalendar:'Календарь активности',less:'меньше',more:'больше'
 },
 
 en:{
@@ -143,10 +143,9 @@ successPeriod:'completed',
 less:'less',
 more:'more',
 overview:'OVERVIEW',
-statsSubtitle:'Look at the trend, not just one day.',
-totalCompleted:'Total completions',allTime:'all time',activeDays:'Active days',selectedPeriod:'in selected period',byHabit:'BY HABIT',stableHabits:'Most consistent',consistencyMap:'CONSISTENCY MAP',activityCalendar:'Activity calendar',activeDaysShort:'active days',noData:'Not enough data yet',
 days30:'30 days',
 days90:'90 days',
+days180:'180 days',
 year:'Year',
 current:'Current streak',
 period:'for period',
@@ -182,8 +181,9 @@ creatorChip:'Author',
 createdLabel:'Created on',
 createdDate:'October 4, 2026',
 updatedLabel:'Last updated',
-updatedDate:'October 24, 2026',
-aboutFooter:'Built for small steps and big goals'
+updatedDate:'October 25, 2026',
+aboutFooter:'Built for small steps and big goals',
+dataPrivacy:'Data & privacy',dataSub:'Your data stays in this browser.',exportData:'Export data',importData:'Import backup',dataHelp:'Export a backup regularly to keep your progress safe.',stableHabits:'Most consistent',activityCalendar:'Activity calendar',less:'less',more:'more'
 }
 };
 
@@ -292,6 +292,37 @@ c=>({
 
 }
 
+function updateSegmentSliders(){
+  const update=container=>{
+    if(!container) return;
+    const active=container.querySelector('button.active');
+    if(!active){container.classList.remove('has-slider');return;}
+    container.classList.add('has-slider');
+    container.style.setProperty('--slider-left',`${active.offsetLeft}px`);
+    container.style.setProperty('--slider-width',`${active.offsetWidth}px`);
+    container.style.setProperty('--slider-height',`${active.offsetHeight}px`);
+  };
+  const updateNav=()=>{
+    const nav=$('#mobileNav');
+    if(!nav) return;
+    const active=nav.querySelector('button.active');
+    if(!active){nav.classList.remove('has-nav-slider');return;}
+    nav.classList.add('has-nav-slider');
+    nav.style.setProperty('--nav-slider-left',`${active.offsetLeft}px`);
+    nav.style.setProperty('--nav-slider-width',`${active.offsetWidth}px`);
+    nav.style.setProperty('--nav-slider-top',`${active.offsetTop}px`);
+    nav.style.setProperty('--nav-slider-height',`${active.offsetHeight}px`);
+  };
+  const measure=()=>{
+    $$('.segmented, .stats-switch').forEach(update);
+    updateNav();
+  };
+  requestAnimationFrame(()=>requestAnimationFrame(measure));
+}
+
+window.addEventListener('resize',updateSegmentSliders,{passive:true});
+window.addEventListener('load',updateSegmentSliders,{once:true});
+
 function applyTheme(){
 
 document.documentElement.dataset.theme=
@@ -363,6 +394,7 @@ b.dataset.theme===state.theme
 )
 );
 
+updateSegmentSliders();
 }
 
 function applyLang(){
@@ -403,6 +435,7 @@ state.lang==='ru'
 
 }
 
+updateSegmentSliders();
 }
 
 function streak(h){
@@ -1792,45 +1825,23 @@ done/total*100
 }
 
 function renderStats(){
-  const range=Math.max(1,Number(statsRange)||30);
-  const dates=Array.from({length:range},(_,i)=>dateShift(i-(range-1)));
-  const dateKeys=dates.map(key);
-  let due=0,completed=0;
-  state.habits.forEach(h=>dateKeys.forEach(k=>{if(habitActiveOn(h,k)){due++;if(h.done?.[k])completed++;}}));
-  const pct=due?Math.min(100,Math.round(completed/due*100)):0;
-  const activeDays=dateKeys.filter(k=>state.habits.some(h=>!!h.done?.[k])).length;
-  const ids={statRate:pct+'%',statDone:overall().total,statActive:activeDays,statBest:overall().best,chartValue:pct+'%'};
-  Object.entries(ids).forEach(([id,value])=>{const el=$('#'+id);if(el)el.textContent=value;});
-  const rateBar=$('#statRateBar');if(rateBar)rateBar.style.width=pct+'%';
-  $$('.stats-tab').forEach(b=>b.classList.toggle('active',Number(b.dataset.range)===range));
-
-  // Trend chart: group the selected period into readable, evenly sized buckets.
-  const bucketCount=range<=30?10:range<=90?13:range<=180?15:12;
-  const buckets=Array.from({length:bucketCount},(_,i)=>{
-    const a=Math.floor(i*range/bucketCount),b=Math.max(a+1,Math.floor((i+1)*range/bucketCount));
-    const keys=dateKeys.slice(a,b);let n=0,total=0;
-    state.habits.forEach(h=>keys.forEach(k=>{if(habitActiveOn(h,k)){total++;if(h.done?.[k])n++;}}));
-    const label=keys.length?new Date(keys[keys.length-1]+'T12:00:00').toLocaleDateString(state.lang==='ru'?'ru-RU':'en-US',{month:'short',day:range<=30?'numeric':undefined}):'';
-    return {value:total?Math.round(n/total*100):0,label};
-  });
-  const chart=$('#barChart');if(chart){chart.innerHTML=buckets.map((b,i)=>`<div class="stats-chart-col"><div class="stats-chart-bar-wrap"><i class="stats-chart-bar" style="height:${Math.max(3,b.value)}%" title="${b.value}%"></i></div>${(bucketCount<=13||i%2===0)?`<small>${esc(b.label)}</small>`:'<small></small>'}</div>`).join('');}
-
-  const breakdown=$('#statsBreakdown');
-  if(breakdown){
-    const rows=state.habits.map(h=>{let dueCount=0,doneCount=0;dateKeys.forEach(k=>{if(habitActiveOn(h,k)){dueCount++;if(h.done?.[k])doneCount++;}});return {h,p:dueCount?Math.round(doneCount/dueCount*100):0,done:doneCount};}).sort((a,b)=>b.p-a.p||b.done-a.done).slice(0,6);
-    breakdown.innerHTML=rows.length?rows.map(({h,p,done})=>`<div class="stats-breakdown-item"><span class="stats-breakdown-icon" style="--habit-color:${esc(h.color||'#9275ff')}">${esc(h.icon||'✦')}</span><div class="stats-breakdown-main"><div class="stats-breakdown-name">${esc(h.name)}</div><div class="stats-breakdown-track"><i style="width:${p}%;--habit-color:${esc(h.color||'#9275ff')}"></i></div><small>${done} ${state.lang==='ru'?'выполнено':'completed'}</small></div><b>${p}%</b></div>`).join(''):`<p class="stats-empty">${t('noData')}</p>`;
+  const data=Array.from({length:statsRange===365?52:statsRange},(_,i)=>rateForDay(dateShift(-(statsRange===365?(51-i)*7:(statsRange-1-i)))));
+  const chart=$('#barChart');
+  if(chart) chart.innerHTML=data.map(v=>`<i class="bar" style="height:${Math.max(4,v)}%" title="${v}%"></i>`).join('');
+  const avg=Math.round(data.reduce((a,b)=>a+b,0)/(data.length||1));
+  if($('#chartValue')) $('#chartValue').textContent=avg+'%';
+  $$('.stats-tab').forEach(b=>b.classList.toggle('active',+b.dataset.range===statsRange));
+  if($('#stableHabitsList')){
+    const stable=state.habits.map(h=>{let done=0,scheduled=0;for(let i=0;i<statsRange;i++){const d=dateShift(-i),k=key(d);if(habitActiveOn(h,k)){scheduled++;if(h.done?.[k])done++;}}return {h,rate:scheduled?Math.round(done/scheduled*100):0,done};}).sort((a,b)=>b.rate-a.rate||b.done-a.done).slice(0,5);
+    $('#stableHabitsList').innerHTML=stable.length?stable.map(x=>`<div class="stable-habit"><span class="stable-icon" style="--focus-color:${esc(x.h.color||'#9275ff')}">${esc(x.h.icon||'✦')}</span><div class="stable-info"><strong>${esc(x.h.name)}</strong><div class="stable-track"><i style="width:${x.rate}%;--focus-color:${esc(x.h.color||'#9275ff')}"></i></div></div><b>${x.rate}%</b></div>`).join(''):`<p class="stable-empty">${state.lang==='ru'?'Добавь фокус, чтобы увидеть статистику.':'Add a focus to see your statistics.'}</p>`;
   }
-
-  // Activity heatmap. Blank cells align the first date to its weekday.
-  const grid=$('#statsActivityGrid'),months=$('#statsMonthLabels');
-  if(grid&&months){
-    const first=new Date(dateKeys[0]+'T12:00:00');const blanks=first.getDay();
-    const cells=Array(blanks).fill(null).concat(dateKeys.map(k=>({k,n:state.habits.reduce((sum,h)=>sum+(h.done?.[k]?1:0),0)})));
-    const max=Math.max(1,...cells.filter(Boolean).map(c=>c.n));
-    grid.innerHTML=cells.map(c=>{if(!c)return '<span class="stats-heat-cell blank" aria-hidden="true"></span>';const level=c.n===0?0:Math.min(4,Math.ceil(c.n/max*4));const d=new Date(c.k+'T12:00:00').toLocaleDateString(state.lang==='ru'?'ru-RU':'en-US',{day:'numeric',month:'short',year:'numeric'});return `<span class="stats-heat-cell level-${level}" title="${esc(d)} · ${c.n} ${state.lang==='ru'?'отметок':'checks'}" aria-label="${esc(d)}: ${c.n}"></span>`;}).join('');
-    let lastMonth='';months.innerHTML=cells.map((c,i)=>{if(!c)return '<span></span>';const d=new Date(c.k+'T12:00:00');const m=d.getFullYear()+'-'+d.getMonth();if(m===lastMonth)return '<span></span>';lastMonth=m;return `<span style="grid-column:${Math.floor(i/7)+1}">${esc(d.toLocaleDateString(state.lang==='ru'?'ru-RU':'en-US',{month:'short'}))}</span>`;}).join('');
+  if($('#statsCalendar')){
+    const days=statsRange===365?365:statsRange; const cells=[];
+    for(let i=days-1;i>=0;i--){const d=dateShift(-i),k=key(d);const scheduled=state.habits.filter(h=>habitActiveOn(h,k));const completed=scheduled.filter(h=>h.done?.[k]).length;const pct=scheduled.length?completed/scheduled.length:0;const level=completed===0?0:pct<.34?1:pct<.67?2:pct<1?3:4;cells.push(`<span class="stats-day level-${level}" title="${k}: ${completed}/${scheduled.length}" aria-label="${k}"></span>`);}
+    $('#statsCalendar').innerHTML=cells.join('');
+    if($('#calendarLabel')) $('#calendarLabel').textContent=statsRange===365?(state.lang==='ru'?'365 дней':'365 days'):`${statsRange} ${state.lang==='ru'?'дней':'days'}`;
   }
-  const count=$('#statsActivityCount');if(count)count.innerHTML=`${activeDays} <small>${esc(t('activeDaysShort'))}</small>`;
+  updateSegmentSliders();
 }
 
 function rateForDay(d){
@@ -1923,15 +1934,15 @@ o.best>=30
 
 state.lang==='ru'
 ?
-'Сотня'
+'Сто фокусов'
 :
-'Quiet Hundred',
+'One Hundred Focuses',
 
 state.lang==='ru'
 ?
-'100 выполнений.'
+'Выполни фокусы 100 раз.'
 :
-'100 completions.',
+'Complete focuses 100 times.',
 
 o.total>=100
 ],
@@ -1973,6 +1984,8 @@ o.best>=60
 ]
 
 ];
+const allRegularUnlocked=a.every(x=>x[3]);
+a.push(['👑',state.lang==='ru'?'Коллекционер':'Collector',state.lang==='ru'?'Открой все остальные достижения.':'Unlock every other achievement.',allRegularUnlocked]);
 
 if($('#achievementGrid')){
 
@@ -2184,19 +2197,7 @@ return;
 const name=
 input.value.trim();
 
-if(!name){
-
-toast(
-state.lang==='ru'
-?
-'Напиши название фокуса'
-:
-'Enter a focus name'
-);
-
-return;
-
-}
+const finalName=name || (state.lang==='ru' ? 'Новый фокус' : 'New focus');
 
 if(editingId){
 
@@ -2207,7 +2208,7 @@ x=>x.id===editingId
 
 if(h){
 
-h.name=name;
+h.name=finalName;
 h.icon=selectedIcon;
 h.color=selectedColor;
 h.days=[...selectedDays].sort((a,b)=>a-b);
@@ -2220,7 +2221,7 @@ state.habits.push({
 
 id:Date.now(),
 
-name,
+name:finalName,
 
 icon:selectedIcon,
 
@@ -2400,6 +2401,8 @@ b.classList.toggle(
 b.dataset.mobilePage===page
 )
 );
+
+updateSegmentSliders();
 
 if($('#pageTitle')){
 
@@ -3124,6 +3127,9 @@ $('#infoPop')?.classList.remove(
 )
 );
 
+on('#exportData','click',()=>{try{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`habit-backup-${key(new Date())}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast(state.lang==='ru'?'Резервная копия сохранена':'Backup exported');}catch(e){toast(state.lang==='ru'?'Не удалось экспортировать данные':'Could not export data');}});
+on('#importData','change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const parsed=JSON.parse(await file.text());const candidate=parsed?.habits&&Array.isArray(parsed.habits)?parsed:parsed?.state?.habits&&Array.isArray(parsed.state.habits)?parsed.state:null;if(!candidate)throw new Error('invalid backup');const ok=confirm(state.lang==='ru'?'Импорт заменит текущие данные. Продолжить?':'Import will replace current data. Continue?');if(!ok){e.target.value='';return;}state={...structuredClone(defaultState),...candidate,habits:candidate.habits};save();render();toast(state.lang==='ru'?'Данные импортированы':'Data imported');}catch(err){toast(state.lang==='ru'?'Файл резервной копии не распознан':'Backup file is not valid');}finally{e.target.value='';}});
+
 on(
 '#resetBtn',
 'click',
@@ -3194,6 +3200,19 @@ b.dataset.range
 );
 
 renderStats();
+
+if($('#statRate')){
+
+$('#statRate').textContent=
+rate(
+statsRange===365
+?
+365
+:
+statsRange
+)+'%';
+
+}
 
 }
 )
@@ -3510,7 +3529,7 @@ if(colorPicker){
 if(!$('#mobileNav')){
 const nav=document.createElement('nav');
 nav.id='mobileNav';
-nav.className='mobile-nav';
+nav.className='mobile-nav bottom-nav';
 nav.innerHTML=`
 <div class="mobile-nav-heading"><strong>${state.lang==='ru'?'Навигация':'Navigation'}</strong><span>${state.lang==='ru'?'Твой Habit':'Your Habit space'}</span></div>
 <button data-mobile-page="home" type="button"><span>⌂</span><b data-i18n="home">Главная</b></button>
@@ -3519,6 +3538,7 @@ nav.innerHTML=`
 <button data-mobile-page="achievements" type="button"><span>✦</span><b data-i18n="achievements">Достижения</b></button>
 <button data-mobile-page="settings" type="button"><span>⚙</span><b data-i18n="settings">Настройки</b></button>`;
 document.body.appendChild(nav);
+updateSegmentSliders();
 $('#menuBtn')?.setAttribute('aria-label',state.lang==='ru'?'Открыть меню':'Open menu');
 $('#menuBtn')?.setAttribute('aria-expanded','false');
 nav.addEventListener('click',e=>{
