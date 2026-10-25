@@ -3725,13 +3725,11 @@ function setupAboutInteractions(){
   const text = document.getElementById('aboutDialogText');
   let activeTrigger = null;
   let activeKeys = null;
-  let dismissTimer = null;
   const close = () => {
     popover.hidden = true;
     popover.classList.remove('is-visible');
     activeTrigger = null;
     activeKeys = null;
-    if(dismissTimer) clearTimeout(dismissTimer);
   };
   const open = (trigger, titleKey, textKey) => {
     const lang = (typeof state !== 'undefined' && state.lang === 'en') ? 'en' : 'ru';
@@ -3742,17 +3740,34 @@ function setupAboutInteractions(){
     activeKeys = [titleKey, textKey];
     popover.hidden = false;
     popover.classList.add('is-visible');
-    const anchor = trigger.getBoundingClientRect();
-    const width = Math.min(310, window.innerWidth - 28);
-    popover.style.width = width + 'px';
-    let left = Math.min(Math.max(14, anchor.left), window.innerWidth - width - 14);
-    let top = anchor.bottom + 10;
-    popover.style.left = left + 'px';
+    // Measure the compact card, then place it beside the clicked control when possible.
+    popover.style.left = '0px';
     popover.style.top = '0px';
+    const anchor = trigger.getBoundingClientRect();
+    const margin = 12;
+    const gap = 9;
+    const width = Math.min(window.innerWidth <= 760 ? 260 : 270, window.innerWidth - margin * 2);
+    popover.style.width = width + 'px';
     const height = popover.offsetHeight;
-    if(top + height > window.innerHeight - 12) top = Math.max(12, anchor.top - height - 10);
+    const roomRight = window.innerWidth - anchor.right - gap - margin;
+    const roomLeft = anchor.left - gap - margin;
+    let left;
+    let top;
+    if(roomRight >= width){
+      left = anchor.right + gap;
+      top = anchor.top + (anchor.height - height) / 2;
+    } else if(roomLeft >= width){
+      left = anchor.left - gap - width;
+      top = anchor.top + (anchor.height - height) / 2;
+    } else {
+      left = Math.min(Math.max(margin, anchor.left + anchor.width / 2 - width / 2), window.innerWidth - width - margin);
+      if(anchor.bottom + gap + height <= window.innerHeight - margin) top = anchor.bottom + gap;
+      else top = Math.max(margin, anchor.top - height - gap);
+    }
+    left = Math.min(Math.max(margin, left), window.innerWidth - width - margin);
+    top = Math.min(Math.max(margin, top), window.innerHeight - height - margin);
+    popover.style.left = left + 'px';
     popover.style.top = top + 'px';
-    dismissTimer = setTimeout(close, 7000);
   };
   document.getElementById('aboutVersionBtn')?.addEventListener('click', e => { e.stopPropagation(); open(e.currentTarget,'versionDialogTitle','versionDialogText'); });
   document.getElementById('aboutUpdatedBtn')?.addEventListener('click', e => { e.stopPropagation(); open(e.currentTarget,'updatedDialogTitle','updatedDialogText'); });

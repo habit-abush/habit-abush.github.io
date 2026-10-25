@@ -451,8 +451,7 @@ button:disabled{cursor:not-allowed}
 @media(prefers-reduced-motion:reduce){.page{animation:none!important;}}
 
 /* Habit v1.5: requested logo, privacy tools and statistics additions */
-.brand-logo{display:block;object-fit:cover;padding:0;border:0}
-.brand .brand-logo{flex:0 0 39px}
+.brand-logo{display:block;width:39px!important;height:39px!important;max-width:39px!important;max-height:39px!important;flex:0 0 39px!important;object-fit:cover;padding:0;border:0;border-radius:13px}
 .mobile-brand{display:flex;align-items:center;gap:7px}
 .mobile-brand-logo{width:27px;height:27px;object-fit:cover;border-radius:9px;flex:0 0 auto}
 .about-mark{overflow:hidden;padding:0!important;background:transparent!important}
@@ -513,3 +512,13 @@ body.about-dialog-open{overflow:hidden}
 .about-detail .about-icon-button:hover{background:color-mix(in srgb,var(--accent) 15%,var(--surface2))}
 /* Keep the existing desktop page layout: hide only the repeated eyebrow on non-home sections. */
 @media(min-width:761px){body:not(.home-page) .top-heading .eyebrow{display:none}}
+
+/* Fix desktop logo intrinsic-size overflow and compact anchored About popover. */
+@media(min-width:761px){
+  .brand img.brand-logo{width:39px!important;height:39px!important;max-width:39px!important;max-height:39px!important;flex-basis:39px!important}
+  .about-heading img.about-logo{width:42px!important;height:42px!important;max-width:42px!important;max-height:42px!important;flex-basis:42px!important;object-fit:cover}
+}
+.about-popover{width:min(270px,calc(100vw - 24px));max-width:calc(100vw - 24px);padding:11px 13px;gap:9px;border-radius:14px}
+.about-popover-symbol{width:28px;height:28px;flex-basis:28px;border-radius:9px;font-size:15px}
+.about-popover-copy strong{font-size:12px;margin:0 0 3px}
+.about-popover-copy p{font-size:11px;line-height:1.45}

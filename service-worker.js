@@ -1,10 +1,10 @@
-const CACHE_NAME = 'habit-v1-5-about-popover-20261025-r3';
+const CACHE_NAME = 'habit-v1-5-about-popover-20261025-r4';
 
 const FILES_TO_CACHE = [
   './',
   './index.html',
   './Habit.css',
-  './Habit.css?v=36',
+  './Habit.css?v=37',
   './Habit.js',
   './Habit.js?v=32',
   './Habit.png',

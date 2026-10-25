@@ -1333,3 +1333,9 @@ body.mobile-menu-open::before{content:"";position:fixed;inset:0;z-index:1490;bac
 .about-detail .about-icon-button:hover{background:color-mix(in srgb,var(--accent) 15%,var(--surface2))}
 /* Keep the existing desktop page layout: hide only the repeated eyebrow on non-home sections. */
 @media(min-width:761px){body:not(.home-page) .top-heading .eyebrow{display:none}}
+
+/* Compact About popover on phones; keep it visible until the user dismisses it. */
+.about-popover{width:min(260px,calc(100vw - 24px));max-width:calc(100vw - 24px);padding:10px 12px;gap:8px;border-radius:13px}
+.about-popover-symbol{width:27px;height:27px;flex-basis:27px;font-size:14px;border-radius:8px}
+.about-popover-copy strong{font-size:12px;margin:0 0 3px}
+.about-popover-copy p{font-size:11px;line-height:1.4}
