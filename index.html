@@ -9,8 +9,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Habit">
 <title>Habit</title>
-<link rel="stylesheet" href="Habit.css?v=37">
-<link rel="stylesheet" href="habit-mobile.css?v=36">
+<link rel="stylesheet" href="Habit.css">
+<link rel="stylesheet" href="habit-mobile.css?v=35">
 <link rel="icon" type="image/png" href="Habit.png">
 </head>
 <body>
@@ -136,18 +136,14 @@
       </div>
 
       <section class="about-card" aria-labelledby="aboutTitle">
-        <div class="about-topline"><div class="about-heading"><img class="about-logo" src="Habit.png" alt=""><div><span class="eyebrow" data-i18n="aboutEyebrow">MADE FOR YOUR RHYTHM</span><h3 id="aboutTitle" data-i18n="aboutTitle">О программе</h3><p data-i18n="aboutDescription">Личное пространство для привычек, фокуса и ежедневного прогресса.</p></div></div><button class="about-version" id="aboutVersionBtn" type="button" aria-haspopup="dialog" aria-controls="aboutInfoDialog">v1.5</button></div>
+        <div class="about-topline"><div class="about-heading"><img class="about-logo" src="Habit.png" alt=""><div><span class="eyebrow" data-i18n="aboutEyebrow">MADE FOR YOUR RHYTHM</span><h3 id="aboutTitle" data-i18n="aboutTitle">О программе</h3><p data-i18n="aboutDescription">Личное пространство для привычек, фокуса и ежедневного прогресса.</p></div></div><span class="about-version">v1.5</span></div>
         <div class="about-details">
-          <div class="about-detail"><button class="about-detail-icon about-icon-button" id="aboutCreatorBtn" type="button" aria-label="Информация об авторе">✦</button><div class="about-detail-copy"><small data-i18n="creatorLabel">Автор</small><strong>Abush</strong></div></div>
-          <div class="about-detail"><button class="about-detail-icon about-icon-button" id="aboutCreatedBtn" type="button" aria-label="История создания">◷</button><div class="about-detail-copy"><small data-i18n="createdLabel">Дата создания</small><strong data-i18n="createdDate">4 октября 2026</strong></div></div>
-          <div class="about-detail"><button class="about-detail-icon about-icon-button" id="aboutUpdatedBtn" type="button" aria-label="Информация об обновлении">↻</button><div class="about-detail-copy"><small data-i18n="updatedLabel">Последнее обновление</small><strong data-i18n="updatedDate">25 октября 2026</strong></div></div>
+          <div class="about-detail"><span class="about-detail-icon">✦</span><div><small data-i18n="creatorLabel">Создатель</small><strong>Abush</strong></div><span class="about-chip" data-i18n="creatorChip">Автор</span></div>
+          <div class="about-detail"><span class="about-detail-icon">◷</span><div><small data-i18n="createdLabel">Дата создания</small><strong data-i18n="createdDate">4 октября 2026</strong></div></div>
+          <div class="about-detail"><span class="about-detail-icon">↻</span><div><small data-i18n="updatedLabel">Последнее обновление</small><strong data-i18n="updatedDate">25 октября 2026</strong></div></div>
         </div>
         <div class="about-footer"><span class="about-status-dot"></span><span data-i18n="aboutFooter">Создано для маленьких шагов и больших целей</span></div>
       </section>
-      <div class="about-popover" id="aboutInfoDialog" role="status" aria-live="polite" hidden>
-        <span class="about-popover-symbol" id="aboutDialogSymbol">✦</span>
-        <div class="about-popover-copy"><strong id="aboutDialogTitle">Что нового в Habit 1.5</strong><p id="aboutDialogText">Обновлённая иконка, данные и приватность, больше достижений, блок «Самые стабильные» в статистике и исправления.</p></div>
-      </div>
       <section class="settings-card data-privacy-card" aria-labelledby="privacyTitle">
         <div class="privacy-heading"><span class="privacy-symbol">⇧</span><div><strong id="privacyTitle" data-i18n="dataPrivacy">Данные и приватность</strong><p data-i18n="dataSub">Твои данные остаются в этом браузере.</p></div></div>
         <div class="privacy-actions"><button class="privacy-action" id="exportData" type="button">↓ <span data-i18n="exportData">Экспортировать данные</span></button><label class="privacy-action import-action">↑ <span data-i18n="importData">Импортировать копию</span><input type="file" id="importData" accept="application/json" hidden></label></div>

@@ -105,14 +105,13 @@ infoText:'Твоё пространство для фокуса, дисципл�
 aboutEyebrow:'СОЗДАНО ДЛЯ ТВОЕГО РИТМА',
 aboutTitle:'О программе',
 aboutDescription:'Личное пространство для привычек, фокуса и ежедневного прогресса.',
-creatorLabel:'Автор',
+creatorLabel:'Создатель',
 creatorChip:'Автор',
 createdLabel:'Дата создания',
 createdDate:'4 октября 2026',
 updatedLabel:'Последнее обновление',
 updatedDate:'25 октября 2026',
 aboutFooter:'Создано для маленьких шагов и больших целей',
-aboutDialogEyebrow:'HABIT • ОБНОВЛЕНИЕ',versionDialogTitle:'Что нового в Habit 1.5',versionDialogText:'Обновлённая иконка, данные и приватность, больше достижений, блок «Самые стабильные» в статистике и исправления для более удобной работы.',createdDialogTitle:'С самого начала',createdDialogText:'Habit начинался как версия 1.0 — простой шаг к более осознанным привычкам. С тех пор он вырос вместе с твоими целями.',creatorDialogTitle:'Habit by Abush',creatorDialogText:'Создано Abush с идеей помогать превращать небольшие ежедневные действия в устойчивый прогресс.',updatedDialogTitle:'Обновление от 25 октября',updatedDialogText:'Добавлены новые возможности и улучшения, а также исправлены некоторые ошибки.',aboutDialogOk:'Понятно',
 dataPrivacy:'Данные и приватность',dataSub:'Твои данные остаются в этом браузере.',exportData:'Экспортировать данные',importData:'Импортировать копию',dataHelp:'Регулярно сохраняй резервную копию, чтобы не потерять прогресс.',stableHabits:'Самые стабильные'
 },
 
@@ -177,14 +176,13 @@ infoText:'Your space for focus, discipline and small wins every day.',
 aboutEyebrow:'MADE FOR YOUR RHYTHM',
 aboutTitle:'About',
 aboutDescription:'Your personal space for habits, focus, and daily progress.',
-creatorLabel:'Author',
+creatorLabel:'Creator',
 creatorChip:'Author',
 createdLabel:'Created on',
 createdDate:'October 4, 2026',
 updatedLabel:'Last updated',
 updatedDate:'October 25, 2026',
 aboutFooter:'Built for small steps and big goals',
-aboutDialogEyebrow:'HABIT • UPDATE',versionDialogTitle:'What’s new in Habit 1.5',versionDialogText:'Updated app icon, data and privacy tools, more achievements, a “Most consistent” section in Statistics, and refinements for a smoother experience.',createdDialogTitle:'Where it began',createdDialogText:'Habit started as version 1.0 — a simple step toward more intentional habits. Since then, it has grown alongside your goals.',creatorDialogTitle:'Habit by Abush',creatorDialogText:'Created by Abush to help turn small daily actions into steady progress.',updatedDialogTitle:'October 25 update',updatedDialogText:'New features and improvements were added, and some bugs were fixed.',aboutDialogOk:'Got it',
 dataPrivacy:'Data & privacy',dataSub:'Your data stays in this browser.',exportData:'Export data',importData:'Import backup',dataHelp:'Export a backup regularly to keep your progress safe.',stableHabits:'Most consistent'
 }
 };
@@ -1904,13 +1902,6 @@ o.total>=50
 ],
 
 [
-'🚀',
-state.lang==='ru'?'Большой разгон':'Momentum Builder',
-state.lang==='ru'?'Выполни фокусы 500 раз.':'Complete focuses 500 times.',
-o.total>=500
-],
-
-[
 '🧩',
 state.lang==='ru'?'Своя система':'Your Own System',
 state.lang==='ru'?'Создай 5 разных фокусов.':'Create 5 different focuses.',
@@ -1972,6 +1963,13 @@ o.total>=100
 ],
 
 [
+'🚀',
+state.lang==='ru'?'Большой разгон':'Momentum Builder',
+state.lang==='ru'?'Выполни фокусы 500 раз.':'Complete focuses 500 times.',
+o.total>=500
+],
+
+[
 '🏆',
 
 state.lang==='ru'
@@ -2010,6 +2008,29 @@ o.best>=60
 ];
 const allRegularUnlocked=a.every(x=>x[3]);
 a.push(['👑',state.lang==='ru'?'Коллекционер':'Collector',state.lang==='ru'?'Открой все остальные достижения.':'Unlock every other achievement.',allRegularUnlocked]);
+
+// Keep earned achievements in the order they were earned; locked ones stay in difficulty order.
+const achievementKeys=['first-step','first-ten','on-target','five-focuses','weekly-pulse','thirty-days','hundred-focuses','momentum-builder','level-ten','steady-rhythm','collector'];
+const difficultyRank={'first-step':0,'five-focuses':1,'first-ten':2,'on-target':3,'weekly-pulse':4,'hundred-focuses':5,'thirty-days':6,'momentum-builder':7,'level-ten':8,'steady-rhythm':9,'collector':10};
+if(!state.achievementUnlocks || typeof state.achievementUnlocks!=='object') state.achievementUnlocks={};
+let unlocksChanged=false;
+a.forEach((item,index)=>{
+  const id=achievementKeys[index];
+  if(item[3] && !Number.isFinite(state.achievementUnlocks[id])){
+    state.achievementUnlocks[id]=Date.now()+index;
+    unlocksChanged=true;
+  }
+});
+if(unlocksChanged) save();
+const rankedAchievements=a.map((item,index)=>({item,id:achievementKeys[index]}));
+rankedAchievements.sort((left,right)=>{
+  const leftEarned=Number.isFinite(state.achievementUnlocks[left.id]);
+  const rightEarned=Number.isFinite(state.achievementUnlocks[right.id]);
+  if(leftEarned && rightEarned) return state.achievementUnlocks[left.id]-state.achievementUnlocks[right.id];
+  if(leftEarned!==rightEarned) return leftEarned ? -1 : 1;
+  return (difficultyRank[left.id]??99)-(difficultyRank[right.id]??99);
+});
+a.splice(0,a.length,...rankedAchievements.map(entry=>entry.item));
 
 if($('#achievementGrid')){
 
@@ -2400,8 +2421,6 @@ render();
 
 function showPage(page){
 
-document.body.classList.toggle('home-page', page === 'home');
-
 if(page==='settings' && $('#nameInput')) $('#nameInput').value=state.name || '';
 
 $$('.page').forEach(
@@ -2436,6 +2455,15 @@ $('#pageTitle').textContent=
 t(page);
 
 }
+
+const pageEyebrows={
+  home:'YOUR RHYTHM',
+  habits:'YOUR COLLECTION',
+  stats:'YOUR PROGRESS',
+  achievements:'YOUR MILESTONES',
+  settings:'YOUR SPACE'
+};
+if($('#pageEyebrow')) $('#pageEyebrow').textContent=pageEyebrows[page] || 'YOUR SPACE';
 
 $('#sidebar')?.classList.remove(
 'open'
@@ -3718,74 +3746,11 @@ $('#infoPop')?.classList.remove(
 
 }
 
-function setupAboutInteractions(){
-  const popover = document.getElementById('aboutInfoDialog');
-  if(!popover) return;
-  const title = document.getElementById('aboutDialogTitle');
-  const text = document.getElementById('aboutDialogText');
-  let activeTrigger = null;
-  let activeKeys = null;
-  const close = () => {
-    popover.hidden = true;
-    popover.classList.remove('is-visible');
-    activeTrigger = null;
-    activeKeys = null;
-  };
-  const open = (trigger, titleKey, textKey) => {
-    const lang = (typeof state !== 'undefined' && state.lang === 'en') ? 'en' : 'ru';
-    const dictionary = tr[lang] || tr.ru;
-    title.textContent = dictionary[titleKey] || tr.ru[titleKey] || '';
-    text.textContent = dictionary[textKey] || tr.ru[textKey] || '';
-    activeTrigger = trigger;
-    activeKeys = [titleKey, textKey];
-    popover.hidden = false;
-    popover.classList.add('is-visible');
-    // Measure the compact card, then place it beside the clicked control when possible.
-    popover.style.left = '0px';
-    popover.style.top = '0px';
-    const anchor = trigger.getBoundingClientRect();
-    const margin = 12;
-    const gap = 9;
-    const width = Math.min(window.innerWidth <= 760 ? 260 : 270, window.innerWidth - margin * 2);
-    popover.style.width = width + 'px';
-    const height = popover.offsetHeight;
-    const roomRight = window.innerWidth - anchor.right - gap - margin;
-    const roomLeft = anchor.left - gap - margin;
-    let left;
-    let top;
-    if(roomRight >= width){
-      left = anchor.right + gap;
-      top = anchor.top + (anchor.height - height) / 2;
-    } else if(roomLeft >= width){
-      left = anchor.left - gap - width;
-      top = anchor.top + (anchor.height - height) / 2;
-    } else {
-      left = Math.min(Math.max(margin, anchor.left + anchor.width / 2 - width / 2), window.innerWidth - width - margin);
-      if(anchor.bottom + gap + height <= window.innerHeight - margin) top = anchor.bottom + gap;
-      else top = Math.max(margin, anchor.top - height - gap);
-    }
-    left = Math.min(Math.max(margin, left), window.innerWidth - width - margin);
-    top = Math.min(Math.max(margin, top), window.innerHeight - height - margin);
-    popover.style.left = left + 'px';
-    popover.style.top = top + 'px';
-  };
-  document.getElementById('aboutVersionBtn')?.addEventListener('click', e => { e.stopPropagation(); open(e.currentTarget,'versionDialogTitle','versionDialogText'); });
-  document.getElementById('aboutUpdatedBtn')?.addEventListener('click', e => { e.stopPropagation(); open(e.currentTarget,'updatedDialogTitle','updatedDialogText'); });
-  document.getElementById('aboutCreatedBtn')?.addEventListener('click', e => { e.stopPropagation(); open(e.currentTarget,'createdDialogTitle','createdDialogText'); });
-  document.getElementById('aboutCreatorBtn')?.addEventListener('click', e => { e.stopPropagation(); open(e.currentTarget,'creatorDialogTitle','creatorDialogText'); });
-  document.addEventListener('click', e => { if(!popover.hidden && !popover.contains(e.target)) close(); });
-  document.addEventListener('keydown', e => { if(e.key === 'Escape' && !popover.hidden) close(); });
-  window.addEventListener('resize', () => { if(!popover.hidden && activeTrigger && activeKeys) open(activeTrigger, activeKeys[0], activeKeys[1]); });
-  window.addEventListener('scroll', () => { if(!popover.hidden) close(); }, true);
-}
-
 document.addEventListener(
 'DOMContentLoaded',
 ()=>{
 
 bind();
-
-setupAboutInteractions();
 
 ensureConfirmUI();
 

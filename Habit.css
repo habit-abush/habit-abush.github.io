@@ -451,7 +451,8 @@ button:disabled{cursor:not-allowed}
 @media(prefers-reduced-motion:reduce){.page{animation:none!important;}}
 
 /* Habit v1.5: requested logo, privacy tools and statistics additions */
-.brand-logo{display:block;width:39px!important;height:39px!important;max-width:39px!important;max-height:39px!important;flex:0 0 39px!important;object-fit:cover;padding:0;border:0;border-radius:13px}
+.brand-logo{display:block;object-fit:cover;padding:0;border:0}
+.brand .brand-logo{flex:0 0 39px}
 .mobile-brand{display:flex;align-items:center;gap:7px}
 .mobile-brand-logo{width:27px;height:27px;object-fit:cover;border-radius:9px;flex:0 0 auto}
 .about-mark{overflow:hidden;padding:0!important;background:transparent!important}
@@ -477,48 +478,107 @@ button:disabled{cursor:not-allowed}
 .nav-link>b{display:block;line-height:1.35}
 .mobile-brand img{display:none!important}
 
+/* v1.5.1: desktop sidebar tagline replaces the old Habit wordmark */
+.brand{min-height:43px;padding-bottom:30px;font-size:17px;letter-spacing:-.35px;color:var(--text)}
+.brand .brand-logo{display:none}
 
-/* Habit v1.5 — interactive About details */
-.about-version{font:inherit;cursor:pointer;border:1px solid color-mix(in srgb,var(--accent) 28%,var(--line));transition:transform .18s ease,border-color .18s ease,background .18s ease}
-.about-version:hover,.about-version:focus-visible{transform:translateY(-1px);border-color:var(--accent);outline:none}
-.about-detail-action{width:100%;text-align:left;color:inherit;font:inherit;cursor:pointer;background:transparent;border:0;transition:background .18s ease}
-.about-detail-action:hover,.about-detail-action:focus-visible{background:color-mix(in srgb,var(--accent) 7%,transparent);outline:none}
-.about-detail-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
-.about-detail-copy strong{font-size:inherit}
-.about-icon-button{font:inherit;cursor:pointer;border:0;transition:transform .18s ease,color .18s ease}
-.about-icon-button:hover,.about-icon-button:focus-visible{color:var(--accent);transform:rotate(-12deg);outline:none}
-.about-dialog-backdrop{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:20px;background:rgba(8,8,16,.56);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-.about-dialog-backdrop[hidden]{display:none!important}
-.about-dialog-card{position:relative;width:min(100%,410px);padding:30px 28px 24px;border:1px solid color-mix(in srgb,var(--accent) 25%,var(--line));border-radius:25px;background:var(--surface);color:var(--text);box-shadow:0 24px 90px rgba(0,0,0,.28);animation:aboutDialogIn .22s cubic-bezier(.2,.8,.2,1) both}
-.about-dialog-close{position:absolute;top:12px;right:13px;width:34px;height:34px;border:1px solid var(--line);border-radius:11px;background:var(--surface2);color:var(--muted);font-size:24px;line-height:1;cursor:pointer}
-.about-dialog-symbol{display:grid;place-items:center;width:48px;height:48px;margin-bottom:17px;border-radius:16px;background:color-mix(in srgb,var(--accent) 14%,var(--surface2));color:var(--accent);font-size:25px}
-.about-dialog-card .eyebrow{font-size:10px;letter-spacing:1.5px;color:var(--accent)}
-.about-dialog-card h3{margin:9px 0 10px;font-size:23px;letter-spacing:-.5px;line-height:1.2}
-.about-dialog-card p{margin:0;color:var(--muted);font-size:14px;line-height:1.7}
-.about-dialog-ok{width:100%;margin-top:23px;min-height:44px;border:0;border-radius:13px;background:var(--accent);color:white;font-weight:800;cursor:pointer}
-body.about-dialog-open{overflow:hidden}
-@keyframes aboutDialogIn{from{opacity:0;transform:translateY(9px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
-@media(max-width:520px){.about-dialog-card{padding:26px 22px 21px;border-radius:22px}.about-dialog-card h3{font-size:21px}}
-@media(prefers-reduced-motion:reduce){.about-dialog-card{animation:none!important}}
+/* Brand image: use the single canonical asset Habit.png */
+.brand-mark{display:none!important}
+.brand-logo{display:block;width:39px;height:39px;flex:0 0 39px;object-fit:cover;border-radius:13px;box-shadow:0 10px 30px rgba(118,82,240,.22)}
+.about-heading{display:flex;align-items:flex-start;gap:13px;min-width:0}
+.about-logo{display:block;width:44px;height:44px;flex:0 0 44px;object-fit:cover;border-radius:13px}
+.about-heading>div{min-width:0}
 
-/* About popover: compact, anchored, click-away dismissal */
-.about-logo{width:42px!important;height:42px!important;max-width:42px!important;max-height:42px!important;flex:0 0 42px;object-fit:contain;border-radius:12px}
-.about-popover{position:fixed;z-index:10050;display:flex;align-items:flex-start;gap:12px;max-width:calc(100vw - 28px);padding:15px 17px;border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));border-radius:17px;background:var(--surface);color:var(--text);box-shadow:0 14px 45px rgba(0,0,0,.24);opacity:0;transform:translateY(5px) scale(.985);transition:opacity .16s ease,transform .16s ease;pointer-events:none}
-.about-popover[hidden]{display:none!important}
-.about-popover.is-visible{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
-.about-popover-symbol{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border-radius:11px;background:color-mix(in srgb,var(--accent) 13%,var(--surface2));color:var(--accent);font-size:19px;font-weight:800}
-.about-popover-copy{min-width:0}.about-popover-copy strong{display:block;margin:1px 0 5px;font-size:14px;font-weight:850;line-height:1.35}.about-popover-copy p{margin:0;color:var(--muted);font-size:12px;line-height:1.55}
-.about-detail .about-icon-button{flex:0 0 38px;width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:color-mix(in srgb,var(--accent) 8%,var(--surface2));color:var(--accent)}
-.about-detail .about-icon-button:hover{background:color-mix(in srgb,var(--accent) 15%,var(--surface2))}
-/* Keep the existing desktop page layout: hide only the repeated eyebrow on non-home sections. */
-@media(min-width:761px){body:not(.home-page) .top-heading .eyebrow{display:none}}
 
-/* Fix desktop logo intrinsic-size overflow and compact anchored About popover. */
-@media(min-width:761px){
-  .brand img.brand-logo{width:39px!important;height:39px!important;max-width:39px!important;max-height:39px!important;flex-basis:39px!important}
-  .about-heading img.about-logo{width:42px!important;height:42px!important;max-width:42px!important;max-height:42px!important;flex-basis:42px!important;object-fit:cover}
+/* Header cleanup: one desktop brand in the sidebar; no stray Habit wordmark beside page title. */
+.mobile-brand{display:none!important}
+.brand{display:flex!important;align-items:center!important;gap:12px!important;padding-bottom:30px!important;min-height:43px!important}
+.brand .brand-logo{display:block!important;width:39px!important;height:39px!important;flex:0 0 39px!important;object-fit:cover!important;border-radius:12px!important;box-shadow:none!important}
+.top-heading{margin-left:0!important}
+
+/* Header polish: avoid duplicated page titles on desktop; keep the home header. */
+@media (min-width:761px){
+  .main:has(#habits.active) .top-heading,
+  .main:has(#stats.active) .top-heading,
+  .main:has(#achievements.active) .top-heading,
+  .main:has(#settings.active) .top-heading{display:none!important}
+  .main:has(#home.active) .top-heading .eyebrow{color:color-mix(in srgb,var(--accent) 72%,#c5b7ff);letter-spacing:2.5px}
+  .main:has(#home.active) .top-heading h1{background:linear-gradient(100deg,var(--text) 55%,color-mix(in srgb,var(--accent) 75%,var(--text)));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 }
-.about-popover{width:min(270px,calc(100vw - 24px));max-width:calc(100vw - 24px);padding:11px 13px;gap:9px;border-radius:14px}
-.about-popover-symbol{width:28px;height:28px;flex-basis:28px;border-radius:9px;font-size:15px}
-.about-popover-copy strong{font-size:12px;margin:0 0 3px}
-.about-popover-copy p{font-size:11px;line-height:1.45}
+
+/* Final desktop header correction: keep Home untouched; compact the header on other pages. */
+@media (min-width:761px){
+  .main:has(> .topbar) {}
+  .main:has(#habits.active) .top-heading,
+  .main:has(#stats.active) .top-heading,
+  .main:has(#achievements.active) .top-heading,
+  .main:has(#settings.active) .top-heading{display:none!important}
+  .main:has(#habits.active) .topbar,
+  .main:has(#stats.active) .topbar,
+  .main:has(#achievements.active) .topbar,
+  .main:has(#settings.active) .topbar{min-height:0!important;height:0!important;padding-top:0!important;padding-bottom:0!important;margin:0!important;overflow:visible!important}
+  .main:has(#habits.active) .page,
+  .main:has(#stats.active) .page,
+  .main:has(#achievements.active) .page,
+  .main:has(#settings.active) .page{margin-top:0!important;padding-top:0!important}
+  .main:has(#home.active) .top-heading h1{background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;-webkit-text-fill-color:var(--text)!important;color:var(--text)!important}
+}
+
+
+/* Targeted desktop correction: keep theme and profile controls reachable on inner pages. */
+@media (min-width:761px){
+  .main:has(#habits.active) .topbar,
+  .main:has(#stats.active) .topbar,
+  .main:has(#achievements.active) .topbar,
+  .main:has(#settings.active) .topbar{height:76px!important;min-height:76px!important;padding-top:0!important;padding-bottom:0!important;margin:0!important;overflow:visible!important;align-items:center!important}
+  .main:has(#habits.active) .top-tools,
+  .main:has(#stats.active) .top-tools,
+  .main:has(#achievements.active) .top-tools,
+  .main:has(#settings.active) .top-tools{display:flex!important;align-items:center!important;position:relative!important;z-index:30!important;margin-left:auto!important}
+  .main:has(#habits.active) .page,
+  .main:has(#stats.active) .page,
+  .main:has(#achievements.active) .page,
+  .main:has(#settings.active) .page{margin-top:0!important;padding-top:5px!important}
+}
+
+/* Final requested fix: desktop inner pages use the same top header rhythm as Home. */
+@media (min-width:761px){
+  .main:has(#habits.active) .top-heading,
+  .main:has(#stats.active) .top-heading,
+  .main:has(#achievements.active) .top-heading,
+  .main:has(#settings.active) .top-heading{display:block!important}
+  .main:has(#habits.active) .topbar,
+  .main:has(#stats.active) .topbar,
+  .main:has(#achievements.active) .topbar,
+  .main:has(#settings.active) .topbar{height:94px!important;min-height:94px!important;padding-top:0!important;padding-bottom:0!important;margin:0!important;overflow:visible!important}
+  .main:has(#habits.active) .page,
+  .main:has(#stats.active) .page,
+  .main:has(#achievements.active) .page,
+  .main:has(#settings.active) .page{margin-top:0!important;padding-top:0!important}
+}
+
+/* User-requested final cleanup: inner desktop pages show one title, with controls retained. */
+@media (min-width:761px){
+  .main:has(#habits.active) .top-heading,
+  .main:has(#stats.active) .top-heading,
+  .main:has(#achievements.active) .top-heading,
+  .main:has(#settings.active) .top-heading{display:none!important}
+  .main:has(#habits.active) .topbar,
+  .main:has(#stats.active) .topbar,
+  .main:has(#achievements.active) .topbar,
+  .main:has(#settings.active) .topbar{
+    height:62px!important;min-height:62px!important;padding:0!important;margin:0!important;
+    display:flex!important;align-items:center!important;overflow:visible!important;
+  }
+  .main:has(#habits.active) .top-tools,
+  .main:has(#stats.active) .top-tools,
+  .main:has(#achievements.active) .top-tools,
+  .main:has(#settings.active) .top-tools{
+    display:flex!important;position:relative!important;z-index:30!important;margin-left:auto!important;
+    align-items:center!important;
+  }
+  .main:has(#habits.active) .page,
+  .main:has(#stats.active) .page,
+  .main:has(#achievements.active) .page,
+  .main:has(#settings.active) .page{margin-top:0!important;padding-top:0!important}
+}
