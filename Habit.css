@@ -477,3 +477,7 @@ button:disabled{cursor:not-allowed}
 .nav-link>span{display:inline-flex;align-items:center;justify-content:center;flex:0 0 22px;width:22px;line-height:1}
 .nav-link>b{display:block;line-height:1.35}
 .mobile-brand img{display:none!important}
+
+/* v1.5.1: desktop sidebar tagline replaces the old Habit wordmark */
+.brand{min-height:43px;padding-bottom:30px;font-size:17px;letter-spacing:-.35px;color:var(--text)}
+.brand .brand-logo{display:none}

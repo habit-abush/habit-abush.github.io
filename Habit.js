@@ -1902,13 +1902,6 @@ o.total>=50
 ],
 
 [
-'🚀',
-state.lang==='ru'?'Большой разгон':'Momentum Builder',
-state.lang==='ru'?'Выполни фокусы 500 раз.':'Complete focuses 500 times.',
-o.total>=500
-],
-
-[
 '🧩',
 state.lang==='ru'?'Своя система':'Your Own System',
 state.lang==='ru'?'Создай 5 разных фокусов.':'Create 5 different focuses.',
@@ -1970,6 +1963,13 @@ o.total>=100
 ],
 
 [
+'🚀',
+state.lang==='ru'?'Большой разгон':'Momentum Builder',
+state.lang==='ru'?'Выполни фокусы 500 раз.':'Complete focuses 500 times.',
+o.total>=500
+],
+
+[
 '🏆',
 
 state.lang==='ru'
@@ -2008,6 +2008,29 @@ o.best>=60
 ];
 const allRegularUnlocked=a.every(x=>x[3]);
 a.push(['👑',state.lang==='ru'?'Коллекционер':'Collector',state.lang==='ru'?'Открой все остальные достижения.':'Unlock every other achievement.',allRegularUnlocked]);
+
+// Keep earned achievements in the order they were earned; locked ones stay in difficulty order.
+const achievementKeys=['first-step','first-ten','on-target','five-focuses','weekly-pulse','thirty-days','hundred-focuses','momentum-builder','level-ten','steady-rhythm','collector'];
+const difficultyRank={'first-step':0,'five-focuses':1,'first-ten':2,'on-target':3,'weekly-pulse':4,'hundred-focuses':5,'thirty-days':6,'momentum-builder':7,'level-ten':8,'steady-rhythm':9,'collector':10};
+if(!state.achievementUnlocks || typeof state.achievementUnlocks!=='object') state.achievementUnlocks={};
+let unlocksChanged=false;
+a.forEach((item,index)=>{
+  const id=achievementKeys[index];
+  if(item[3] && !Number.isFinite(state.achievementUnlocks[id])){
+    state.achievementUnlocks[id]=Date.now()+index;
+    unlocksChanged=true;
+  }
+});
+if(unlocksChanged) save();
+const rankedAchievements=a.map((item,index)=>({item,id:achievementKeys[index]}));
+rankedAchievements.sort((left,right)=>{
+  const leftEarned=Number.isFinite(state.achievementUnlocks[left.id]);
+  const rightEarned=Number.isFinite(state.achievementUnlocks[right.id]);
+  if(leftEarned && rightEarned) return state.achievementUnlocks[left.id]-state.achievementUnlocks[right.id];
+  if(leftEarned!==rightEarned) return leftEarned ? -1 : 1;
+  return (difficultyRank[left.id]??99)-(difficultyRank[right.id]??99);
+});
+a.splice(0,a.length,...rankedAchievements.map(entry=>entry.item));
 
 if($('#achievementGrid')){
 
