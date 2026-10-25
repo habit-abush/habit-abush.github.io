@@ -495,3 +495,13 @@ button:disabled{cursor:not-allowed}
 .brand{display:flex!important;align-items:center!important;gap:12px!important;padding-bottom:30px!important;min-height:43px!important}
 .brand .brand-logo{display:block!important;width:39px!important;height:39px!important;flex:0 0 39px!important;object-fit:cover!important;border-radius:12px!important;box-shadow:none!important}
 .top-heading{margin-left:0!important}
+
+/* Header polish: avoid duplicated page titles on desktop; keep the home header. */
+@media (min-width:761px){
+  .main:has(#habits.active) .top-heading,
+  .main:has(#stats.active) .top-heading,
+  .main:has(#achievements.active) .top-heading,
+  .main:has(#settings.active) .top-heading{display:none!important}
+  .main:has(#home.active) .top-heading .eyebrow{color:color-mix(in srgb,var(--accent) 72%,#c5b7ff);letter-spacing:2.5px}
+  .main:has(#home.active) .top-heading h1{background:linear-gradient(100deg,var(--text) 55%,color-mix(in srgb,var(--accent) 75%,var(--text)));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+}
