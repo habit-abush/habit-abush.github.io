@@ -1360,3 +1360,36 @@ body.mobile-menu-open::before{content:"";position:fixed;inset:0;z-index:1490;bac
   .main:has(#home.active) .top-heading h1{color:var(--text)!important;-webkit-text-fill-color:var(--text)!important;background:none!important}
 }
 @media(max-width:380px){.mobile-brand{font-size:22px!important}}
+
+/* Final phone-only layout: Habit stays in the top row; Home title sits beneath it, above welcome. */
+@media(max-width:760px){
+  .main:has(#home.active) .topbar{
+    height:auto!important;min-height:0!important;display:flex!important;flex-wrap:wrap!important;
+    align-items:center!important;justify-content:flex-start!important;gap:7px 8px!important;
+    padding-top:8px!important;padding-bottom:9px!important;
+  }
+  .main:has(#home.active) .mobile-menu{order:1!important;flex:0 0 39px!important}
+  .main:has(#home.active) .mobile-brand{
+    order:2!important;position:static!important;transform:none!important;left:auto!important;top:auto!important;
+    margin:0!important;padding:0 2px!important;font-size:25px!important;letter-spacing:-.55px!important;
+    color:color-mix(in srgb,var(--accent) 48%,var(--text))!important;
+    -webkit-text-fill-color:color-mix(in srgb,var(--accent) 48%,var(--text))!important;
+    text-shadow:0 2px 14px rgba(130,95,255,.12)!important;
+  }
+  .main:has(#home.active) .top-tools{order:3!important;margin-left:auto!important;flex:0 0 auto!important}
+  .main:has(#home.active) .top-heading{
+    order:4!important;display:block!important;flex:0 0 100%!important;width:100%!important;
+    min-width:0!important;margin:1px 0 0!important;padding-left:2px!important;
+  }
+  .main:has(#home.active) .top-heading .eyebrow{display:none!important}
+  .main:has(#home.active) .top-heading h1{
+    display:block!important;margin:0!important;font-size:clamp(23px,6vw,28px)!important;
+    line-height:1.15!important;letter-spacing:-.75px!important;color:var(--text)!important;
+    -webkit-text-fill-color:var(--text)!important;background:none!important;white-space:normal!important;
+  }
+  .main:has(#home.active) .welcome-line{margin-top:8px!important}
+}
+@media(max-width:380px){
+  .main:has(#home.active) .mobile-brand{font-size:23px!important}
+  .main:has(#home.active) .top-heading h1{font-size:23px!important}
+}

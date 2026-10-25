@@ -540,3 +540,19 @@ button:disabled{cursor:not-allowed}
   .main:has(#achievements.active) .page,
   .main:has(#settings.active) .page{margin-top:0!important;padding-top:5px!important}
 }
+
+/* Final requested fix: desktop inner pages use the same top header rhythm as Home. */
+@media (min-width:761px){
+  .main:has(#habits.active) .top-heading,
+  .main:has(#stats.active) .top-heading,
+  .main:has(#achievements.active) .top-heading,
+  .main:has(#settings.active) .top-heading{display:block!important}
+  .main:has(#habits.active) .topbar,
+  .main:has(#stats.active) .topbar,
+  .main:has(#achievements.active) .topbar,
+  .main:has(#settings.active) .topbar{height:94px!important;min-height:94px!important;padding-top:0!important;padding-bottom:0!important;margin:0!important;overflow:visible!important}
+  .main:has(#habits.active) .page,
+  .main:has(#stats.active) .page,
+  .main:has(#achievements.active) .page,
+  .main:has(#settings.active) .page{margin-top:0!important;padding-top:0!important}
+}
