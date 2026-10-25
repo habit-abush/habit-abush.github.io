@@ -1336,3 +1336,18 @@ body.mobile-menu-open::before{content:"";position:fixed;inset:0;z-index:1490;bac
   .topbar{gap:8px!important}
   .top-tools{margin-left:auto!important}
 }
+
+/* Final mobile-only header correction: one clear page title, Habit brand on the left. */
+@media(max-width:760px){
+  .mobile-brand{font-size:22px!important;font-weight:900!important;color:color-mix(in srgb,var(--accent) 24%,var(--text))!important;-webkit-text-fill-color:color-mix(in srgb,var(--accent) 24%,var(--text))!important;letter-spacing:-.45px!important}
+  .top-heading .eyebrow{display:none!important}
+  .top-heading h1{color:var(--text)!important;-webkit-text-fill-color:var(--text)!important;background:none!important}
+  .top-heading{min-width:0!important}
+  .topbar{display:flex!important;align-items:center!important;min-height:58px!important}
+  /* On inner pages the section itself supplies the title, avoiding duplicate headings. */
+  .main:has(#habits.active) .top-heading,
+  .main:has(#stats.active) .top-heading,
+  .main:has(#achievements.active) .top-heading,
+  .main:has(#settings.active) .top-heading{display:none!important}
+  .main:has(#home.active) .top-heading{display:block!important;flex:1 1 auto!important}
+}

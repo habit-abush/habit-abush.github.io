@@ -505,3 +505,21 @@ button:disabled{cursor:not-allowed}
   .main:has(#home.active) .top-heading .eyebrow{color:color-mix(in srgb,var(--accent) 72%,#c5b7ff);letter-spacing:2.5px}
   .main:has(#home.active) .top-heading h1{background:linear-gradient(100deg,var(--text) 55%,color-mix(in srgb,var(--accent) 75%,var(--text)));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 }
+
+/* Final desktop header correction: keep Home untouched; compact the header on other pages. */
+@media (min-width:761px){
+  .main:has(> .topbar) {}
+  .main:has(#habits.active) .top-heading,
+  .main:has(#stats.active) .top-heading,
+  .main:has(#achievements.active) .top-heading,
+  .main:has(#settings.active) .top-heading{display:none!important}
+  .main:has(#habits.active) .topbar,
+  .main:has(#stats.active) .topbar,
+  .main:has(#achievements.active) .topbar,
+  .main:has(#settings.active) .topbar{min-height:0!important;height:0!important;padding-top:0!important;padding-bottom:0!important;margin:0!important;overflow:visible!important}
+  .main:has(#habits.active) .page,
+  .main:has(#stats.active) .page,
+  .main:has(#achievements.active) .page,
+  .main:has(#settings.active) .page{margin-top:0!important;padding-top:0!important}
+  .main:has(#home.active) .top-heading h1{background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;-webkit-text-fill-color:var(--text)!important;color:var(--text)!important}
+}
