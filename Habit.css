@@ -556,3 +556,29 @@ button:disabled{cursor:not-allowed}
   .main:has(#achievements.active) .page,
   .main:has(#settings.active) .page{margin-top:0!important;padding-top:0!important}
 }
+
+/* User-requested final cleanup: inner desktop pages show one title, with controls retained. */
+@media (min-width:761px){
+  .main:has(#habits.active) .top-heading,
+  .main:has(#stats.active) .top-heading,
+  .main:has(#achievements.active) .top-heading,
+  .main:has(#settings.active) .top-heading{display:none!important}
+  .main:has(#habits.active) .topbar,
+  .main:has(#stats.active) .topbar,
+  .main:has(#achievements.active) .topbar,
+  .main:has(#settings.active) .topbar{
+    height:62px!important;min-height:62px!important;padding:0!important;margin:0!important;
+    display:flex!important;align-items:center!important;overflow:visible!important;
+  }
+  .main:has(#habits.active) .top-tools,
+  .main:has(#stats.active) .top-tools,
+  .main:has(#achievements.active) .top-tools,
+  .main:has(#settings.active) .top-tools{
+    display:flex!important;position:relative!important;z-index:30!important;margin-left:auto!important;
+    align-items:center!important;
+  }
+  .main:has(#habits.active) .page,
+  .main:has(#stats.active) .page,
+  .main:has(#achievements.active) .page,
+  .main:has(#settings.active) .page{margin-top:0!important;padding-top:0!important}
+}

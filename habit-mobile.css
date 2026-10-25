@@ -1393,3 +1393,9 @@ body.mobile-menu-open::before{content:"";position:fixed;inset:0;z-index:1490;bac
   .main:has(#home.active) .mobile-brand{font-size:23px!important}
   .main:has(#home.active) .top-heading h1{font-size:23px!important}
 }
+
+/* User-requested phone-only fix: hide the extra Home title, leave all other sections unchanged. */
+@media (max-width:760px){
+  .main:has(#home.active) .top-heading h1{display:none!important}
+  .main:has(#home.active) .top-heading{display:none!important}
+}
