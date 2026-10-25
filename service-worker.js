@@ -1,14 +1,14 @@
-const CACHE_NAME = 'habit-v30';
+const CACHE_NAME = 'habit-v25';
 
 const FILES_TO_CACHE = [
   './',
   './index.html',
   './Habit.css',
   './Habit.js',
-  './Habit.js?v=30',
+  './Habit.js?v=25',
   './Habit.png',
   './habit-mobile.css',
-  './habit-mobile.css?v=30',
+  './habit-mobile.css?v=25',
   './manifest.json'
 ];
 

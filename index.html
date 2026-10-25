@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#090a0f">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -10,14 +10,14 @@
 <meta name="apple-mobile-web-app-title" content="Habit">
 <title>Habit</title>
 <link rel="stylesheet" href="Habit.css">
-<link rel="stylesheet" href="habit-mobile.css?v=30">
+<link rel="stylesheet" href="habit-mobile.css?v=25">
 <link rel="icon" type="image/png" href="Habit.png">
 </head>
 <body>
 <div class="app" id="app">
   <aside class="sidebar" id="sidebar">
     <div class="brand" aria-label="Habit">
-      <span class="brand-mark">H</span><span>Habit</span>
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Habit</span>
     </div>
     <nav class="nav">
       <button class="nav-link active" data-page="home" type="button"><span>⌂</span><b data-i18n="home">Главная</b></button>
@@ -36,9 +36,10 @@
   <main class="main">
     <header class="topbar">
       <button class="mobile-menu" id="menuBtn" type="button" aria-label="Открыть меню" aria-expanded="false"><span class="menu-bars" aria-hidden="true"><i></i><i></i><i></i></span></button>
-      <div class="mobile-brand" id="mobileBrand" aria-label="Habit">Habit</div>
+      <button class="mobile-brand" id="mobileBrand" type="button" aria-label="На главную">Habit</button>
       <div class="top-heading"><span class="eyebrow">YOUR RHYTHM</span><h1 id="pageTitle">Главная</h1></div>
       <div class="top-tools">
+        <div class="today-date" id="todayDate" aria-label="Сегодняшняя дата"></div>
         <button class="theme-toggle" id="themeToggle" type="button" aria-label="Переключить тему">
           <span class="theme-icon" id="themeIcon">☾</span>
           <span class="theme-label" id="themeLabel">Тёмная</span>
@@ -112,7 +113,8 @@
 
     <section class="page" id="stats">
       <div class="section-head"><div><span class="eyebrow" data-i18n="overview">ОБЗОР</span><h2 data-i18n="stats">Статистика</h2></div></div>
-      <div class="stats-switch"><button class="stats-tab active" data-range="30" type="button" data-i18n="days30">30 дней</button><button class="stats-tab" data-range="90" type="button" data-i18n="days90">90 дней</button><button class="stats-tab" data-range="180" type="button" data-i18n="days180">180 дней</button><button class="stats-tab" data-range="365" type="button" data-i18n="year">Год</button></div>
+      <div class="stats-switch"><button class="stats-tab active" data-range="30" type="button" data-i18n="days30">30 дней</button><button class="stats-tab" data-range="90" type="button" data-i18n="days90">90 дней</button><button class="stats-tab" data-range="365" type="button" data-i18n="year">Год</button></div>
+      <section class="stats-activity-card" aria-labelledby="statsActivityTitle"><div class="activity-head"><div><span class="eyebrow" data-i18n="activity">АКТИВНОСТЬ</span><h2 id="statsActivityTitle" data-i18n="statsActivityTitle">Календарь активности</h2></div><div class="activity-total"><b id="statsActivityCount">0</b><span data-i18n="statsActivityDays">активных дней</span></div></div><div class="stats-heatmap-scroll"><div class="stats-month-labels" id="statsMonthLabels"></div><div class="stats-weekday-labels" id="statsWeekdayLabels"></div><div class="stats-activity-grid" id="statsActivityGrid"></div></div><div class="stats-activity-legend"><span data-i18n="less">меньше</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span data-i18n="more">больше</span></div></section>
       <div class="stat-cards">
         <article><span data-i18n="current">Текущая серия</span><strong id="statStreak">0</strong><small data-i18n="days">дней</small></article>
         <article><span data-i18n="record">Лучший результат</span><strong id="statBest">0</strong><small data-i18n="days">дней</small></article>
@@ -136,7 +138,7 @@
         <div class="setting-row danger-row"><div><strong data-i18n="reset">Сбросить прогресс</strong><p data-i18n="resetHint">Удалит данные только на этом устройстве.</p></div><button id="resetBtn" class="danger-btn" type="button" data-i18n="resetBtn">Сбросить</button></div>
       </div>
       <section class="about-card" aria-labelledby="aboutTitle">
-        <div class="about-topline"><span class="about-mark">H</span><div><span class="eyebrow" data-i18n="aboutEyebrow">MADE FOR YOUR RHYTHM</span><h3 id="aboutTitle" data-i18n="aboutTitle">О программе</h3><p data-i18n="aboutDescription">Личное пространство для привычек, фокуса и ежедневного прогресса.</p></div><span class="about-version">v1.4</span></div>
+        <div class="about-topline"><span class="about-mark">H</span><div><span class="eyebrow" data-i18n="aboutEyebrow">MADE FOR YOUR RHYTHM</span><h3 id="aboutTitle" data-i18n="aboutTitle">О программе</h3><p data-i18n="aboutDescription">Личное пространство для привычек, фокуса и ежедневного прогресса.</p></div><span class="about-version">v19</span></div>
         <div class="about-details">
           <div class="about-detail"><span class="about-detail-icon">✦</span><div><small data-i18n="creatorLabel">Создатель</small><strong>Abush</strong></div><span class="about-chip" data-i18n="creatorChip">Автор</span></div>
           <div class="about-detail"><span class="about-detail-icon">◷</span><div><small data-i18n="createdLabel">Дата создания</small><strong data-i18n="createdDate">4 октября 2026</strong></div></div>
@@ -151,11 +153,11 @@
 <div class="modal" id="habitModal" aria-hidden="true"><div class="modal-card"><button class="modal-close" id="closeModal" type="button">×</button><span class="eyebrow" id="modalEyebrow">ФОКУС</span><h2 id="modalTitle">Добавить фокус</h2><label><span data-i18n="name">Название</span><input id="habitName" maxlength="42" placeholder="Например, читать 20 минут"></label><label><span data-i18n="icon">Значок</span><div class="icon-picker" id="iconPicker"></div></label><label><span data-i18n="color">Цвет</span><div class="color-picker" id="colorPicker"></div></label><label><span>Дни активности</span><div class="schedule-hint">Фокус будет активен только в выбранные дни</div><div class="schedule-picker" id="dayPickerModal"></div></label><div class="modal-actions"><button class="danger-btn modal-delete" id="deleteHabit" type="button" data-i18n="delete">Удалить</button><button class="primary-btn wide" id="saveHabit" type="button" data-i18n="save">Сохранить</button></div></div></div>
 <div class="info-pop" id="infoPop"><button id="infoClose" type="button">×</button><div class="info-symbol">H</div><div><strong>Habit</strong><p data-i18n="infoText">Твоё пространство для фокуса, дисциплины и маленьких побед каждый день.</p></div></div>
 <div class="toast" id="toast"></div><div class="confetti-layer" id="confetti"></div>
-<script src="Habit.js?v=30"></script>
+<script src="Habit.js?v=25"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js?v=18', { updateViaCache: 'none' })
+    navigator.serviceWorker.register('./service-worker.js?v=25', { updateViaCache: 'none' })
       .then(() => console.log('Habit offline mode enabled'))
       .catch(error => console.error('Service Worker error:', error));
   });

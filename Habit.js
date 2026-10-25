@@ -74,8 +74,10 @@ more:'больше',
 overview:'ОБЗОР',
 days30:'30 дней',
 days90:'90 дней',
-days180:'180 дней',
 year:'Год',
+statsActivityTitle:'Календарь активности',
+statsActivityDays:'активных дней',
+todayDateLabel:'Сегодня',
 current:'Текущая серия',
 period:'за период',
 pace:'РИТМ',
@@ -110,7 +112,7 @@ creatorChip:'Автор',
 createdLabel:'Дата создания',
 createdDate:'4 октября 2026',
 updatedLabel:'Последнее обновление',
-updatedDate:'24 октября 2026',
+updatedDate:'25 октября 2026',
 aboutFooter:'Создано для маленьких шагов и больших целей'
 },
 
@@ -144,8 +146,10 @@ more:'more',
 overview:'OVERVIEW',
 days30:'30 days',
 days90:'90 days',
-days180:'180 days',
 year:'Year',
+statsActivityTitle:'Activity calendar',
+statsActivityDays:'active days',
+todayDateLabel:'Today',
 current:'Current streak',
 period:'for period',
 pace:'RHYTHM',
@@ -180,7 +184,7 @@ creatorChip:'Author',
 createdLabel:'Created on',
 createdDate:'October 4, 2026',
 updatedLabel:'Last updated',
-updatedDate:'October 24, 2026',
+updatedDate:'October 25, 2026',
 aboutFooter:'Built for small steps and big goals'
 }
 };
@@ -290,37 +294,6 @@ c=>({
 
 }
 
-function updateSegmentSliders(){
-  const update=container=>{
-    if(!container) return;
-    const active=container.querySelector('button.active');
-    if(!active){container.classList.remove('has-slider');return;}
-    container.classList.add('has-slider');
-    container.style.setProperty('--slider-left',`${active.offsetLeft}px`);
-    container.style.setProperty('--slider-width',`${active.offsetWidth}px`);
-    container.style.setProperty('--slider-height',`${active.offsetHeight}px`);
-  };
-  const updateNav=()=>{
-    const nav=$('#mobileNav');
-    if(!nav) return;
-    const active=nav.querySelector('button.active');
-    if(!active){nav.classList.remove('has-nav-slider');return;}
-    nav.classList.add('has-nav-slider');
-    nav.style.setProperty('--nav-slider-left',`${active.offsetLeft}px`);
-    nav.style.setProperty('--nav-slider-width',`${active.offsetWidth}px`);
-    nav.style.setProperty('--nav-slider-top',`${active.offsetTop}px`);
-    nav.style.setProperty('--nav-slider-height',`${active.offsetHeight}px`);
-  };
-  const measure=()=>{
-    $$('.segmented, .stats-switch').forEach(update);
-    updateNav();
-  };
-  requestAnimationFrame(()=>requestAnimationFrame(measure));
-}
-
-window.addEventListener('resize',updateSegmentSliders,{passive:true});
-window.addEventListener('load',updateSegmentSliders,{once:true});
-
 function applyTheme(){
 
 document.documentElement.dataset.theme=
@@ -392,7 +365,6 @@ b.dataset.theme===state.theme
 )
 );
 
-updateSegmentSliders();
 }
 
 function applyLang(){
@@ -433,7 +405,6 @@ state.lang==='ru'
 
 }
 
-updateSegmentSliders();
 }
 
 function streak(h){
@@ -1111,6 +1082,10 @@ renderAllHabits();
 renderActivity();
 
 renderStats();
+
+renderStatsActivity();
+
+renderTodayDate();
 
 renderAchievements();
 
@@ -1892,7 +1867,53 @@ b.classList.toggle(
 )
 );
 
-updateSegmentSliders();
+}
+
+function renderTodayDate(){
+const el=$('#todayDate');
+if(!el) return;
+const now=new Date();
+el.textContent=now.toLocaleDateString(state.lang==='ru'?'ru-RU':'en-US',{weekday:'short',day:'numeric',month:'short'});
+el.setAttribute('title', (state.lang==='ru'?'Сегодня, ':'Today, ')+now.toLocaleDateString(state.lang==='ru'?'ru-RU':'en-US',{weekday:'long',day:'numeric',month:'long',year:'numeric'}));
+}
+
+function renderStatsActivity(){
+const grid=$('#statsActivityGrid');
+if(!grid) return;
+const monthLabels=$('#statsMonthLabels');
+const weekdayLabels=$('#statsWeekdayLabels');
+const ru=state.lang==='ru';
+const weekdayNames=ru?['Пн','Вт','Ср','Чт','Пт','Сб','Вс']:['M','T','W','T','F','S','S'];
+if(weekdayLabels) weekdayLabels.innerHTML=weekdayNames.map(x=>`<span>${x}</span>`).join('');
+const today=new Date(); today.setHours(12,0,0,0);
+const start=new Date(today); start.setDate(start.getDate()-(statsRange-1));
+const offset=(start.getDay()+6)%7;
+const cells=[];
+for(let i=0;i<offset;i++) cells.push(null);
+const months=[];
+for(let d=new Date(start);d<=today;d.setDate(d.getDate()+1)){
+ const date=new Date(d); cells.push(date);
+ const label=date.toLocaleDateString(ru?'ru-RU':'en-US',{month:'short'});
+ if(date.getDate()===1 || date.getTime()===start.getTime()) months.push({index:cells.length-1,label});
+}
+while(cells.length%7) cells.push(null);
+const activeDays=new Set();
+state.habits.forEach(h=>Object.keys(h.done||{}).forEach(k=>{if(h.done[k])activeDays.add(k)}));
+if($('#statsActivityCount')) $('#statsActivityCount').textContent=[...activeDays].filter(k=>k>=key(start)&&k<=key(today)).length;
+if(monthLabels){
+ const weeks=Math.ceil(cells.length/7); const labels=Array(weeks).fill('');
+ months.forEach(m=>{const week=Math.floor(m.index/7); if(week<labels.length) labels[week]=m.label;});
+ monthLabels.innerHTML=labels.map(x=>`<span>${esc(x)}</span>`).join('');
+}
+grid.innerHTML=cells.map(d=>{
+ if(!d) return '<i class="stats-activity-cell blank" aria-hidden="true"></i>';
+ const k=key(d); const n=state.habits.filter(h=>h.done?.[k]).length;
+ const percent=state.habits.length?Math.round(n/state.habits.length*100):0;
+ const level=percent===0?0:percent<25?1:percent<50?2:percent<80?3:4;
+ const dateLabel=d.toLocaleDateString(ru?'ru-RU':'en-US',{day:'numeric',month:'short',year:'numeric'});
+ const title=`${dateLabel}: ${n}/${state.habits.length} · ${percent}%`;
+ return `<i class="stats-activity-cell l${level}${k===key(today)?' today':''}" title="${esc(title)}" aria-label="${esc(title)}"></i>`;
+}).join('');
 }
 
 function rateForDay(d){
@@ -1925,116 +1946,19 @@ const lvl=
 level();
 
 const a=[
-
-[
-'✦',
-
-state.lang==='ru'
-?
-'Первый шаг'
-:
-'First step',
-
-state.lang==='ru'
-?
-'Первая отметка — начало системы.'
-:
-'Your first completion starts the system.',
-
-o.total>=1
-],
-
-[
-'🔥',
-
-state.lang==='ru'
-?
-'Пульс недели'
-:
-'Weekly Pulse',
-
-state.lang==='ru'
-?
-'7 дней подряд.'
-:
-'7 days in a row.',
-
-o.best>=7
-],
-
-[
-'💎',
-
-state.lang==='ru'
-?
-'Тридцать дней'
-:
-'Thirty Days',
-
-state.lang==='ru'
-?
-'30 дней дисциплины.'
-:
-'30 days of discipline.',
-
-o.best>=30
-],
-
-[
-'💯',
-
-state.lang==='ru'
-?
-'Сотня'
-:
-'Quiet Hundred',
-
-state.lang==='ru'
-?
-'100 выполнений.'
-:
-'100 completions.',
-
-o.total>=100
-],
-
-[
-'🏆',
-
-state.lang==='ru'
-?
-'Десятый уровень'
-:
-'Level Ten',
-
-state.lang==='ru'
-?
-'Достигни 10 уровня.'
-:
-'Reach level 10.',
-
-lvl>=10
-],
-
-[
-'🎵',
-
-state.lang==='ru'
-?
-'Стабильный ритм'
-:
-'Steady Rhythm',
-
-state.lang==='ru'
-?
-'60 дней устойчивого ритма.'
-:
-'60 days of steady rhythm.',
-
-o.best>=60
-]
-
+['✦',state.lang==='ru'?'Первый шаг':'First step',state.lang==='ru'?'Первая отметка — начало системы.':'Your first completion starts the system.',o.total>=1],
+['🔥',state.lang==='ru'?'Пульс недели':'Weekly Pulse',state.lang==='ru'?'7 дней подряд.':'7 days in a row.',o.best>=7],
+['🌱',state.lang==='ru'?'Привычка растёт':'Growing habit',state.lang==='ru'?'Создай 3 привычки.':'Create 3 habits.',state.habits.length>=3],
+['💎',state.lang==='ru'?'Тридцать дней':'Thirty Days',state.lang==='ru'?'30 дней дисциплины.':'30 days of discipline.',o.best>=30],
+['💯',state.lang==='ru'?'Сотня':'Quiet Hundred',state.lang==='ru'?'100 выполнений.':'100 completions.',o.total>=100],
+['🏆',state.lang==='ru'?'Десятый уровень':'Level Ten',state.lang==='ru'?'Достигни 10 уровня.':'Reach level 10.',lvl>=10],
+['🎵',state.lang==='ru'?'Стабильный ритм':'Steady Rhythm',state.lang==='ru'?'60 дней устойчивого ритма.':'60 days of steady rhythm.',o.best>=60],
+['⚡',state.lang==='ru'?'Десять побед':'Ten wins',state.lang==='ru'?'Выполни 10 фокусов.':'Complete 10 focuses.',o.total>=10],
+['🌟',state.lang==='ru'?'Пятьсот отметок':'Five Hundred',state.lang==='ru'?'Отметь привычки 500 раз.':'Complete habits 500 times.',o.total>=500],
+['🗓️',state.lang==='ru'?'Две недели':'Two Weeks',state.lang==='ru'?'14 дней подряд.':'14 days in a row.',o.best>=14]
 ];
+const allOthersUnlocked=a.every(x=>x[3]);
+a.push(['👑',state.lang==='ru'?'Коллекционер':'Completionist',state.lang==='ru'?'Открой все остальные достижения.':'Unlock every other achievement.',allOthersUnlocked]);
 
 if($('#achievementGrid')){
 
@@ -2246,7 +2170,19 @@ return;
 const name=
 input.value.trim();
 
-const finalName=name || (state.lang==='ru' ? 'Новый фокус' : 'New focus');
+if(!name){
+
+toast(
+state.lang==='ru'
+?
+'Напиши название фокуса'
+:
+'Enter a focus name'
+);
+
+return;
+
+}
 
 if(editingId){
 
@@ -2257,7 +2193,7 @@ x=>x.id===editingId
 
 if(h){
 
-h.name=finalName;
+h.name=name;
 h.icon=selectedIcon;
 h.color=selectedColor;
 h.days=[...selectedDays].sort((a,b)=>a-b);
@@ -2270,7 +2206,7 @@ state.habits.push({
 
 id:Date.now(),
 
-name:finalName,
+name,
 
 icon:selectedIcon,
 
@@ -2450,8 +2386,6 @@ b.classList.toggle(
 b.dataset.mobilePage===page
 )
 );
-
-updateSegmentSliders();
 
 if($('#pageTitle')){
 
@@ -3575,7 +3509,7 @@ if(colorPicker){
 if(!$('#mobileNav')){
 const nav=document.createElement('nav');
 nav.id='mobileNav';
-nav.className='mobile-nav bottom-nav';
+nav.className='mobile-nav';
 nav.innerHTML=`
 <div class="mobile-nav-heading"><strong>${state.lang==='ru'?'Навигация':'Navigation'}</strong><span>${state.lang==='ru'?'Твой Habit':'Your Habit space'}</span></div>
 <button data-mobile-page="home" type="button"><span>⌂</span><b data-i18n="home">Главная</b></button>
@@ -3584,7 +3518,6 @@ nav.innerHTML=`
 <button data-mobile-page="achievements" type="button"><span>✦</span><b data-i18n="achievements">Достижения</b></button>
 <button data-mobile-page="settings" type="button"><span>⚙</span><b data-i18n="settings">Настройки</b></button>`;
 document.body.appendChild(nav);
-updateSegmentSliders();
 $('#menuBtn')?.setAttribute('aria-label',state.lang==='ru'?'Открыть меню':'Open menu');
 $('#menuBtn')?.setAttribute('aria-expanded','false');
 nav.addEventListener('click',e=>{
