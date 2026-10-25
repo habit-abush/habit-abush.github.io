@@ -1351,3 +1351,12 @@ body.mobile-menu-open::before{content:"";position:fixed;inset:0;z-index:1490;bac
   .main:has(#settings.active) .top-heading{display:none!important}
   .main:has(#home.active) .top-heading{display:block!important;flex:1 1 auto!important}
 }
+
+
+/* Targeted mobile polish: slightly larger Habit wordmark with a clearer violet tint. */
+@media(max-width:760px){
+  .mobile-brand{font-size:24px!important;letter-spacing:-.6px!important;color:color-mix(in srgb,var(--accent) 42%,var(--text))!important;-webkit-text-fill-color:color-mix(in srgb,var(--accent) 42%,var(--text))!important;text-shadow:0 3px 16px rgba(130,95,255,.10)!important}
+  /* Keep the Home title calm and white; do not apply the violet brand tint to it. */
+  .main:has(#home.active) .top-heading h1{color:var(--text)!important;-webkit-text-fill-color:var(--text)!important;background:none!important}
+}
+@media(max-width:380px){.mobile-brand{font-size:22px!important}}
