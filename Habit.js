@@ -112,7 +112,7 @@ createdDate:'4 октября 2026',
 updatedLabel:'Последнее обновление',
 updatedDate:'25 октября 2026',
 aboutFooter:'Создано для маленьких шагов и больших целей',
-dataPrivacy:'Данные и приватность',dataSub:'Твои данные остаются в этом браузере.',exportData:'Экспортировать данные',importData:'Импортировать копию',dataHelp:'Регулярно сохраняй резервную копию, чтобы не потерять прогресс.',stableHabits:'Самые стабильные',activityCalendar:'Календарь активности',less:'меньше',more:'больше'
+dataPrivacy:'Данные и приватность',dataSub:'Твои данные остаются в этом браузере.',exportData:'Экспортировать данные',importData:'Импортировать копию',dataHelp:'Регулярно сохраняй резервную копию, чтобы не потерять прогресс.',stableHabits:'Самые стабильные'
 },
 
 en:{
@@ -183,7 +183,7 @@ createdDate:'October 4, 2026',
 updatedLabel:'Last updated',
 updatedDate:'October 25, 2026',
 aboutFooter:'Built for small steps and big goals',
-dataPrivacy:'Data & privacy',dataSub:'Your data stays in this browser.',exportData:'Export data',importData:'Import backup',dataHelp:'Export a backup regularly to keep your progress safe.',stableHabits:'Most consistent',activityCalendar:'Activity calendar',less:'less',more:'more'
+dataPrivacy:'Data & privacy',dataSub:'Your data stays in this browser.',exportData:'Export data',importData:'Import backup',dataHelp:'Export a backup regularly to keep your progress safe.',stableHabits:'Most consistent'
 }
 };
 
@@ -1835,12 +1835,6 @@ function renderStats(){
     const stable=state.habits.map(h=>{let done=0,scheduled=0;for(let i=0;i<statsRange;i++){const d=dateShift(-i),k=key(d);if(habitActiveOn(h,k)){scheduled++;if(h.done?.[k])done++;}}return {h,rate:scheduled?Math.round(done/scheduled*100):0,done};}).sort((a,b)=>b.rate-a.rate||b.done-a.done).slice(0,5);
     $('#stableHabitsList').innerHTML=stable.length?stable.map(x=>`<div class="stable-habit"><span class="stable-icon" style="--focus-color:${esc(x.h.color||'#9275ff')}">${esc(x.h.icon||'✦')}</span><div class="stable-info"><strong>${esc(x.h.name)}</strong><div class="stable-track"><i style="width:${x.rate}%;--focus-color:${esc(x.h.color||'#9275ff')}"></i></div></div><b>${x.rate}%</b></div>`).join(''):`<p class="stable-empty">${state.lang==='ru'?'Добавь фокус, чтобы увидеть статистику.':'Add a focus to see your statistics.'}</p>`;
   }
-  if($('#statsCalendar')){
-    const days=statsRange===365?365:statsRange; const cells=[];
-    for(let i=days-1;i>=0;i--){const d=dateShift(-i),k=key(d);const scheduled=state.habits.filter(h=>habitActiveOn(h,k));const completed=scheduled.filter(h=>h.done?.[k]).length;const pct=scheduled.length?completed/scheduled.length:0;const level=completed===0?0:pct<.34?1:pct<.67?2:pct<1?3:4;cells.push(`<span class="stats-day level-${level}" title="${k}: ${completed}/${scheduled.length}" aria-label="${k}"></span>`);}
-    $('#statsCalendar').innerHTML=cells.join('');
-    if($('#calendarLabel')) $('#calendarLabel').textContent=statsRange===365?(state.lang==='ru'?'365 дней':'365 days'):`${statsRange} ${state.lang==='ru'?'дней':'days'}`;
-  }
   updateSegmentSliders();
 }
 
@@ -1891,6 +1885,34 @@ state.lang==='ru'
 'Your first completion starts the system.',
 
 o.total>=1
+],
+
+[
+'🔟',
+state.lang==='ru'?'Первые десять':'First Ten',
+state.lang==='ru'?'Выполни фокусы 10 раз.':'Complete focuses 10 times.',
+o.total>=10
+],
+
+[
+'🎯',
+state.lang==='ru'?'Точная цель':'On Target',
+state.lang==='ru'?'Выполни фокусы 50 раз.':'Complete focuses 50 times.',
+o.total>=50
+],
+
+[
+'🚀',
+state.lang==='ru'?'Большой разгон':'Momentum Builder',
+state.lang==='ru'?'Выполни фокусы 500 раз.':'Complete focuses 500 times.',
+o.total>=500
+],
+
+[
+'🧩',
+state.lang==='ru'?'Своя система':'Your Own System',
+state.lang==='ru'?'Создай 5 разных фокусов.':'Create 5 different focuses.',
+state.habits.length>=5
 ],
 
 [
@@ -3531,7 +3553,7 @@ const nav=document.createElement('nav');
 nav.id='mobileNav';
 nav.className='mobile-nav bottom-nav';
 nav.innerHTML=`
-<div class="mobile-nav-heading"><strong>${state.lang==='ru'?'Навигация':'Navigation'}</strong><span>${state.lang==='ru'?'Твой Habit':'Your Habit space'}</span></div>
+<div class="mobile-nav-heading"><strong>${state.lang==='ru'?'Навигация':'Navigation'}</strong><span>${state.lang==='ru'?'Разделы приложения':'App sections'}</div>
 <button data-mobile-page="home" type="button"><span>⌂</span><b data-i18n="home">Главная</b></button>
 <button data-mobile-page="habits" type="button"><span>☷</span><b data-i18n="habits">Привычки</b></button>
 <button data-mobile-page="stats" type="button"><span>◒</span><b data-i18n="stats">Статистика</b></button>
