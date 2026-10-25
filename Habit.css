@@ -488,3 +488,10 @@ button:disabled{cursor:not-allowed}
 .about-heading{display:flex;align-items:flex-start;gap:13px;min-width:0}
 .about-logo{display:block;width:44px;height:44px;flex:0 0 44px;object-fit:cover;border-radius:13px}
 .about-heading>div{min-width:0}
+
+
+/* Header cleanup: one desktop brand in the sidebar; no stray Habit wordmark beside page title. */
+.mobile-brand{display:none!important}
+.brand{display:flex!important;align-items:center!important;gap:12px!important;padding-bottom:30px!important;min-height:43px!important}
+.brand .brand-logo{display:block!important;width:39px!important;height:39px!important;flex:0 0 39px!important;object-fit:cover!important;border-radius:12px!important;box-shadow:none!important}
+.top-heading{margin-left:0!important}

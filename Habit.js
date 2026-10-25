@@ -2456,6 +2456,15 @@ t(page);
 
 }
 
+const pageEyebrows={
+  home:'YOUR RHYTHM',
+  habits:'YOUR COLLECTION',
+  stats:'YOUR PROGRESS',
+  achievements:'YOUR MILESTONES',
+  settings:'YOUR SPACE'
+};
+if($('#pageEyebrow')) $('#pageEyebrow').textContent=pageEyebrows[page] || 'YOUR SPACE';
+
 $('#sidebar')?.classList.remove(
 'open'
 );
