@@ -115,7 +115,8 @@ updatedLabel:'Последнее обновление',
 updatedDate:'31 октября 2026',
 aboutFooter:'Создано для маленьких шагов и больших целей',
 dataPrivacy:'Данные и приватность',dataSub:'Твои данные остаются в этом браузере.',exportData:'Экспортировать данные',importData:'Импортировать копию',dataHelp:'Регулярно сохраняй резервную копию, чтобы не потерять прогресс.',stableHabits:'Самые стабильные',
-plans:'Планы',plansEyebrow:'МОИ ПЛАНЫ',tasks:'Задачи',goals:'Цели',addTask:'Добавить задачу',addGoal:'Добавить цель',goalActive:'В процессе',goalDone:'Достигнуто',goalFailed:'Провалено',planLeft:'Осталось',planDoneLabel:'Выполнено',planTotal:'Всего',planDeadline:'Выполнить до',planDeadlineHint:'Отметь цель галочкой до этой даты включительно — иначе она автоматически станет крестиком.'
+plans:'Планы',plansEyebrow:'МОИ ПЛАНЫ',tasks:'Задачи',goals:'Цели',addTask:'Добавить задачу',addGoal:'Добавить цель',goalActive:'В процессе',goalDone:'Достигнуто',goalFailed:'Провалено',planLeft:'Осталось',planDoneLabel:'Выполнено',planTotal:'Всего',planDeadline:'Выполнить до',planDeadlineHint:'Отметь цель галочкой до этой даты включительно — иначе она автоматически станет крестиком.',
+newTitle:'Что нового в v1.6',new1:'Новая вкладка «Планы» — задачи и цели в одном месте.',new2:'У каждой задачи и цели свой значок и цвет.',new3:'Цели со сроком: отметь до даты, иначе цель станет крестиком.',new4:'Исправлено много мелких недоработок и улучшен внешний вид.'
 },
 
 en:{
@@ -187,7 +188,8 @@ updatedLabel:'Last updated',
 updatedDate:'October 31, 2026',
 aboutFooter:'Built for small steps and big goals',
 dataPrivacy:'Data & privacy',dataSub:'Your data stays in this browser.',exportData:'Export data',importData:'Import backup',dataHelp:'Export a backup regularly to keep your progress safe.',stableHabits:'Most consistent',
-plans:'Plans',plansEyebrow:'MY PLANS',tasks:'Tasks',goals:'Goals',addTask:'Add task',addGoal:'Add goal',goalActive:'In progress',goalDone:'Achieved',goalFailed:'Failed',planLeft:'Left',planDoneLabel:'Completed',planTotal:'Total',planDeadline:'Complete by',planDeadlineHint:'Tick the goal on or before this date — otherwise it automatically turns into a cross.'
+plans:'Plans',plansEyebrow:'MY PLANS',tasks:'Tasks',goals:'Goals',addTask:'Add task',addGoal:'Add goal',goalActive:'In progress',goalDone:'Achieved',goalFailed:'Failed',planLeft:'Left',planDoneLabel:'Completed',planTotal:'Total',planDeadline:'Complete by',planDeadlineHint:'Tick the goal on or before this date — otherwise it automatically turns into a cross.',
+newTitle:'What\'s new in v1.6',new1:'New “Plans” tab — tasks and goals in one place.',new2:'Every task and goal has its own icon and color.',new3:'Goals with a deadline: tick it by the date or it turns into a cross.',new4:'Lots of small issues fixed and a more polished look.'
 }
 };
 
@@ -3781,7 +3783,11 @@ maybeShowRecovery();
    PLANS: TASKS & GOALS (v1.6)
 ========================= */
 
-let plansTab='tasks',taskFilter='all',goalFilter='all',planEdit=null,planIcon='📝';
+let plansTab='tasks',taskFilter='all',goalFilter='all',planEdit=null,planIcon='📝',planColor='#9a7cff';
+
+function cleanPlanColor(v){
+return typeof v==='string'&&/^#[0-9a-fA-F]{6}$/.test(v.trim())?v.trim():'#9a7cff';
+}
 
 function cleanPlanIcon(v,fallback){
 const s=typeof v==='string'?v.trim():'';
@@ -3800,6 +3806,7 @@ return list
 id:Number.isFinite(Number(x.id))?Number(x.id):Date.now()+i,
 name:String(x.name).trim().slice(0,60),
 icon:cleanPlanIcon(x.icon,'📝'),
+color:cleanPlanColor(x.color),
 done:!!x.done,
 doneAt:x.done&&isDateKey(x.doneAt)?x.doneAt:'',
 created:isDateKey(x.created)?x.created:key(new Date())
@@ -3816,6 +3823,7 @@ return{
 id:Number.isFinite(Number(x.id))?Number(x.id):Date.now()+i,
 name:String(x.name).trim().slice(0,60),
 icon:cleanPlanIcon(x.icon,'🎯'),
+color:cleanPlanColor(x.color),
 deadline:x.deadline,
 status,
 doneAt:status==='done'&&isDateKey(x.doneAt)?x.doneAt:'',
@@ -3904,7 +3912,7 @@ return;
 list.innerHTML=shown.map(x=>{
 const doneLabel=x.doneAt?planDate(x.doneAt):'';
 return `
-<article class="focus-card plan-card plan-task ${x.done?'completed':''}" style="--focus-color:${x.done?'var(--green)':'var(--accent)'}">
+<article class="focus-card plan-card plan-task ${x.done?'completed':''}" style="--focus-color:${esc(x.color)}">
 <button class="focus-icon" data-plan-action="toggle" data-plan-type="task" data-id="${x.id}" type="button" aria-label="${ru?'Отметить':'Toggle'}: ${esc(x.name)}">${esc(x.icon)}</button>
 <div class="focus-info">
 <h3>${esc(x.name)}</h3>
@@ -3935,6 +3943,8 @@ function renderPlanIconPicker(){
 const box=$('#planIconPicker');
 if(!box) return;
 box.innerHTML=icons.map(i=>`<button type="button" class="icon-choice ${i===planIcon?'selected':''}" data-icon="${i}">${i}</button>`).join('');
+const cb=$('#planColorPicker');
+if(cb) cb.innerHTML=colors.map(c=>`<button type="button" class="color-choice ${c===planColor?'selected':''}" data-color="${c}" style="--option-color:${c}"></button>`).join('');
 }
 
 function renderGoals(){
@@ -3999,7 +4009,7 @@ footR=(ru?'до ':'until ')+planDate(g.deadline,true);
 const status=done?'done':failed?'failed':'active';
 
 return `
-<article class="goal-card plan-card plan-goal ${status}" style="--goal-color:${done?'var(--green)':failed?'var(--danger)':'var(--accent)'}">
+<article class="goal-card plan-card plan-goal ${status}" style="--goal-color:${failed?'var(--danger)':esc(g.color)}">
 <button class="goal-icon" data-plan-action="toggle" data-plan-type="goal" data-id="${g.id}" type="button" aria-label="${ru?'Отметить':'Toggle'}: ${esc(g.name)}">${esc(g.icon)}</button>
 <div class="goal-main">
 <div class="goal-top"><span class="goal-badge">${esc(badge)}</span></div>
@@ -4096,6 +4106,7 @@ if(id&&!item) return;
 
 planEdit={type,id:item?item.id:null};
 planIcon=cleanPlanIcon(item?.icon,goal?'🎯':'📝');
+planColor=cleanPlanColor(item?.color);
 renderPlanIconPicker();
 
 if($('#planModalEyebrow')) $('#planModalEyebrow').textContent=goal?(ru?'ЦЕЛЬ':'GOAL'):(ru?'ЗАДАЧА':'TASK');
@@ -4121,6 +4132,8 @@ if(dateInput&&goal){
 const today=key(new Date());
 if(item&&item.status==='done') dateInput.removeAttribute('min');
 else dateInput.min=today;
+// A goal completed and past its deadline is final: its date can't be moved to bring back the undo.
+dateInput.disabled=!!(item&&item.status==='done'&&item.deadline<today);
 if(item){
 dateInput.value=item.deadline;
 }else{
@@ -4173,8 +4186,9 @@ const x=state.tasks.find(v=>v.id===planEdit.id);
 if(!x){closePlanModal();renderPlans();return;}
 x.name=name;
 x.icon=planIcon;
+x.color=planColor;
 }else{
-state.tasks.unshift({id:Date.now(),name,icon:planIcon,done:false,doneAt:'',created:today});
+state.tasks.unshift({id:Date.now(),name,icon:planIcon,color:planColor,done:false,doneAt:'',created:today});
 }
 }else{
 const date=$('#planDate')?.value||'';
@@ -4189,6 +4203,11 @@ if(planEdit.id&&!g){closePlanModal();renderPlans();return;}
 
 const changed=!g||g.deadline!==date;
 
+if(g&&g.status==='done'&&g.deadline<today&&changed){
+toast(ru?'Срок уже прошёл — дату не изменить':'The deadline has passed — can\'t change the date');
+return;
+}
+
 if(changed&&date<today&&!(g&&g.status==='done')){
 toast(ru?'Дата не может быть в прошлом':'The date can\'t be in the past');
 return;
@@ -4197,12 +4216,13 @@ return;
 if(g){
 g.name=name;
 g.icon=planIcon;
+g.color=planColor;
 if(changed){
 g.deadline=date;
 if(g.status==='failed'&&date>=today) g.status='active';
 }
 }else{
-state.goals.push({id:Date.now(),name,icon:planIcon,deadline:date,status:'active',doneAt:'',created:today});
+state.goals.push({id:Date.now(),name,icon:planIcon,color:planColor,deadline:date,status:'active',doneAt:'',created:today});
 }
 }
 
@@ -4281,6 +4301,14 @@ e.stopPropagation();
 planIcon=b.dataset.icon;
 $$('#planIconPicker [data-icon]').forEach(x=>x.classList.toggle('selected',x===b));
 });
+$('#planColorPicker')?.addEventListener('click',e=>{
+const b=e.target.closest('[data-color]');
+if(!b) return;
+e.preventDefault();
+e.stopPropagation();
+planColor=b.dataset.color;
+$$('#planColorPicker [data-color]').forEach(x=>x.classList.toggle('selected',x===b));
+});
 $('#savePlan')?.addEventListener('click',savePlan);
 $('#deletePlan')?.addEventListener('click',deletePlan);
 $('#closePlanModal')?.addEventListener('click',closePlanModal);
@@ -4318,3 +4346,36 @@ window.addEventListener('focus',refreshGoals);
 }
 
 document.addEventListener('DOMContentLoaded',bindPlans);
+
+
+/* =========================
+   v1.6 "what's new" mini card (Settings)
+========================= */
+(function(){
+function init(){
+const btn=$('#aboutVersion'),pop=$('#versionPop');
+if(!btn||!pop) return;
+const place=()=>{
+const r=btn.getBoundingClientRect();
+const w=Math.min(300,window.innerWidth-24);
+pop.style.width=w+'px';
+let left=r.right-w;
+left=Math.max(12,Math.min(left,window.innerWidth-w-12));
+pop.style.left=left+'px';
+pop.style.top=(r.bottom+10)+'px';
+const arrow=Math.max(14,Math.min(w-30,r.left+r.width/2-left-6));
+pop.style.setProperty('--arrow-left',arrow+'px');
+};
+const close=()=>{pop.classList.remove('open');btn.setAttribute('aria-expanded','false');};
+const open=()=>{place();pop.classList.add('open');btn.setAttribute('aria-expanded','true');};
+btn.addEventListener('click',e=>{e.stopPropagation();pop.classList.contains('open')?close():open();});
+pop.addEventListener('click',e=>e.stopPropagation());
+$('#versionClose')?.addEventListener('click',close);
+document.addEventListener('click',close);
+document.addEventListener('keydown',e=>{if(e.key==='Escape') close();});
+window.addEventListener('resize',()=>{if(pop.classList.contains('open')) place();});
+window.addEventListener('scroll',()=>{if(pop.classList.contains('open')) place();},{passive:true});
+$$('.nav-link,[data-mobile-page]').forEach(b=>b.addEventListener('click',close));
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+})();

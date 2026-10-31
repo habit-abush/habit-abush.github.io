@@ -1485,7 +1485,7 @@ body.mobile-menu-open::before{content:"";position:fixed;inset:0;z-index:1490;bac
 
 /* ---- Icon picker inside the plan modal ---- */
 #planIconRow{display:block}
-#planIconRow .icon-picker{max-height:190px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#planColorRow{display:block}
 
 /* ---- Desktop only: tidy header on Plans / Statistics / Achievements / Settings (Home and Habits untouched) ---- */
 @media (min-width:761px){
@@ -1508,7 +1508,7 @@ body.mobile-menu-open::before{content:"";position:fixed;inset:0;z-index:1490;bac
   .main:has(#plans.active) #plans,
   .main:has(#stats.active) #stats,
   .main:has(#achievements.active) #achievements,
-  .main:has(#settings.active) #settings{margin-top:-50px!important;padding-top:0!important}
+  .main:has(#settings.active) #settings{margin-top:-38px!important;padding-top:0!important}
   #stats>.section-head:first-child,
   #achievements>.section-head:first-child,
   #settings>.section-head:first-child{margin-top:0!important}
@@ -1524,3 +1524,34 @@ body.mobile-menu-open::before{content:"";position:fixed;inset:0;z-index:1490;bac
   .stats-switch.plans-switch{display:grid!important;grid-template-columns:repeat(2,minmax(110px,auto))!important;width:max-content!important;max-width:100%;gap:6px!important;padding:5px!important}
   .plans-switch .stats-tab{padding:9px 24px!important;font-size:12px!important}
 }
+
+
+/* ---- Plan modal: date field aligned like the other inputs (incl. iOS) ---- */
+.modal-card input[type="date"]{display:flex!important;align-items:center;width:100%;max-width:100%;box-sizing:border-box;height:47px;min-height:47px;margin:0;line-height:normal;text-align:left!important;text-align-last:left;-webkit-appearance:none;appearance:none}
+.modal-card input[type="date"]::-webkit-date-and-time-value{text-align:left!important;margin:0;padding:0;min-height:0;display:block}
+.modal-card input[type="date"]::-webkit-datetime-edit{padding:0;margin:0;text-align:left;flex:1 1 auto}
+.modal-card input[type="date"]::-webkit-datetime-edit-fields-wrapper{padding:0}
+.modal-card input[type="date"]::-webkit-calendar-picker-indicator{margin:0 0 0 auto;padding:0}
+.modal-card input[type="date"]:disabled{opacity:.55;cursor:not-allowed}
+
+/* ---- "Goals" tab button gets a soft violet accent ---- */
+.plans-switch .stats-tab[data-plans-tab="goals"]{color:color-mix(in srgb,var(--accent) 80%,var(--text))!important;background:color-mix(in srgb,var(--accent) 14%,transparent)!important;border-radius:10px}
+.plans-switch .stats-tab[data-plans-tab="goals"].active{background:transparent!important;color:var(--accent)!important;font-weight:900}
+.plans-switch.has-slider:has([data-plans-tab="goals"].active)::before{background:color-mix(in srgb,var(--accent) 20%,var(--surface))!important;border-color:color-mix(in srgb,var(--accent) 45%,var(--line))!important}
+
+/* ---- Settings: clickable version badge + mini what's-new card ---- */
+button.about-version{font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:transform .15s,background .2s,border-color .2s}
+button.about-version:hover{transform:translateY(-1px);background:color-mix(in srgb,var(--accent) 20%,var(--surface));border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
+button.about-version:active{transform:scale(.96)}
+button.about-version .tap-hint{opacity:.85;flex:0 0 auto}
+.version-pop{position:fixed;z-index:3500;left:0;top:0;width:300px;padding:16px 16px 14px;border-radius:18px;background:var(--surface);border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));box-shadow:0 22px 60px rgba(0,0,0,.35);opacity:0;visibility:hidden;transform:translateY(-6px) scale(.98);transform-origin:top right;transition:opacity .18s ease,transform .18s ease,visibility .18s}
+.version-pop.open{opacity:1;visibility:visible;transform:none}
+.version-pop:before{content:"";position:absolute;top:-6px;left:var(--arrow-left,30px);width:12px;height:12px;background:var(--surface);border-left:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));border-top:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));transform:rotate(45deg)}
+.version-head{display:flex;align-items:center;gap:9px;margin:0 26px 10px 0}
+.version-head strong{font-size:14px;letter-spacing:-.2px}
+.version-badge{padding:3px 8px;border-radius:8px;font-size:10px;font-weight:900;color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent)}
+.version-pop ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.version-pop li{position:relative;padding-left:18px;color:var(--muted);font-size:12px;line-height:1.45}
+.version-pop li:before{content:"✦";position:absolute;left:0;top:0;color:var(--accent);font-size:10px;line-height:1.9}
+.version-close{position:absolute;right:10px;top:10px;width:26px;height:26px;border-radius:9px;background:var(--surface2);color:var(--muted);font-size:16px;line-height:1;display:grid;place-items:center}
+.modal-card input[type="date"]{justify-content:space-between}
