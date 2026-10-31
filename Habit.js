@@ -10,6 +10,8 @@ recovery:2,
 recoveryMonth:'',
 recoveredDates:{},
 recoveryDismissed:{},
+tasks:[],
+goals:[],
 habits:[
 {id:1,name:'Читать 20 минут',icon:'📚',color:'#9a7cff',done:{},days:[0,1,2,3,4,5,6]},
 {id:2,name:'Тренировка',icon:'🏋️',color:'#55e89a',done:{},days:[0,1,2,3,4,5,6]},
@@ -110,9 +112,10 @@ creatorChip:'Автор',
 createdLabel:'Дата создания',
 createdDate:'4 октября 2026',
 updatedLabel:'Последнее обновление',
-updatedDate:'25 октября 2026',
+updatedDate:'31 октября 2026',
 aboutFooter:'Создано для маленьких шагов и больших целей',
-dataPrivacy:'Данные и приватность',dataSub:'Твои данные остаются в этом браузере.',exportData:'Экспортировать данные',importData:'Импортировать копию',dataHelp:'Регулярно сохраняй резервную копию, чтобы не потерять прогресс.',stableHabits:'Самые стабильные'
+dataPrivacy:'Данные и приватность',dataSub:'Твои данные остаются в этом браузере.',exportData:'Экспортировать данные',importData:'Импортировать копию',dataHelp:'Регулярно сохраняй резервную копию, чтобы не потерять прогресс.',stableHabits:'Самые стабильные',
+plans:'Планы',plansEyebrow:'МОИ ПЛАНЫ',tasks:'Задачи',goals:'Цели',addTask:'Добавить задачу',addGoal:'Добавить цель',goalActive:'В процессе',goalDone:'Достигнуто',goalFailed:'Провалено',planLeft:'Осталось',planDoneLabel:'Выполнено',planTotal:'Всего',planDeadline:'Выполнить до',planDeadlineHint:'Отметь цель галочкой до этой даты включительно — иначе она автоматически станет крестиком.'
 },
 
 en:{
@@ -181,9 +184,10 @@ creatorChip:'Author',
 createdLabel:'Created on',
 createdDate:'October 4, 2026',
 updatedLabel:'Last updated',
-updatedDate:'October 25, 2026',
+updatedDate:'October 31, 2026',
 aboutFooter:'Built for small steps and big goals',
-dataPrivacy:'Data & privacy',dataSub:'Your data stays in this browser.',exportData:'Export data',importData:'Import backup',dataHelp:'Export a backup regularly to keep your progress safe.',stableHabits:'Most consistent'
+dataPrivacy:'Data & privacy',dataSub:'Your data stays in this browser.',exportData:'Export data',importData:'Import backup',dataHelp:'Export a backup regularly to keep your progress safe.',stableHabits:'Most consistent',
+plans:'Plans',plansEyebrow:'MY PLANS',tasks:'Tasks',goals:'Goals',addTask:'Add task',addGoal:'Add goal',goalActive:'In progress',goalDone:'Achieved',goalFailed:'Failed',planLeft:'Left',planDoneLabel:'Completed',planTotal:'Total',planDeadline:'Complete by',planDeadlineHint:'Tick the goal on or before this date — otherwise it automatically turns into a cross.'
 }
 };
 
@@ -214,6 +218,9 @@ loaded.habits=(loaded.habits||[]).map(h=>({
   ...h,
   days:Array.isArray(h.days)&&h.days.length ? [...new Set(h.days.map(Number).filter(x=>x>=0&&x<=6))].sort((a,b)=>a-b) : [0,1,2,3,4,5,6]
 }));
+
+loaded.tasks=normalizeTasks(loaded.tasks);
+loaded.goals=normalizeGoals(loaded.goals);
 
 return loaded;
 
@@ -1116,6 +1123,8 @@ renderStats();
 
 renderAchievements();
 
+renderPlans();
+
 }
 
 function plural(n){
@@ -1830,7 +1839,7 @@ function renderStats(){
   if(chart) chart.innerHTML=data.map(v=>`<i class="bar" style="height:${Math.max(4,v)}%" title="${v}%"></i>`).join('');
   const avg=Math.round(data.reduce((a,b)=>a+b,0)/(data.length||1));
   if($('#chartValue')) $('#chartValue').textContent=avg+'%';
-  $$('.stats-tab').forEach(b=>b.classList.toggle('active',+b.dataset.range===statsRange));
+  $$('.stats-tab[data-range]').forEach(b=>b.classList.toggle('active',+b.dataset.range===statsRange));
   if($('#stableHabitsList')){
     const stable=state.habits.map(h=>{let done=0,scheduled=0;for(let i=0;i<statsRange;i++){const d=dateShift(-i),k=key(d);if(habitActiveOn(h,k)){scheduled++;if(h.done?.[k])done++;}}return {h,rate:scheduled?Math.round(done/scheduled*100):0,done};}).sort((a,b)=>b.rate-a.rate||b.done-a.done).slice(0,5);
     $('#stableHabitsList').innerHTML=stable.length?stable.map(x=>`<div class="stable-habit"><span class="stable-icon" style="--focus-color:${esc(x.h.color||'#9275ff')}">${esc(x.h.icon||'✦')}</span><div class="stable-info"><strong>${esc(x.h.name)}</strong><div class="stable-track"><i style="width:${x.rate}%;--focus-color:${esc(x.h.color||'#9275ff')}"></i></div></div><b>${x.rate}%</b></div>`).join(''):`<p class="stable-empty">${state.lang==='ru'?'Добавь фокус, чтобы увидеть статистику.':'Add a focus to see your statistics.'}</p>`;
@@ -2461,6 +2470,7 @@ const pageEyebrows={
   habits:'YOUR COLLECTION',
   stats:'YOUR PROGRESS',
   achievements:'YOUR MILESTONES',
+  plans:'YOUR PLANS',
   settings:'YOUR SPACE'
 };
 if($('#pageEyebrow')) $('#pageEyebrow').textContent=pageEyebrows[page] || 'YOUR SPACE';
@@ -3588,6 +3598,7 @@ nav.innerHTML=`
 <div class="mobile-nav-heading"><strong>${state.lang==='ru'?'Навигация':'Navigation'}</strong><span>${state.lang==='ru'?'Разделы приложения':'App sections'}</div>
 <button data-mobile-page="home" type="button"><span>⌂</span><b data-i18n="home">Главная</b></button>
 <button data-mobile-page="habits" type="button"><span>☷</span><b data-i18n="habits">Привычки</b></button>
+<button data-mobile-page="plans" type="button"><span>◎</span><b data-i18n="plans">Планы</b></button>
 <button data-mobile-page="stats" type="button"><span>◒</span><b data-i18n="stats">Статистика</b></button>
 <button data-mobile-page="achievements" type="button"><span>✦</span><b data-i18n="achievements">Достижения</b></button>
 <button data-mobile-page="settings" type="button"><span>⚙</span><b data-i18n="settings">Настройки</b></button>`;
@@ -3764,3 +3775,497 @@ maybeShowRecovery();
 
 }
 );
+
+
+/* =========================
+   PLANS: TASKS & GOALS (v1.6)
+========================= */
+
+let plansTab='tasks',taskFilter='all',goalFilter='all',planEdit=null;
+
+function isDateKey(v){
+return typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v);
+}
+
+function normalizeTasks(list){
+if(!Array.isArray(list)) return [];
+return list
+.filter(x=>x&&typeof x==='object'&&String(x.name||'').trim())
+.map((x,i)=>({
+id:Number.isFinite(Number(x.id))?Number(x.id):Date.now()+i,
+name:String(x.name).trim().slice(0,60),
+done:!!x.done,
+doneAt:x.done&&isDateKey(x.doneAt)?x.doneAt:'',
+created:isDateKey(x.created)?x.created:key(new Date())
+}));
+}
+
+function normalizeGoals(list){
+if(!Array.isArray(list)) return [];
+return list
+.filter(x=>x&&typeof x==='object'&&String(x.name||'').trim()&&isDateKey(x.deadline))
+.map((x,i)=>{
+const status=['active','done','failed'].includes(x.status)?x.status:'active';
+return{
+id:Number.isFinite(Number(x.id))?Number(x.id):Date.now()+i,
+name:String(x.name).trim().slice(0,60),
+deadline:x.deadline,
+status,
+doneAt:status==='done'&&isDateKey(x.doneAt)?x.doneAt:'',
+created:isDateKey(x.created)?x.created:key(new Date())
+};
+});
+}
+
+// A goal can be ticked up to and including its deadline day.
+// Once that day has passed without a tick, it turns into a cross automatically.
+function syncGoals(){
+const today=key(new Date());
+let changed=false;
+state.goals.forEach(g=>{
+if(g.status==='active'&&g.deadline<today){
+g.status='failed';
+changed=true;
+}
+});
+if(changed) save();
+return changed;
+}
+
+function planDate(k,full){
+const d=new Date(k+'T12:00:00');
+const opts={day:'numeric',month:full?'long':'short'};
+if(d.getFullYear()!==new Date().getFullYear()) opts.year='numeric';
+return d.toLocaleDateString(state.lang==='ru'?'ru-RU':'en-US',opts);
+}
+
+function planDaysLeft(k){
+const a=new Date(k+'T12:00:00');
+const b=new Date(key(new Date())+'T12:00:00');
+return Math.round((a-b)/86400000);
+}
+
+function planDayWord(n){
+if(state.lang!=='ru') return n===1?'day':'days';
+const a=Math.abs(n)%100;
+const b=a%10;
+return a>10&&a<20?'дней':b===1?'день':b>=2&&b<=4?'дня':'дней';
+}
+
+function planStat(label,value,cls){
+return `<article class="${cls||''}"><span>${esc(label)}</span><strong>${value}</strong></article>`;
+}
+
+function planEmpty(title,text){
+return `<div class="empty-focus"><div class="empty-icon">✨</div><h3>${esc(title)}</h3><p>${esc(text)}</p></div>`;
+}
+
+function renderTasks(){
+const list=$('#taskList');
+if(!list) return;
+const ru=state.lang==='ru';
+const all=state.tasks;
+const left=all.filter(x=>!x.done).length;
+
+if($('#taskStats')){
+$('#taskStats').innerHTML=
+planStat(t('planLeft'),left)+
+planStat(t('planDoneLabel'),all.length-left,'good')+
+planStat(t('planTotal'),all.length);
+}
+
+$$('#taskFilters .filter').forEach(b=>b.classList.toggle('active',b.dataset.planFilter===taskFilter));
+
+const sorted=[...all].sort((a,b)=>{
+if(a.done!==b.done) return a.done?1:-1;
+if(a.done){
+const c=String(b.doneAt).localeCompare(String(a.doneAt));
+if(c) return c;
+}
+return b.id-a.id;
+});
+
+const shown=sorted.filter(x=>taskFilter==='all'?true:taskFilter==='done'?x.done:!x.done);
+
+if(!shown.length){
+list.innerHTML=all.length
+?planEmpty(ru?'Здесь пока пусто':'Nothing here','')
+:planEmpty(ru?'Задач пока нет':'No tasks yet',ru?'Добавь первую задачу — её нужно выполнить всего один раз.':'Add your first task — you only need to complete it once.');
+return;
+}
+
+list.innerHTML=shown.map(x=>{
+const doneLabel=x.doneAt?planDate(x.doneAt):'';
+return `
+<article class="focus-card plan-card plan-task ${x.done?'completed':''}" style="--focus-color:${x.done?'var(--green)':'var(--accent)'}">
+<button class="focus-icon" data-plan-action="toggle" data-plan-type="task" data-id="${x.id}" type="button" aria-label="${ru?'Отметить':'Toggle'}: ${esc(x.name)}">📝</button>
+<div class="focus-info">
+<h3>${esc(x.name)}</h3>
+<p>${x.done?(ru?'Выполнено ✓':'Completed ✓'):(ru?'Нажми справа, когда сделаешь':'Tap the circle when done')}</p>
+</div>
+<div class="focus-streak">
+<b>${x.done?'✓ '+esc(doneLabel):'🗓 '+esc(planDate(x.created))}</b>
+<span>${x.done?(ru?'выполнена':'done'):(ru?'добавлена':'added')}</span>
+</div>
+<button class="check" data-plan-action="toggle" data-plan-type="task" data-id="${x.id}" type="button" aria-label="${ru?'Отметить':'Toggle'}: ${esc(x.name)}">${x.done?'✓':'○'}</button>
+<button class="more" data-plan-action="edit" data-plan-type="task" data-id="${x.id}" type="button" aria-label="${ru?'Изменить':'Edit'}: ${esc(x.name)}">•••</button>
+</article>`;
+}).join('');
+}
+
+function renderGoals(){
+const list=$('#goalList');
+if(!list) return;
+const ru=state.lang==='ru';
+const all=state.goals;
+const count=s=>all.filter(g=>g.status===s).length;
+
+if($('#goalStats')){
+$('#goalStats').innerHTML=
+planStat(t('goalActive'),count('active'))+
+planStat(t('goalDone'),count('done'),'good')+
+planStat(t('goalFailed'),count('failed'),'bad');
+}
+
+$$('#goalFilters .filter').forEach(b=>b.classList.toggle('active',b.dataset.planFilter===goalFilter));
+
+const rank={active:0,done:1,failed:2};
+const sorted=[...all].sort((a,b)=>{
+if(a.status!==b.status) return rank[a.status]-rank[b.status];
+if(a.status==='active') return a.deadline.localeCompare(b.deadline)||a.id-b.id;
+if(a.status==='done') return String(b.doneAt).localeCompare(String(a.doneAt))||b.id-a.id;
+return b.deadline.localeCompare(a.deadline)||b.id-a.id;
+});
+
+const shown=sorted.filter(g=>goalFilter==='all'?true:g.status===goalFilter);
+
+if(!shown.length){
+list.innerHTML=all.length
+?planEmpty(ru?'Здесь пока пусто':'Nothing here','')
+:planEmpty(ru?'Целей пока нет':'No goals yet',ru?'Поставь цель и дату: отметь её галочкой до этого дня, иначе она станет крестиком.':'Set a goal and a date: tick it by that day, otherwise it turns into a cross.');
+return;
+}
+
+list.innerHTML=shown.map(g=>{
+const done=g.status==='done';
+const failed=g.status==='failed';
+const left=planDaysLeft(g.deadline);
+
+let pill,sub;
+if(done){
+pill=`<b>✓ ${esc(g.doneAt?planDate(g.doneAt):'')}</b><span>${ru?'выполнена':'done'}</span>`;
+sub=ru?'Цель достигнута ✓':'Goal achieved ✓';
+}else if(failed){
+pill=`<b>✕ ${esc(planDate(g.deadline))}</b><span>${ru?'срок истёк':'expired'}</span>`;
+sub=ru?'Срок истёк — цель не выполнена':'Deadline passed — goal not completed';
+}else{
+pill=left<=0
+?`<b>⏳ ${ru?'Сегодня':'Today'}</b><span></span>`
+:`<b>⏳ ${left}</b><span>${planDayWord(left)}</span>`;
+sub=(ru?'До ':'Until ')+planDate(g.deadline,true);
+}
+
+const color=done?'var(--green)':failed?'var(--danger)':'var(--accent)';
+
+return `
+<article class="focus-card plan-card plan-goal ${done?'completed':''} ${failed?'failed':''}" style="--focus-color:${color}">
+<button class="focus-icon" data-plan-action="toggle" data-plan-type="goal" data-id="${g.id}" type="button" aria-label="${ru?'Отметить':'Toggle'}: ${esc(g.name)}">${done?'🏆':'🎯'}</button>
+<div class="focus-info">
+<h3>${esc(g.name)}</h3>
+<p>${esc(sub)}</p>
+</div>
+<div class="focus-streak">${pill}</div>
+<button class="check" data-plan-action="toggle" data-plan-type="goal" data-id="${g.id}" type="button" aria-label="${ru?'Отметить':'Toggle'}: ${esc(g.name)}">${done?'✓':failed?'✕':'○'}</button>
+<button class="more" data-plan-action="edit" data-plan-type="goal" data-id="${g.id}" type="button" aria-label="${ru?'Изменить':'Edit'}: ${esc(g.name)}">•••</button>
+</article>`;
+}).join('');
+}
+
+function renderPlans(){
+if(!$('#plans')) return;
+state.tasks=normalizeTasks(state.tasks);
+state.goals=normalizeGoals(state.goals);
+syncGoals();
+
+$$('.plans-tab').forEach(b=>b.classList.toggle('active',b.dataset.plansTab===plansTab));
+$('#tasksPane')?.classList.toggle('active',plansTab==='tasks');
+$('#goalsPane')?.classList.toggle('active',plansTab==='goals');
+
+if($('#addPlanLabel')){
+$('#addPlanLabel').textContent=plansTab==='goals'?t('addGoal'):t('addTask');
+}
+
+renderTasks();
+renderGoals();
+}
+
+function toggleTask(id){
+const x=state.tasks.find(v=>v.id===id);
+if(!x) return;
+const ru=state.lang==='ru';
+
+if(x.done){
+x.done=false;
+x.doneAt='';
+toast(ru?'Отметка снята':'Completion undone');
+}else{
+x.done=true;
+x.doneAt=key(new Date());
+burst();
+toast(ru?'Задача выполнена':'Task completed');
+}
+
+save();
+renderPlans();
+}
+
+function toggleGoal(id){
+syncGoals();
+const g=state.goals.find(v=>v.id===id);
+if(!g) return;
+const ru=state.lang==='ru';
+const today=key(new Date());
+
+if(g.status==='failed'){
+toast(ru?'Срок истёк — цель уже не выполнить':'The deadline has passed');
+renderPlans();
+return;
+}
+
+if(g.status==='done'){
+if(g.deadline<today){
+toast(ru?'Срок уже прошёл — отметку не снять':'The deadline has passed — can\'t undo');
+return;
+}
+g.status='active';
+g.doneAt='';
+toast(ru?'Отметка снята':'Completion undone');
+}else{
+g.status='done';
+g.doneAt=today;
+burst();
+toast(ru?'Цель достигнута 🏆':'Goal achieved 🏆');
+}
+
+save();
+renderPlans();
+}
+
+function openPlanEditor(type,id=null){
+const ru=state.lang==='ru';
+const goal=type==='goal';
+const item=id?(goal?state.goals:state.tasks).find(x=>x.id===id):null;
+if(id&&!item) return;
+
+planEdit={type,id:item?item.id:null};
+
+if($('#planModalEyebrow')) $('#planModalEyebrow').textContent=goal?(ru?'ЦЕЛЬ':'GOAL'):(ru?'ЗАДАЧА':'TASK');
+if($('#planModalTitle')){
+$('#planModalTitle').textContent=item
+?(goal?(ru?'Изменить цель':'Edit goal'):(ru?'Изменить задачу':'Edit task'))
+:(goal?(ru?'Добавить цель':'Add goal'):(ru?'Добавить задачу':'Add task'));
+}
+
+const nameInput=$('#planName');
+if(nameInput){
+nameInput.value=item?.name||'';
+nameInput.placeholder=goal
+?(ru?'Например, прочитать книгу':'e.g. finish a book')
+:(ru?'Например, оплатить интернет':'e.g. pay the internet bill');
+}
+
+const row=$('#planDateRow');
+if(row) row.style.display=goal?'':'none';
+
+const dateInput=$('#planDate');
+if(dateInput&&goal){
+const today=key(new Date());
+if(item&&item.status==='done') dateInput.removeAttribute('min');
+else dateInput.min=today;
+if(item){
+dateInput.value=item.deadline;
+}else{
+const d=new Date();
+d.setHours(12,0,0,0);
+d.setDate(d.getDate()+7);
+dateInput.value=key(d);
+}
+}
+
+$('#deletePlan')?.classList.toggle('show',!!item);
+
+const modal=$('#planModal');
+if(modal){
+modal.classList.add('open');
+modal.setAttribute('aria-hidden','false');
+document.body.classList.add('habit-modal-open');
+}
+
+setTimeout(()=>$('#planName')?.focus(),80);
+}
+
+function closePlanModal(){
+const modal=$('#planModal');
+if(modal){
+modal.classList.remove('open');
+modal.setAttribute('aria-hidden','true');
+}
+document.body.classList.remove('habit-modal-open');
+planEdit=null;
+}
+
+function savePlan(){
+if(!planEdit) return;
+const ru=state.lang==='ru';
+const input=$('#planName');
+const name=(input?.value||'').trim();
+
+if(!name){
+toast(ru?'Введи название':'Enter a name');
+input?.focus();
+return;
+}
+
+const today=key(new Date());
+
+if(planEdit.type==='task'){
+if(planEdit.id){
+const x=state.tasks.find(v=>v.id===planEdit.id);
+if(!x){closePlanModal();renderPlans();return;}
+x.name=name;
+}else{
+state.tasks.unshift({id:Date.now(),name,done:false,doneAt:'',created:today});
+}
+}else{
+const date=$('#planDate')?.value||'';
+
+if(!isDateKey(date)){
+toast(ru?'Выбери дату':'Pick a date');
+return;
+}
+
+const g=planEdit.id?state.goals.find(v=>v.id===planEdit.id):null;
+if(planEdit.id&&!g){closePlanModal();renderPlans();return;}
+
+const changed=!g||g.deadline!==date;
+
+if(changed&&date<today&&!(g&&g.status==='done')){
+toast(ru?'Дата не может быть в прошлом':'The date can\'t be in the past');
+return;
+}
+
+if(g){
+g.name=name;
+if(changed){
+g.deadline=date;
+if(g.status==='failed'&&date>=today) g.status='active';
+}
+}else{
+state.goals.push({id:Date.now(),name,deadline:date,status:'active',doneAt:'',created:today});
+}
+}
+
+save();
+closePlanModal();
+renderPlans();
+toast(t('save'));
+}
+
+function deletePlan(){
+if(!planEdit||!planEdit.id) return;
+const ru=state.lang==='ru';
+const type=planEdit.type;
+const id=planEdit.id;
+const item=(type==='goal'?state.goals:state.tasks).find(x=>x.id===id);
+if(!item) return;
+
+showConfirm(
+type==='goal'?(ru?'Удалить цель?':'Delete goal?'):(ru?'Удалить задачу?':'Delete task?'),
+ru?`«${item.name}» будет удалена без возможности восстановления.`:`“${item.name}” will be deleted and cannot be restored.`,
+()=>{
+if(type==='goal') state.goals=state.goals.filter(x=>x.id!==id);
+else state.tasks=state.tasks.filter(x=>x.id!==id);
+save();
+closePlanModal();
+renderPlans();
+toast(type==='goal'?(ru?'Цель удалена':'Goal deleted'):(ru?'Задача удалена':'Task deleted'));
+}
+);
+}
+
+function bindPlans(){
+$$('.plans-tab').forEach(b=>b.addEventListener('click',()=>{
+plansTab=b.dataset.plansTab;
+renderPlans();
+updateSegmentSliders();
+}));
+
+$('#addPlanBtn')?.addEventListener('click',()=>openPlanEditor(plansTab==='goals'?'goal':'task'));
+
+$('#taskFilters')?.addEventListener('click',e=>{
+const b=e.target.closest('[data-plan-filter]');
+if(!b) return;
+taskFilter=b.dataset.planFilter;
+renderTasks();
+});
+
+$('#goalFilters')?.addEventListener('click',e=>{
+const b=e.target.closest('[data-plan-filter]');
+if(!b) return;
+goalFilter=b.dataset.planFilter;
+renderGoals();
+});
+
+['#taskList','#goalList'].forEach(sel=>{
+const list=$(sel);
+if(!list) return;
+list.addEventListener('click',e=>{
+const b=e.target.closest('[data-plan-action]');
+if(!b||!list.contains(b)) return;
+const id=Number(b.dataset.id);
+const type=b.dataset.planType;
+if(b.dataset.planAction==='toggle'){
+if(type==='goal') toggleGoal(id);
+else toggleTask(id);
+}
+if(b.dataset.planAction==='edit') openPlanEditor(type,id);
+});
+});
+
+$('#savePlan')?.addEventListener('click',savePlan);
+$('#deletePlan')?.addEventListener('click',deletePlan);
+$('#closePlanModal')?.addEventListener('click',closePlanModal);
+
+const modal=$('#planModal');
+if(modal){
+modal.addEventListener('click',e=>{
+if(e.target===modal) closePlanModal();
+});
+}
+
+$('#planName')?.addEventListener('keydown',e=>{
+if(e.key==='Enter'){
+e.preventDefault();
+savePlan();
+}
+});
+
+document.addEventListener('keydown',e=>{
+if(e.key==='Escape') closePlanModal();
+});
+
+// Keep goal statuses fresh while the app stays open (e.g. after midnight).
+const refreshGoals=()=>{
+if(syncGoals()){
+renderPlans();
+toast(state.lang==='ru'?'Срок одной из целей истёк':'A goal deadline has passed');
+}
+};
+setInterval(refreshGoals,30000);
+document.addEventListener('visibilitychange',()=>{
+if(!document.hidden) refreshGoals();
+});
+window.addEventListener('focus',refreshGoals);
+}
+
+document.addEventListener('DOMContentLoaded',bindPlans);
