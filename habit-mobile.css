@@ -1437,3 +1437,90 @@ body.mobile-menu-open::before{content:"";position:fixed;inset:0;z-index:1490;bac
 @media(max-width:380px){
   .mobile-nav.bottom-nav button b{font-size:7.5px!important}
 }
+
+
+/* =========================================================
+   Habit v1.6.1 — Goals cards, plan icon picker, desktop header
+   ========================================================= */
+
+/* ---- Goal cards (phone + desktop) ---- */
+.goal-card{display:grid;grid-template-columns:64px minmax(0,1fr) auto;align-items:center;gap:18px;position:relative;overflow:hidden;padding:20px 20px 20px 24px;border:1px solid color-mix(in srgb,var(--goal-color) 22%,var(--line));border-radius:24px;background:linear-gradient(135deg,color-mix(in srgb,var(--goal-color) 9%,var(--surface)),var(--surface) 70%);box-shadow:0 12px 32px rgba(0,0,0,.08);transition:border-color .2s,transform .2s,box-shadow .2s}
+.goal-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--goal-color)}
+.goal-card:hover{transform:translateY(-2px);box-shadow:0 18px 40px rgba(0,0,0,.14)}
+.goal-icon{width:64px;height:64px;display:grid;place-items:center;border-radius:20px;font-size:30px;background:color-mix(in srgb,var(--goal-color) 16%,var(--surface2));border:1px solid color-mix(in srgb,var(--goal-color) 30%,var(--line));cursor:pointer}
+.goal-main{min-width:0}
+.goal-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.goal-badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:10px;font-weight:850;letter-spacing:.9px;text-transform:uppercase;color:var(--goal-color);background:color-mix(in srgb,var(--goal-color) 14%,transparent);border:1px solid color-mix(in srgb,var(--goal-color) 28%,transparent)}
+.goal-main h3{margin:0 0 12px;font-size:19px;letter-spacing:-.5px;line-height:1.25;overflow-wrap:anywhere}
+.goal-track{height:9px;border-radius:99px;background:var(--surface3);overflow:hidden}
+.goal-track i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,color-mix(in srgb,var(--goal-color) 55%,transparent),var(--goal-color));transition:width .4s ease}
+.goal-foot{display:flex;justify-content:space-between;gap:12px;margin-top:9px;color:var(--muted);font-size:11px;font-weight:700}
+.goal-side{display:flex;align-items:center;gap:16px}
+.goal-count{min-width:84px;text-align:center}
+.goal-count b{display:block;font-size:34px;line-height:1;letter-spacing:-1.5px;color:var(--goal-color)}
+.goal-count b.today{font-size:20px;letter-spacing:-.5px;padding:7px 0}
+.goal-count span{display:block;margin-top:5px;color:var(--muted);font-size:11px;font-weight:700}
+.goal-btns{display:flex;flex-direction:column;align-items:center;gap:8px}
+.goal-card.done .goal-main h3{color:var(--text)}
+.goal-card.failed{background:linear-gradient(135deg,color-mix(in srgb,var(--danger) 8%,var(--surface)),var(--surface) 70%)}
+.goal-card.failed .goal-icon{filter:grayscale(1);opacity:.65}
+.goal-card.failed .goal-main h3{color:var(--muted)}
+.goal-card.failed .check{background:var(--danger);border-color:var(--danger);color:#fff;cursor:default}
+.goal-card.failed .check:hover{border-color:var(--danger);color:#fff}
+.goal-card.done .check{background:var(--green);border-color:var(--green);color:#fff}
+#goalList.focus-list{gap:14px}
+
+@media(max-width:760px){
+  .goal-card{grid-template-columns:52px minmax(0,1fr);gap:12px 14px;padding:16px 14px 14px 18px;border-radius:22px}
+  .goal-icon{width:52px;height:52px;border-radius:17px;font-size:25px}
+  .goal-main h3{font-size:17px;margin-bottom:10px}
+  .goal-side{grid-column:1/-1;justify-content:space-between;gap:12px;padding-top:12px;border-top:1px solid var(--line)}
+  .goal-count{display:flex;align-items:baseline;gap:7px;min-width:0;text-align:left}
+  .goal-count b{font-size:26px}
+  .goal-count b.today{font-size:18px;padding:0}
+  .goal-count span{margin-top:0;font-size:12px}
+  .goal-btns{flex-direction:row;gap:8px}
+  .goal-foot{flex-wrap:wrap;gap:4px 12px}
+}
+
+/* ---- Icon picker inside the plan modal ---- */
+#planIconRow{display:block}
+#planIconRow .icon-picker{max-height:190px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+/* ---- Desktop only: tidy header on Plans / Statistics / Achievements / Settings (Home and Habits untouched) ---- */
+@media (min-width:761px){
+  .main:has(#plans.active) .top-heading,
+  .main:has(#stats.active) .top-heading,
+  .main:has(#achievements.active) .top-heading,
+  .main:has(#settings.active) .top-heading{display:none!important}
+
+  .main:has(#plans.active) .topbar,
+  .main:has(#stats.active) .topbar,
+  .main:has(#achievements.active) .topbar,
+  .main:has(#settings.active) .topbar{height:62px!important;min-height:62px!important;padding:0!important;margin:0!important;display:flex!important;align-items:center!important;overflow:visible!important}
+
+  .main:has(#plans.active) .top-tools,
+  .main:has(#stats.active) .top-tools,
+  .main:has(#achievements.active) .top-tools,
+  .main:has(#settings.active) .top-tools{position:relative!important;z-index:30!important;margin-left:auto!important}
+
+  /* Page title takes the place of the removed top title, on the same row as theme + profile. */
+  .main:has(#plans.active) #plans,
+  .main:has(#stats.active) #stats,
+  .main:has(#achievements.active) #achievements,
+  .main:has(#settings.active) #settings{margin-top:-50px!important;padding-top:0!important}
+  #stats>.section-head:first-child,
+  #achievements>.section-head:first-child,
+  #settings>.section-head:first-child{margin-top:0!important}
+
+  /* Plans: title row, then [Tasks|Goals] switch with the add button on the same row. */
+  #plans.active{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:16px;align-items:center}
+  #plans>.section-head{display:contents}
+  #plans>.section-head>div{grid-column:1/-1;grid-row:1;margin-bottom:15px}
+  #plans #plansSwitch{grid-column:1;grid-row:2;justify-self:start}
+  #plans #addPlanBtn{grid-column:2;grid-row:2}
+  #plans .plans-pane{grid-column:1/-1;grid-row:3}
+
+  .stats-switch.plans-switch{display:grid!important;grid-template-columns:repeat(2,minmax(110px,auto))!important;width:max-content!important;max-width:100%;gap:6px!important;padding:5px!important}
+  .plans-switch .stats-tab{padding:9px 24px!important;font-size:12px!important}
+}

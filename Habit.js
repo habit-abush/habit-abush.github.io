@@ -3192,7 +3192,7 @@ $('#infoPop')?.classList.remove(
 );
 
 on('#exportData','click',()=>{try{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`habit-backup-${key(new Date())}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast(state.lang==='ru'?'Резервная копия сохранена':'Backup exported');}catch(e){toast(state.lang==='ru'?'Не удалось экспортировать данные':'Could not export data');}});
-on('#importData','change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const parsed=JSON.parse(await file.text());const candidate=parsed?.habits&&Array.isArray(parsed.habits)?parsed:parsed?.state?.habits&&Array.isArray(parsed.state.habits)?parsed.state:null;if(!candidate)throw new Error('invalid backup');const ok=confirm(state.lang==='ru'?'Импорт заменит текущие данные. Продолжить?':'Import will replace current data. Continue?');if(!ok){e.target.value='';return;}state={...structuredClone(defaultState),...candidate,habits:candidate.habits};save();render();toast(state.lang==='ru'?'Данные импортированы':'Data imported');}catch(err){toast(state.lang==='ru'?'Файл резервной копии не распознан':'Backup file is not valid');}finally{e.target.value='';}});
+on('#importData','change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const parsed=JSON.parse(await file.text());const candidate=parsed?.habits&&Array.isArray(parsed.habits)?parsed:parsed?.state?.habits&&Array.isArray(parsed.state.habits)?parsed.state:null;if(!candidate)throw new Error('invalid backup');const ok=confirm(state.lang==='ru'?'Импорт заменит текущие данные. Продолжить?':'Import will replace current data. Continue?');if(!ok){e.target.value='';return;}state={...structuredClone(defaultState),...candidate,habits:candidate.habits,tasks:normalizeTasks(candidate.tasks),goals:normalizeGoals(candidate.goals)};save();render();toast(state.lang==='ru'?'Данные импортированы':'Data imported');}catch(err){toast(state.lang==='ru'?'Файл резервной копии не распознан':'Backup file is not valid');}finally{e.target.value='';}});
 
 on(
 '#resetBtn',
@@ -3781,7 +3781,12 @@ maybeShowRecovery();
    PLANS: TASKS & GOALS (v1.6)
 ========================= */
 
-let plansTab='tasks',taskFilter='all',goalFilter='all',planEdit=null;
+let plansTab='tasks',taskFilter='all',goalFilter='all',planEdit=null,planIcon='📝';
+
+function cleanPlanIcon(v,fallback){
+const s=typeof v==='string'?v.trim():'';
+return s?s.slice(0,16):fallback;
+}
 
 function isDateKey(v){
 return typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v);
@@ -3794,6 +3799,7 @@ return list
 .map((x,i)=>({
 id:Number.isFinite(Number(x.id))?Number(x.id):Date.now()+i,
 name:String(x.name).trim().slice(0,60),
+icon:cleanPlanIcon(x.icon,'📝'),
 done:!!x.done,
 doneAt:x.done&&isDateKey(x.doneAt)?x.doneAt:'',
 created:isDateKey(x.created)?x.created:key(new Date())
@@ -3809,6 +3815,7 @@ const status=['active','done','failed'].includes(x.status)?x.status:'active';
 return{
 id:Number.isFinite(Number(x.id))?Number(x.id):Date.now()+i,
 name:String(x.name).trim().slice(0,60),
+icon:cleanPlanIcon(x.icon,'🎯'),
 deadline:x.deadline,
 status,
 doneAt:status==='done'&&isDateKey(x.doneAt)?x.doneAt:'',
@@ -3898,7 +3905,7 @@ list.innerHTML=shown.map(x=>{
 const doneLabel=x.doneAt?planDate(x.doneAt):'';
 return `
 <article class="focus-card plan-card plan-task ${x.done?'completed':''}" style="--focus-color:${x.done?'var(--green)':'var(--accent)'}">
-<button class="focus-icon" data-plan-action="toggle" data-plan-type="task" data-id="${x.id}" type="button" aria-label="${ru?'Отметить':'Toggle'}: ${esc(x.name)}">📝</button>
+<button class="focus-icon" data-plan-action="toggle" data-plan-type="task" data-id="${x.id}" type="button" aria-label="${ru?'Отметить':'Toggle'}: ${esc(x.name)}">${esc(x.icon)}</button>
 <div class="focus-info">
 <h3>${esc(x.name)}</h3>
 <p>${x.done?(ru?'Выполнено ✓':'Completed ✓'):(ru?'Нажми справа, когда сделаешь':'Tap the circle when done')}</p>
@@ -3911,6 +3918,23 @@ return `
 <button class="more" data-plan-action="edit" data-plan-type="task" data-id="${x.id}" type="button" aria-label="${ru?'Изменить':'Edit'}: ${esc(x.name)}">•••</button>
 </article>`;
 }).join('');
+}
+
+function goalProgress(g){
+if(g.status==='done'||g.status==='failed') return 100;
+const day=86400000;
+const a=new Date(g.created+'T12:00:00');
+const d=new Date(g.deadline+'T12:00:00');
+const n=new Date(key(new Date())+'T12:00:00');
+const total=Math.max(1,Math.round((d-a)/day));
+const passed=Math.round((n-a)/day);
+return Math.max(0,Math.min(100,Math.round(passed/total*100)));
+}
+
+function renderPlanIconPicker(){
+const box=$('#planIconPicker');
+if(!box) return;
+box.innerHTML=icons.map(i=>`<button type="button" class="icon-choice ${i===planIcon?'selected':''}" data-icon="${i}">${i}</button>`).join('');
 }
 
 function renderGoals(){
@@ -3950,33 +3974,46 @@ list.innerHTML=shown.map(g=>{
 const done=g.status==='done';
 const failed=g.status==='failed';
 const left=planDaysLeft(g.deadline);
+const pct=goalProgress(g);
 
-let pill,sub;
+let badge,count,footL,footR;
 if(done){
-pill=`<b>✓ ${esc(g.doneAt?planDate(g.doneAt):'')}</b><span>${ru?'выполнена':'done'}</span>`;
-sub=ru?'Цель достигнута ✓':'Goal achieved ✓';
+badge=t('goalDone');
+count=`<b>✓</b><span>${ru?'готово':'done'}</span>`;
+footL=(ru?'Выполнена ':'Completed ')+(g.doneAt?planDate(g.doneAt):'');
+footR=(ru?'срок: ':'due: ')+planDate(g.deadline);
 }else if(failed){
-pill=`<b>✕ ${esc(planDate(g.deadline))}</b><span>${ru?'срок истёк':'expired'}</span>`;
-sub=ru?'Срок истёк — цель не выполнена':'Deadline passed — goal not completed';
+badge=t('goalFailed');
+count=`<b>✕</b><span>${ru?'срок истёк':'expired'}</span>`;
+footL=ru?'Срок истёк':'Deadline passed';
+footR=planDate(g.deadline,true);
 }else{
-pill=left<=0
-?`<b>⏳ ${ru?'Сегодня':'Today'}</b><span></span>`
-:`<b>⏳ ${left}</b><span>${planDayWord(left)}</span>`;
-sub=(ru?'До ':'Until ')+planDate(g.deadline,true);
+badge=t('goalActive');
+count=left<=0
+?`<b class="today">${ru?'Сегодня':'Today'}</b><span>${ru?'последний день':'last day'}</span>`
+:`<b>${left}</b><span>${planDayWord(left)}</span>`;
+footL=ru?`${pct}% срока прошло`:`${pct}% of the time passed`;
+footR=(ru?'до ':'until ')+planDate(g.deadline,true);
 }
 
-const color=done?'var(--green)':failed?'var(--danger)':'var(--accent)';
+const status=done?'done':failed?'failed':'active';
 
 return `
-<article class="focus-card plan-card plan-goal ${done?'completed':''} ${failed?'failed':''}" style="--focus-color:${color}">
-<button class="focus-icon" data-plan-action="toggle" data-plan-type="goal" data-id="${g.id}" type="button" aria-label="${ru?'Отметить':'Toggle'}: ${esc(g.name)}">${done?'🏆':'🎯'}</button>
-<div class="focus-info">
+<article class="goal-card plan-card plan-goal ${status}" style="--goal-color:${done?'var(--green)':failed?'var(--danger)':'var(--accent)'}">
+<button class="goal-icon" data-plan-action="toggle" data-plan-type="goal" data-id="${g.id}" type="button" aria-label="${ru?'Отметить':'Toggle'}: ${esc(g.name)}">${esc(g.icon)}</button>
+<div class="goal-main">
+<div class="goal-top"><span class="goal-badge">${esc(badge)}</span></div>
 <h3>${esc(g.name)}</h3>
-<p>${esc(sub)}</p>
+<div class="goal-track"><i style="width:${pct}%"></i></div>
+<div class="goal-foot"><span>${esc(footL)}</span><span>${esc(footR)}</span></div>
 </div>
-<div class="focus-streak">${pill}</div>
+<div class="goal-side">
+<div class="goal-count">${count}</div>
+<div class="goal-btns">
 <button class="check" data-plan-action="toggle" data-plan-type="goal" data-id="${g.id}" type="button" aria-label="${ru?'Отметить':'Toggle'}: ${esc(g.name)}">${done?'✓':failed?'✕':'○'}</button>
 <button class="more" data-plan-action="edit" data-plan-type="goal" data-id="${g.id}" type="button" aria-label="${ru?'Изменить':'Edit'}: ${esc(g.name)}">•••</button>
+</div>
+</div>
 </article>`;
 }).join('');
 }
@@ -4058,6 +4095,8 @@ const item=id?(goal?state.goals:state.tasks).find(x=>x.id===id):null;
 if(id&&!item) return;
 
 planEdit={type,id:item?item.id:null};
+planIcon=cleanPlanIcon(item?.icon,goal?'🎯':'📝');
+renderPlanIconPicker();
 
 if($('#planModalEyebrow')) $('#planModalEyebrow').textContent=goal?(ru?'ЦЕЛЬ':'GOAL'):(ru?'ЗАДАЧА':'TASK');
 if($('#planModalTitle')){
@@ -4133,8 +4172,9 @@ if(planEdit.id){
 const x=state.tasks.find(v=>v.id===planEdit.id);
 if(!x){closePlanModal();renderPlans();return;}
 x.name=name;
+x.icon=planIcon;
 }else{
-state.tasks.unshift({id:Date.now(),name,done:false,doneAt:'',created:today});
+state.tasks.unshift({id:Date.now(),name,icon:planIcon,done:false,doneAt:'',created:today});
 }
 }else{
 const date=$('#planDate')?.value||'';
@@ -4156,12 +4196,13 @@ return;
 
 if(g){
 g.name=name;
+g.icon=planIcon;
 if(changed){
 g.deadline=date;
 if(g.status==='failed'&&date>=today) g.status='active';
 }
 }else{
-state.goals.push({id:Date.now(),name,deadline:date,status:'active',doneAt:'',created:today});
+state.goals.push({id:Date.now(),name,icon:planIcon,deadline:date,status:'active',doneAt:'',created:today});
 }
 }
 
@@ -4232,6 +4273,14 @@ if(b.dataset.planAction==='edit') openPlanEditor(type,id);
 });
 });
 
+$('#planIconPicker')?.addEventListener('click',e=>{
+const b=e.target.closest('[data-icon]');
+if(!b) return;
+e.preventDefault();
+e.stopPropagation();
+planIcon=b.dataset.icon;
+$$('#planIconPicker [data-icon]').forEach(x=>x.classList.toggle('selected',x===b));
+});
 $('#savePlan')?.addEventListener('click',savePlan);
 $('#deletePlan')?.addEventListener('click',deletePlan);
 $('#closePlanModal')?.addEventListener('click',closePlanModal);
