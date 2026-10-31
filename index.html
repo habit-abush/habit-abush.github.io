@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="Habit">
 <title>Habit</title>
 <link rel="stylesheet" href="Habit.css">
-<link rel="stylesheet" href="habit-mobile.css?v=38">
+<link rel="stylesheet" href="habit-mobile.css?v=39">
 <link rel="icon" type="image/png" href="Habit.png">
 </head>
 <body>
@@ -184,15 +184,15 @@
 </div>
 
 <div class="modal" id="habitModal" aria-hidden="true"><div class="modal-card"><button class="modal-close" id="closeModal" type="button">×</button><span class="eyebrow" id="modalEyebrow">ФОКУС</span><h2 id="modalTitle">Добавить фокус</h2><label><span data-i18n="name">Название</span><input id="habitName" maxlength="42" placeholder="Например, читать 20 минут"></label><label><span data-i18n="icon">Значок</span><div class="icon-picker" id="iconPicker"></div></label><label><span data-i18n="color">Цвет</span><div class="color-picker" id="colorPicker"></div></label><label><span>Дни активности</span><div class="schedule-hint">Фокус будет активен только в выбранные дни</div><div class="schedule-picker" id="dayPickerModal"></div></label><div class="modal-actions"><button class="danger-btn modal-delete" id="deleteHabit" type="button" data-i18n="delete">Удалить</button><button class="primary-btn wide" id="saveHabit" type="button" data-i18n="save">Сохранить</button></div></div></div>
-<div class="modal" id="planModal" aria-hidden="true"><div class="modal-card"><button class="modal-close" id="closePlanModal" type="button">×</button><span class="eyebrow" id="planModalEyebrow">ЗАДАЧА</span><h2 id="planModalTitle">Добавить задачу</h2><label><span data-i18n="name">Название</span><input id="planName" maxlength="60" placeholder=""></label><label id="planIconRow"><span data-i18n="icon">Значок</span><div class="icon-picker" id="planIconPicker"></div></label><label id="planColorRow"><span data-i18n="color">Цвет</span><div class="color-picker" id="planColorPicker"></div></label><label id="planDateRow" style="display:none"><span data-i18n="planDeadline">Выполнить до</span><div class="schedule-hint" data-i18n="planDeadlineHint">Отметь цель галочкой до этой даты включительно — иначе она автоматически станет крестиком.</div><input type="date" id="planDate"></label><div class="modal-actions"><button class="danger-btn modal-delete" id="deletePlan" type="button" data-i18n="delete">Удалить</button><button class="primary-btn wide" id="savePlan" type="button" data-i18n="save">Сохранить</button></div></div></div>
+<div class="modal" id="planModal" aria-hidden="true"><div class="modal-card"><button class="modal-close" id="closePlanModal" type="button">×</button><span class="eyebrow" id="planModalEyebrow">ЗАДАЧА</span><h2 id="planModalTitle">Добавить задачу</h2><label><span data-i18n="name">Название</span><input id="planName" maxlength="60" placeholder=""></label><div class="modal-field" id="planIconRow"><span data-i18n="icon">Значок</span><div class="icon-picker" id="planIconPicker"></div></div><div class="modal-field" id="planColorRow"><span data-i18n="color">Цвет</span><div class="color-picker" id="planColorPicker"></div></div><label id="planDateRow" style="display:none"><span data-i18n="planDeadline">Выполнить до</span><div class="schedule-hint" data-i18n="planDeadlineHint">Отметь цель галочкой до этой даты включительно — иначе она автоматически станет крестиком.</div><input type="date" id="planDate"></label><div class="modal-actions"><button class="danger-btn modal-delete" id="deletePlan" type="button" data-i18n="delete">Удалить</button><button class="primary-btn wide" id="savePlan" type="button" data-i18n="save">Сохранить</button></div></div></div>
 <div class="info-pop" id="infoPop"><button id="infoClose" type="button">×</button><div class="info-symbol">H</div><div><strong>Habit</strong><p data-i18n="infoText">Твоё пространство для фокуса, дисциплины и маленьких побед каждый день.</p></div></div>
 <div class="version-pop" id="versionPop" role="dialog" aria-labelledby="versionTitle"><button id="versionClose" class="version-close" type="button" aria-label="×">×</button><div class="version-head"><span class="version-badge">v1.6</span><strong id="versionTitle" data-i18n="newTitle">Что нового в v1.6</strong></div><ul><li data-i18n="new1">Новая вкладка «Планы» — задачи и цели в одном месте.</li><li data-i18n="new2">У каждой задачи и цели свой значок и цвет.</li><li data-i18n="new3">Цели со сроком: отметь до даты, иначе цель станет крестиком.</li><li data-i18n="new4">Исправлено много мелких недоработок и улучшен внешний вид.</li></ul></div>
 <div class="toast" id="toast"></div><div class="confetti-layer" id="confetti"></div>
-<script src="Habit.js?v=35"></script>
+<script src="Habit.js?v=36"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js?v=22', { updateViaCache: 'none' })
+    navigator.serviceWorker.register('./service-worker.js?v=23', { updateViaCache: 'none' })
       .then(() => console.log('Habit offline mode enabled'))
       .catch(error => console.error('Service Worker error:', error));
   });

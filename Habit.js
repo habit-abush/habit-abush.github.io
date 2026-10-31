@@ -3912,7 +3912,7 @@ return;
 list.innerHTML=shown.map(x=>{
 const doneLabel=x.doneAt?planDate(x.doneAt):'';
 return `
-<article class="focus-card plan-card plan-task ${x.done?'completed':''}" style="--focus-color:${esc(x.color)}">
+<article class="focus-card plan-card plan-task ${x.done?'completed':''}" style="--focus-color:${x.done?'var(--green)':esc(x.color)}">
 <button class="focus-icon" data-plan-action="toggle" data-plan-type="task" data-id="${x.id}" type="button" aria-label="${ru?'Отметить':'Toggle'}: ${esc(x.name)}">${esc(x.icon)}</button>
 <div class="focus-info">
 <h3>${esc(x.name)}</h3>
@@ -4009,7 +4009,7 @@ footR=(ru?'до ':'until ')+planDate(g.deadline,true);
 const status=done?'done':failed?'failed':'active';
 
 return `
-<article class="goal-card plan-card plan-goal ${status}" style="--goal-color:${failed?'var(--danger)':esc(g.color)}">
+<article class="goal-card plan-card plan-goal ${status}" style="--goal-color:${failed?'var(--danger)':done?'var(--green)':esc(g.color)}">
 <button class="goal-icon" data-plan-action="toggle" data-plan-type="goal" data-id="${g.id}" type="button" aria-label="${ru?'Отметить':'Toggle'}: ${esc(g.name)}">${esc(g.icon)}</button>
 <div class="goal-main">
 <div class="goal-top"><span class="goal-badge">${esc(badge)}</span></div>
@@ -4234,14 +4234,17 @@ toast(t('save'));
 
 function deletePlan(){
 if(!planEdit||!planEdit.id) return;
+askDeletePlan(planEdit.type,planEdit.id);
+}
+
+function askDeletePlan(type,id){
 const ru=state.lang==='ru';
-const type=planEdit.type;
-const id=planEdit.id;
 const item=(type==='goal'?state.goals:state.tasks).find(x=>x.id===id);
 if(!item) return;
+const doneGoal=type==='goal'&&item.status==='done';
 
 showConfirm(
-type==='goal'?(ru?'Удалить цель?':'Delete goal?'):(ru?'Удалить задачу?':'Delete task?'),
+type==='goal'?(doneGoal?(ru?'Удалить выполненную цель?':'Delete completed goal?'):(ru?'Удалить цель?':'Delete goal?')):(ru?'Удалить задачу?':'Delete task?'),
 ru?`«${item.name}» будет удалена без возможности восстановления.`:`“${item.name}” will be deleted and cannot be restored.`,
 ()=>{
 if(type==='goal') state.goals=state.goals.filter(x=>x.id!==id);
@@ -4252,6 +4255,41 @@ renderPlans();
 toast(type==='goal'?(ru?'Цель удалена':'Goal deleted'):(ru?'Задача удалена':'Task deleted'));
 }
 );
+}
+
+/* A completed goal whose deadline has passed is final: the ••• button offers only "Delete". */
+let planDelPop=null,planDelFor=null;
+
+function closePlanDelPop(){
+if(planDelPop) planDelPop.classList.remove('open');
+planDelFor=null;
+}
+
+function openPlanDelPop(btn,id){
+const ru=state.lang==='ru';
+if(!planDelPop){
+planDelPop=document.createElement('div');
+planDelPop.className='plan-del-pop';
+planDelPop.innerHTML='<button type="button" class="plan-del-btn"></button>';
+document.body.appendChild(planDelPop);
+planDelPop.addEventListener('click',e=>e.stopPropagation());
+planDelPop.querySelector('button').addEventListener('click',()=>{
+const goalId=planDelFor;
+closePlanDelPop();
+if(goalId!=null) askDeletePlan('goal',goalId);
+});
+document.addEventListener('click',closePlanDelPop);
+document.addEventListener('keydown',e=>{if(e.key==='Escape') closePlanDelPop();});
+window.addEventListener('scroll',closePlanDelPop,{passive:true});
+window.addEventListener('resize',closePlanDelPop);
+}
+planDelPop.querySelector('button').textContent='🗑 '+(ru?'Удалить':'Delete');
+planDelFor=id;
+const r=btn.getBoundingClientRect();
+const w=128;
+planDelPop.style.left=Math.max(10,Math.min(r.right-w,window.innerWidth-w-10))+'px';
+planDelPop.style.top=(r.bottom+8)+'px';
+planDelPop.classList.add('open');
 }
 
 function bindPlans(){
@@ -4289,7 +4327,18 @@ if(b.dataset.planAction==='toggle'){
 if(type==='goal') toggleGoal(id);
 else toggleTask(id);
 }
-if(b.dataset.planAction==='edit') openPlanEditor(type,id);
+if(b.dataset.planAction==='edit'){
+if(type==='goal'){
+const g=state.goals.find(v=>v.id===id);
+if(g&&g.status==='done'&&g.deadline<key(new Date())){
+e.stopPropagation();
+if(planDelPop&&planDelPop.classList.contains('open')&&planDelFor===id){closePlanDelPop();return;}
+openPlanDelPop(b,id);
+return;
+}
+}
+openPlanEditor(type,id);
+}
 });
 });
 
@@ -4308,6 +4357,11 @@ e.preventDefault();
 e.stopPropagation();
 planColor=b.dataset.color;
 $$('#planColorPicker [data-color]').forEach(x=>x.classList.toggle('selected',x===b));
+});
+$('#planDate')?.addEventListener('click',e=>{
+const el=e.currentTarget;
+if(el.disabled) return;
+try{ if(typeof el.showPicker==='function') el.showPicker(); }catch(err){}
 });
 $('#savePlan')?.addEventListener('click',savePlan);
 $('#deletePlan')?.addEventListener('click',deletePlan);

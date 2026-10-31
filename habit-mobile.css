@@ -1487,28 +1487,32 @@ body.mobile-menu-open::before{content:"";position:fixed;inset:0;z-index:1490;bac
 #planIconRow{display:block}
 #planColorRow{display:block}
 
-/* ---- Desktop only: tidy header on Plans / Statistics / Achievements / Settings (Home and Habits untouched) ---- */
+/* ---- Desktop only: page titles sit on the header row (profile + theme stay exactly as on Home) ---- */
 @media (min-width:761px){
+  .main:has(#habits.active) .top-heading,
   .main:has(#plans.active) .top-heading,
   .main:has(#stats.active) .top-heading,
   .main:has(#achievements.active) .top-heading,
   .main:has(#settings.active) .top-heading{display:none!important}
 
+  /* Same header box as Home, so theme toggle and profile never move. */
+  .main:has(#habits.active) .topbar,
   .main:has(#plans.active) .topbar,
   .main:has(#stats.active) .topbar,
   .main:has(#achievements.active) .topbar,
-  .main:has(#settings.active) .topbar{height:62px!important;min-height:62px!important;padding:0!important;margin:0!important;display:flex!important;align-items:center!important;overflow:visible!important}
+  .main:has(#settings.active) .topbar{height:94px!important;min-height:94px!important;padding:0!important;margin:0!important;display:flex!important;align-items:center!important;overflow:visible!important}
 
+  .main:has(#habits.active) .top-tools,
   .main:has(#plans.active) .top-tools,
   .main:has(#stats.active) .top-tools,
   .main:has(#achievements.active) .top-tools,
   .main:has(#settings.active) .top-tools{position:relative!important;z-index:30!important;margin-left:auto!important}
 
-  /* Page title takes the place of the removed top title, on the same row as theme + profile. */
+  .main:has(#habits.active) #habits,
   .main:has(#plans.active) #plans,
   .main:has(#stats.active) #stats,
   .main:has(#achievements.active) #achievements,
-  .main:has(#settings.active) #settings{margin-top:-38px!important;padding-top:0!important}
+  .main:has(#settings.active) #settings{margin-top:-76px!important;padding-top:0!important}
   #stats>.section-head:first-child,
   #achievements>.section-head:first-child,
   #settings>.section-head:first-child{margin-top:0!important}
@@ -1521,10 +1525,37 @@ body.mobile-menu-open::before{content:"";position:fixed;inset:0;z-index:1490;bac
   #plans #addPlanBtn{grid-column:2;grid-row:2}
   #plans .plans-pane{grid-column:1/-1;grid-row:3}
 
+  /* Habits: same idea - title on the header row, hint + add button below it. */
+  #habits.active{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:16px;align-items:center}
+  #habits>.section-head{display:contents}
+  #habits>.section-head>div{grid-column:1/-1;grid-row:1;margin-bottom:12px}
+  #habits #addHabitFromHabitsBtn{grid-column:2;grid-row:2}
+  #habits .habits-page-hint{grid-column:1;grid-row:2;margin:0}
+  #habits .manage-habits-list{grid-column:1/-1;grid-row:3;margin-top:14px}
+
   .stats-switch.plans-switch{display:grid!important;grid-template-columns:repeat(2,minmax(110px,auto))!important;width:max-content!important;max-width:100%;gap:6px!important;padding:5px!important}
   .plans-switch .stats-tab{padding:9px 24px!important;font-size:12px!important}
 }
 
+/* ---- Phone: header on every tab is identical to Home, so profile + theme never shift ---- */
+@media (max-width:760px){
+  .main:not(:has(#home.active)) .topbar{
+    height:auto!important;min-height:0!important;display:flex!important;flex-wrap:wrap!important;
+    align-items:center!important;justify-content:flex-start!important;gap:7px 8px!important;
+    padding-top:8px!important;padding-bottom:9px!important;
+  }
+  .main:not(:has(#home.active)) .top-tools{margin-left:auto!important;flex:0 0 auto!important}
+}
+
+/* ---- Modal rows that hold pickers (not <label>, so a click on empty space can't pick the first item) ---- */
+.modal-card .modal-field{display:block;margin-top:17px}
+.modal-card .modal-field>span{display:block;margin-bottom:7px;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+
+/* ---- Small "Delete" popover for completed goals ---- */
+.plan-del-pop{position:fixed;z-index:3600;width:128px;padding:6px;border-radius:14px;background:var(--surface);border:1px solid var(--line);box-shadow:0 16px 40px rgba(0,0,0,.35);opacity:0;visibility:hidden;transform:translateY(-4px) scale(.97);transform-origin:top right;transition:opacity .15s,transform .15s,visibility .15s}
+.plan-del-pop.open{opacity:1;visibility:visible;transform:none}
+.plan-del-btn{width:100%;min-height:40px;border-radius:10px;background:color-mix(in srgb,var(--danger) 12%,transparent);color:var(--danger);font-weight:850;font-size:13px;border:1px solid color-mix(in srgb,var(--danger) 30%,transparent)}
+.plan-del-btn:hover{background:color-mix(in srgb,var(--danger) 20%,transparent)}
 
 /* ---- Plan modal: date field aligned like the other inputs (incl. iOS) ---- */
 .modal-card input[type="date"]{display:flex!important;align-items:center;width:100%;max-width:100%;box-sizing:border-box;height:47px;min-height:47px;margin:0;line-height:normal;text-align:left!important;text-align-last:left;-webkit-appearance:none;appearance:none}
@@ -1534,10 +1565,11 @@ body.mobile-menu-open::before{content:"";position:fixed;inset:0;z-index:1490;bac
 .modal-card input[type="date"]::-webkit-calendar-picker-indicator{margin:0 0 0 auto;padding:0}
 .modal-card input[type="date"]:disabled{opacity:.55;cursor:not-allowed}
 
-/* ---- "Goals" tab button gets a soft violet accent ---- */
-.plans-switch .stats-tab[data-plans-tab="goals"]{color:color-mix(in srgb,var(--accent) 80%,var(--text))!important;background:color-mix(in srgb,var(--accent) 14%,transparent)!important;border-radius:10px}
-.plans-switch .stats-tab[data-plans-tab="goals"].active{background:transparent!important;color:var(--accent)!important;font-weight:900}
-.plans-switch.has-slider:has([data-plans-tab="goals"].active)::before{background:color-mix(in srgb,var(--accent) 20%,var(--surface))!important;border-color:color-mix(in srgb,var(--accent) 45%,var(--line))!important}
+/* ---- "Goals" tab: gradient lettering + sparkle (looks decorative, never "pressed") ---- */
+.plans-switch .stats-tab[data-plans-tab="goals"]{background:linear-gradient(100deg,color-mix(in srgb,var(--accent) 70%,#fff),var(--accent2,var(--accent)))!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;color:transparent!important;font-weight:900!important;letter-spacing:.2px}
+.plans-switch .stats-tab[data-plans-tab="goals"]:before{content:"✦";margin-right:6px;font-size:10px}
+.plans-switch .stats-tab[data-plans-tab="goals"].active{background:none!important;-webkit-text-fill-color:#fff!important;color:#fff!important;text-shadow:0 1px 8px rgba(88,56,220,.45)}
+.plans-switch.has-slider:has([data-plans-tab="goals"].active)::before{background:linear-gradient(135deg,var(--accent),var(--accent2,#6d4ff0))!important;border-color:color-mix(in srgb,var(--accent) 60%,transparent)!important;box-shadow:0 6px 18px color-mix(in srgb,var(--accent) 38%,transparent)!important}
 
 /* ---- Settings: clickable version badge + mini what's-new card ---- */
 button.about-version{font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:transform .15s,background .2s,border-color .2s}
