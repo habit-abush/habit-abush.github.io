@@ -112,11 +112,11 @@ creatorChip:'Автор',
 createdLabel:'Дата создания',
 createdDate:'4 октября 2026',
 updatedLabel:'Последнее обновление',
-updatedDate:'31 октября 2026',
+updatedDate:'1 ноября 2026',
 aboutFooter:'Создано для маленьких шагов и больших целей',
 dataPrivacy:'Данные и приватность',dataSub:'Твои данные остаются в этом браузере.',exportData:'Экспортировать данные',importData:'Импортировать копию',dataHelp:'Регулярно сохраняй резервную копию, чтобы не потерять прогресс.',stableHabits:'Самые стабильные',
 plans:'Планы',plansEyebrow:'МОИ ПЛАНЫ',tasks:'Задачи',goals:'Цели',addTask:'Добавить задачу',addGoal:'Добавить цель',goalActive:'В процессе',goalDone:'Достигнуто',goalFailed:'Провалено',planLeft:'Осталось',planDoneLabel:'Выполнено',planTotal:'Всего',planDeadline:'Выполнить до',planDeadlineHint:'Отметь цель галочкой до этой даты включительно — иначе она автоматически станет крестиком.',
-newTitle:'Что нового в v1.6',new1:'Новая вкладка «Планы» — задачи и цели в одном месте.',new2:'У каждой задачи и цели свой значок и цвет.',new3:'Цели со сроком: отметь до даты, иначе цель станет крестиком.',new4:'Исправлено много мелких недоработок и улучшен внешний вид.'
+newTitle:'Что нового в v1.7',new1:'Новая анимация приветствия при входе и ввод ника.',new2:'Более безопасный сброс прогресса.',new3:'Улучшения дизайна.'
 },
 
 en:{
@@ -185,11 +185,11 @@ creatorChip:'Author',
 createdLabel:'Created on',
 createdDate:'October 4, 2026',
 updatedLabel:'Last updated',
-updatedDate:'October 31, 2026',
+updatedDate:'November 1, 2026',
 aboutFooter:'Built for small steps and big goals',
 dataPrivacy:'Data & privacy',dataSub:'Your data stays in this browser.',exportData:'Export data',importData:'Import backup',dataHelp:'Export a backup regularly to keep your progress safe.',stableHabits:'Most consistent',
 plans:'Plans',plansEyebrow:'MY PLANS',tasks:'Tasks',goals:'Goals',addTask:'Add task',addGoal:'Add goal',goalActive:'In progress',goalDone:'Achieved',goalFailed:'Failed',planLeft:'Left',planDoneLabel:'Completed',planTotal:'Total',planDeadline:'Complete by',planDeadlineHint:'Tick the goal on or before this date — otherwise it automatically turns into a cross.',
-newTitle:'What\'s new in v1.6',new1:'New “Plans” tab — tasks and goals in one place.',new2:'Every task and goal has its own icon and color.',new3:'Goals with a deadline: tick it by the date or it turns into a cross.',new4:'Lots of small issues fixed and a more polished look.'
+newTitle:'What\'s new in v1.7',new1:'New welcome animation on launch and nickname setup.',new2:'Safer progress reset.',new3:'Design improvements.'
 }
 };
 
@@ -4337,7 +4337,13 @@ box-shadow:none!important;
 }
 .activity-cell.future:hover{transform:none;filter:none;}
 .activity-cell.today{
-box-shadow:inset 0 0 0 2px var(--bg)!important;
+opacity:1!important;
+}
+:root:not([data-theme="light"]) .activity-cell.today{
+box-shadow:inset 0 0 0 2px #fff,inset 0 0 0 3px rgba(9,10,15,.4)!important;
+}
+:root[data-theme="light"] .activity-cell.today{
+box-shadow:inset 0 0 0 2px #15171d!important;
 }
 
 /* ---------- Onboarding ---------- */
@@ -4490,6 +4496,7 @@ background:linear-gradient(90deg,#9275ff,#c9bcff);
 }
 .ob-welcome.show .ob-bar i{animation:obBar 2.3s cubic-bezier(.4,.1,.2,1) .3s forwards;}
 @keyframes obBar{to{width:100%;}}
+.ob-quick .ob-welcome.show .ob-bar i{animation-duration:1.5s;}
 .ob-logo-sm{
 display:block;
 width:60px;
@@ -4744,14 +4751,17 @@ function nickQuote(n){
 return state.lang==='ru'?`«${n}»`:`“${n}”`;
 }
 
-/* ---------- Onboarding (first launch, no nickname) ---------- */
+/* ---------- Welcome screen (every launch) + nickname for first-timers ---------- */
 function maybeShowOnboarding(){
-if((state.name||'').trim()) return;
+if(!(state.name||'').trim()) showWelcome();
+}
+function showWelcome(){
 if(document.getElementById('obOverlay')) return;
 ensureNickUI();
 const ru=state.lang==='ru';
+const needNick=!(state.name||'').trim();
 const ov=document.createElement('div');
-ov.className='ob-overlay';
+ov.className='ob-overlay'+(needNick?'':' ob-quick');
 ov.id='obOverlay';
 ov.setAttribute('role','dialog');
 ov.setAttribute('aria-modal','true');
@@ -4762,6 +4772,15 @@ const t=7+(i*5)%7;
 const d=-((i*13)%10);
 return `<i style="--x:${x}%;--s:${s}px;--t:${t}s;--d:${d}s"></i>`;
 }).join('');
+const nameStage=needNick?`
+<div class="ob-stage ob-name" id="obName">
+<img class="ob-logo-sm ob-in" style="--i:0" src="Habit.png" alt="" onerror="this.style.display='none'">
+<h2 class="ob-in" style="--i:1">${ru?'Введите ваш ник':'Enter your nickname'}</h2>
+<p class="ob-hint ob-in" style="--i:2">${ru?'Он появится в приветствии и на аватаре. Его же нужно будет ввести для сброса прогресса.':'It appears in the greeting and avatar. You will also need it to reset progress.'}</p>
+<input class="ob-input ob-in" style="--i:3" id="obInput" maxlength="24" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${ru?'Ваш ник':'Your nickname'}">
+<p class="ob-preview" id="obPreview"></p>
+<button class="ob-btn ob-in" style="--i:4" id="obBtn" type="button" disabled>${ru?'Продолжить':'Continue'}</button>
+</div>`:'';
 ov.innerHTML=`
 <div class="ob-aurora"><i class="a1"></i><i class="a2"></i><i class="a3"></i></div>
 <div class="ob-dots">${dots}</div>
@@ -4773,24 +4792,32 @@ ov.innerHTML=`
 <h1><span class="w" style="--i:0">${ru?'Добро':'Welcome'}</span> <span class="w" style="--i:1">${ru?'пожаловать':''}</span></h1>
 <p class="ob-sub">${ru?'в Habit':'to Habit'}</p>
 <div class="ob-bar"><i></i></div>
-</div>
-<div class="ob-stage ob-name" id="obName">
-<img class="ob-logo-sm ob-in" style="--i:0" src="Habit.png" alt="" onerror="this.style.display='none'">
-<h2 class="ob-in" style="--i:1">${ru?'Введите ваш ник':'Enter your nickname'}</h2>
-<p class="ob-hint ob-in" style="--i:2">${ru?'Он появится в приветствии и на аватаре. Его же нужно будет ввести для сброса прогресса.':'It appears in the greeting and avatar. You will also need it to reset progress.'}</p>
-<input class="ob-input ob-in" style="--i:3" id="obInput" maxlength="24" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${ru?'Ваш ник':'Your nickname'}">
-<p class="ob-preview" id="obPreview"></p>
-<button class="ob-btn ob-in" style="--i:4" id="obBtn" type="button" disabled>${ru?'Продолжить':'Continue'}</button>
-</div>`;
+</div>${nameStage}`;
 document.body.appendChild(ov);
 const prevOverflow=document.body.style.overflow;
 document.body.style.overflow='hidden';
 const welcome=ov.querySelector('#obWelcome');
-const nameStage=ov.querySelector('#obName');
+let done=false;
+const close=()=>{
+if(done) return;
+done=true;
+ov.classList.add('leave');
+document.body.style.overflow=prevOverflow;
+setTimeout(()=>ov.remove(),700);
+};
+setTimeout(()=>welcome.classList.add('show'),80);
+
+if(!needNick){
+/* returning user: short greeting, tap anywhere to skip */
+ov.addEventListener('click',()=>{welcome.classList.add('out');close();});
+setTimeout(()=>{welcome.classList.add('out');close();},2000);
+return;
+}
+
+const stage=ov.querySelector('#obName');
 const input=ov.querySelector('#obInput');
 const btn=ov.querySelector('#obBtn');
 const preview=ov.querySelector('#obPreview');
-let done=false;
 const finish=()=>{
 if(done) return;
 const v=input.value.trim().slice(0,24);
@@ -4801,13 +4828,10 @@ input.classList.add('shake');
 input.focus();
 return;
 }
-done=true;
 state.name=v;
 save();
 render();
-ov.classList.add('leave');
-document.body.style.overflow=prevOverflow;
-setTimeout(()=>ov.remove(),700);
+close();
 };
 input.addEventListener('input',()=>{
 const v=input.value.trim();
@@ -4826,10 +4850,9 @@ preview.classList.remove('on');
 });
 input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();finish();}});
 btn.addEventListener('click',finish);
-setTimeout(()=>welcome.classList.add('show'),80);
 setTimeout(()=>welcome.classList.add('out'),2900);
 setTimeout(()=>{
-nameStage.classList.add('show');
+stage.classList.add('show');
 setTimeout(()=>input.focus(),700);
 },3350);
 }
@@ -4952,5 +4975,5 @@ document.addEventListener('DOMContentLoaded',()=>{
 ensureNickUI();
 ensurePolishUI();
 bindNickGuard();
-maybeShowOnboarding();
+showWelcome();
 });
