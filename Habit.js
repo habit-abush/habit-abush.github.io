@@ -4330,19 +4330,14 @@ const st=document.createElement('style');
 st.id='nick-ui-style';
 st.textContent=`
 /* ---------- Activity heatmap ---------- */
-.heatmap-wrap{
-grid-template-columns:26px minmax(0,1fr)!important;
-gap:6px!important;
-}
 .activity-cell.future{
-background:transparent!important;
-opacity:1!important;
-box-shadow:inset 0 0 0 1.5px rgba(144,151,168,.3)!important;
+background:#777b84!important;
+opacity:.16!important;
+box-shadow:none!important;
 }
 .activity-cell.future:hover{transform:none;filter:none;}
 .activity-cell.today{
-outline:2px solid rgba(146,117,255,.75);
-outline-offset:2px;
+box-shadow:inset 0 0 0 2px var(--bg)!important;
 }
 
 /* ---------- Onboarding ---------- */
