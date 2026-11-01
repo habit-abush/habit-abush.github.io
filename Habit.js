@@ -1611,52 +1611,28 @@ const firstDay=
 (start.getDay()+6)%7;
 
 const cells=[];
-
-for(
-let i=0;
-i<firstDay;
-i++
-){
-
-cells.push(null);
-
+const monthCols=[];
+const minimumEnd=new Date(start);
+minimumEnd.setDate(minimumEnd.getDate()+20);
+const displayEnd=end<minimumEnd?minimumEnd:end;
+let prevMonth=null,monthStartIdx=0;
+for(let d=new Date(start);d<=displayEnd;d.setDate(d.getDate()+1)){
+const token=d.getFullYear()*12+d.getMonth();
+if(token!==prevMonth){
+if(prevMonth!==null){
+while(cells.length%7){cells.push(null);}
+while(cells.length-monthStartIdx<28){cells.push(null);}
+for(let i=0;i<7;i++){cells.push(null);}
 }
-
-const minimumEnd=
-new Date(start);
-
-minimumEnd.setDate(
-minimumEnd.getDate()+20
-);
-
-const displayEnd=
-end<minimumEnd
-?
-minimumEnd
-:
-end;
-
-for(
-let d=new Date(start);
-d<=displayEnd;
-d.setDate(
-d.getDate()+1
-)
-){
-
-cells.push(
-new Date(d)
-);
-
+monthStartIdx=cells.length;
+const lead=(d.getDay()+6)%7;
+for(let i=0;i<lead;i++){cells.push(null);}
+monthCols.push({date:new Date(d),col:Math.floor(monthStartIdx/7)});
+prevMonth=token;
 }
-
-while(
-cells.length%7
-){
-
-cells.push(null);
-
+cells.push(new Date(d));
 }
+while(cells.length%7){cells.push(null);}
 
 grid.innerHTML=
 cells.map(
@@ -1720,63 +1696,17 @@ aria-label="${key(d)} • ${n}"
 ).join('');
 
 if(months){
-
 months.innerHTML='';
-
-let last='';
-
-cells.forEach(
-(d,i)=>{
-
-if(!d)
-return;
-
-const label=
-new Intl.DateTimeFormat(
-state.lang==='ru'
-?
-'ru-RU'
-:
-'en-US',
-{
-month:'long'
-}
-).format(d);
-
-const token=
-`${d.getFullYear()}-${d.getMonth()}`;
-
-if(token!==last){
-
-const x=
-document.createElement(
-'span'
-);
-
-x.className=
-'month-label';
-
-x.style.setProperty(
-'--month-col',
-String(
-Math.floor(i/7)
-)
-);
-
-x.textContent=
-label;
-
+const fmt=new Intl.DateTimeFormat(state.lang==='ru'?'ru-RU':'en-US',{month:'long'});
+monthCols.forEach(m=>{
+const x=document.createElement('span');
+x.className='month-label';
+x.style.setProperty('--month-col',String(m.col));
+const txt=fmt.format(m.date);
+x.textContent=txt.charAt(0).toUpperCase()+txt.slice(1);
 months.appendChild(x);
-
-last=token;
-
+});
 }
-
-}
-);
-
-}
-
 if($('#activityPercent')){
 
 const startDays=
@@ -3038,60 +2968,6 @@ cb();
 
 }
 
-function resetProgress(){
-
-showConfirm(
-
-state.lang==='ru'
-?
-'Сбросить прогресс?'
-:
-'Reset progress?',
-
-state.lang==='ru'
-?
-'Все отметки, XP и добавленные фокусы будут сброшены. Вернутся стартовые фокусы.'
-:
-'All marks, XP and added focuses will be reset. Starter focuses will be restored.',
-
-()=>{
-
-state=
-structuredClone(
-defaultState
-);
-
-state.joinedAt=
-key(new Date());
-
-activityMode='all';
-
-currentFilter='all';
-
-selectedDate=key(new Date());
-
-selectedIcon='📚';
-
-selectedColor='#9a7cff';
-
-save();
-
-render();
-
-toast(
-state.lang==='ru'
-?
-'Прогресс сброшен'
-:
-'Progress reset'
-);
-
-}
-
-);
-
-}
-
 function bind(){
 
 const on=(
@@ -3194,7 +3070,7 @@ $('#infoPop')?.classList.remove(
 );
 
 on('#exportData','click',()=>{try{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`habit-backup-${key(new Date())}.json`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast(state.lang==='ru'?'Резервная копия сохранена':'Backup exported');}catch(e){toast(state.lang==='ru'?'Не удалось экспортировать данные':'Could not export data');}});
-on('#importData','change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const parsed=JSON.parse(await file.text());const candidate=parsed?.habits&&Array.isArray(parsed.habits)?parsed:parsed?.state?.habits&&Array.isArray(parsed.state.habits)?parsed.state:null;if(!candidate)throw new Error('invalid backup');const ok=confirm(state.lang==='ru'?'Импорт заменит текущие данные. Продолжить?':'Import will replace current data. Continue?');if(!ok){e.target.value='';return;}state={...structuredClone(defaultState),...candidate,habits:candidate.habits,tasks:normalizeTasks(candidate.tasks),goals:normalizeGoals(candidate.goals)};save();render();toast(state.lang==='ru'?'Данные импортированы':'Data imported');}catch(err){toast(state.lang==='ru'?'Файл резервной копии не распознан':'Backup file is not valid');}finally{e.target.value='';}});
+on('#importData','change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const parsed=JSON.parse(await file.text());const candidate=parsed?.habits&&Array.isArray(parsed.habits)?parsed:parsed?.state?.habits&&Array.isArray(parsed.state.habits)?parsed.state:null;if(!candidate)throw new Error('invalid backup');const ok=confirm(state.lang==='ru'?'Импорт заменит текущие данные. Продолжить?':'Import will replace current data. Continue?');if(!ok){e.target.value='';return;}state={...structuredClone(defaultState),...candidate,habits:candidate.habits,tasks:normalizeTasks(candidate.tasks),goals:normalizeGoals(candidate.goals)};save();render();maybeShowOnboarding();toast(state.lang==='ru'?'Данные импортированы':'Data imported');}catch(err){toast(state.lang==='ru'?'Файл резервной копии не распознан':'Backup file is not valid');}finally{e.target.value='';}});
 
 on(
 '#resetBtn',
@@ -3667,9 +3543,8 @@ nameInput.addEventListener(
 'input',
 e=>{
 
-state.name=
-e.target.value;
-
+if(!e.target.value.trim()) return;
+state.name=e.target.value.trim().slice(0,24);
 save();
 
 const name=
@@ -4433,3 +4308,430 @@ $$('.nav-link,[data-mobile-page]').forEach(b=>b.addEventListener('click',close))
 }
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
 })();
+
+/* =========================
+   v1.6 NICKNAME: onboarding, guard, safe reset
+========================= */
+function ensureNickUI(){
+if(document.getElementById('nick-ui-style')) return;
+const st=document.createElement('style');
+st.id='nick-ui-style';
+st.textContent=`
+.month-label{
+font-size:11px;
+line-height:16px;
+padding:2px 10px;
+margin-top:2px;
+border-radius:999px;
+background:rgba(146,117,255,.14);
+color:var(--accent,#9275ff);
+letter-spacing:.2px;
+}
+.ob-overlay{
+position:fixed;
+inset:0;
+z-index:30000;
+display:grid;
+place-items:center;
+padding:24px;
+background:var(--bg,#090a0f);
+overflow:hidden;
+opacity:1;
+transition:opacity .55s ease;
+}
+.ob-overlay.leave{opacity:0;pointer-events:none;}
+.ob-glow{
+position:absolute;
+width:560px;
+height:560px;
+max-width:130vw;
+border-radius:50%;
+background:radial-gradient(circle,rgba(146,117,255,.34),rgba(146,117,255,0) 66%);
+filter:blur(18px);
+animation:obFloat 8s ease-in-out infinite;
+pointer-events:none;
+}
+@keyframes obFloat{
+0%,100%{transform:translateY(-14px) scale(1);}
+50%{transform:translateY(16px) scale(1.07);}
+}
+.ob-stage{
+grid-area:1/1;
+position:relative;
+width:min(420px,100%);
+text-align:center;
+transition:opacity .6s ease,transform .75s cubic-bezier(.2,.8,.2,1),filter .6s ease;
+}
+.ob-welcome{
+opacity:0;
+transform:translateY(20px) scale(.96);
+filter:blur(8px);
+}
+.ob-welcome.show{
+opacity:1;
+transform:none;
+filter:none;
+}
+.ob-welcome.out{
+opacity:0;
+transform:translateY(-70px) scale(.97);
+filter:blur(8px);
+}
+.ob-name{
+opacity:0;
+transform:translateY(70px);
+visibility:hidden;
+}
+.ob-name.show{
+opacity:1;
+transform:none;
+visibility:visible;
+}
+.ob-logo{
+width:68px;
+height:68px;
+margin:0 auto 22px;
+display:grid;
+place-items:center;
+border-radius:22px;
+font-size:30px;
+color:#fff;
+background:linear-gradient(135deg,#9275ff,#6d4dff);
+box-shadow:0 14px 40px rgba(115,84,255,.45);
+}
+.ob-stage h1,
+.ob-stage h2{
+margin:0;
+font-size:34px;
+line-height:1.12;
+font-weight:900;
+letter-spacing:-.4px;
+color:var(--text,#fff);
+}
+.ob-stage h2{font-size:28px;}
+.ob-stage .ob-sub{
+margin:10px 0 0;
+font-size:20px;
+font-weight:800;
+color:var(--accent,#9275ff);
+}
+.ob-stage .ob-hint{
+margin:12px 0 22px;
+font-size:13px;
+line-height:1.55;
+color:var(--muted,#8b8fa3);
+}
+.ob-input{
+width:100%;
+box-sizing:border-box;
+height:54px;
+padding:0 18px;
+border-radius:16px;
+border:1px solid var(--line,rgba(255,255,255,.12));
+background:var(--surface,#12131a);
+color:var(--text,#fff);
+font-size:17px;
+font-weight:700;
+text-align:center;
+outline:none;
+transition:border-color .2s ease,box-shadow .2s ease;
+}
+.ob-input:focus{
+border-color:var(--accent,#9275ff);
+box-shadow:0 0 0 4px rgba(146,117,255,.18);
+}
+.ob-input.shake{animation:obShake .4s ease;border-color:#ef5b6b;}
+@keyframes obShake{
+0%,100%{transform:translateX(0);}
+20%{transform:translateX(-8px);}
+40%{transform:translateX(8px);}
+60%{transform:translateX(-5px);}
+80%{transform:translateX(5px);}
+}
+.ob-btn{
+width:100%;
+height:52px;
+margin-top:12px;
+border:0;
+border-radius:16px;
+font-size:15px;
+font-weight:850;
+color:#fff;
+cursor:pointer;
+background:linear-gradient(135deg,#9275ff,#6d4dff);
+box-shadow:0 12px 30px rgba(115,84,255,.35);
+transition:opacity .2s ease,transform .15s ease;
+}
+.ob-btn:active{transform:scale(.98);}
+.ob-btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;}
+@media(prefers-reduced-motion:reduce){
+.ob-glow{animation:none;}
+.ob-stage,.ob-overlay{transition-duration:.01s;}
+}
+.reset-head{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:12px;
+margin-bottom:8px;
+}
+.reset-head h3{margin:0!important;}
+.reset-tip-btn{
+flex:none;
+width:36px;
+height:36px;
+border-radius:50%;
+border:1px solid rgba(255,196,69,.35);
+background:rgba(255,196,69,.12);
+font-size:18px;
+line-height:1;
+cursor:pointer;
+animation:tipPulse 2.4s ease-in-out infinite;
+}
+.reset-tip-btn[aria-expanded="true"]{animation:none;background:rgba(255,196,69,.22);}
+@keyframes tipPulse{
+0%,100%{box-shadow:0 0 0 0 rgba(255,196,69,.35);}
+50%{box-shadow:0 0 0 7px rgba(255,196,69,0);}
+}
+.reset-tip{
+display:grid;
+grid-template-rows:0fr;
+transition:grid-template-rows .3s ease,margin .3s ease;
+}
+.reset-tip.open{grid-template-rows:1fr;margin-bottom:12px;}
+.reset-tip>div{overflow:hidden;min-height:0;}
+.reset-tip-body{
+display:flex;
+flex-wrap:wrap;
+align-items:center;
+gap:8px 12px;
+padding:11px 13px;
+border-radius:13px;
+background:rgba(255,196,69,.1);
+border:1px solid rgba(255,196,69,.25);
+font-size:13px;
+line-height:1.45;
+color:var(--text,#fff);
+}
+.reset-tip-body button{
+min-height:30px;
+padding:0 12px;
+border-radius:9px;
+border:1px solid rgba(255,196,69,.4);
+background:transparent;
+color:var(--text,#fff);
+font-weight:800;
+font-size:12px;
+cursor:pointer;
+}
+.reset-label{
+display:block;
+margin:16px 0 8px;
+font-size:13px;
+line-height:1.5;
+color:var(--text,#fff);
+}
+.reset-label b{color:#ef5b6b;word-break:break-word;}
+.reset-input{
+width:100%;
+box-sizing:border-box;
+height:46px;
+padding:0 14px;
+border-radius:12px;
+border:1px solid var(--line,rgba(255,255,255,.12));
+background:var(--surface2,var(--surface,#12131a));
+color:var(--text,#fff);
+font-size:15px;
+font-weight:700;
+outline:none;
+}
+.reset-input:focus{border-color:#ef5b6b;box-shadow:0 0 0 3px rgba(239,91,107,.18);}
+#resetDialog .confirm-ok:disabled{opacity:.4;cursor:not-allowed;}
+`;
+document.head.appendChild(st);
+}
+
+function nickQuote(n){
+return state.lang==='ru'?`«${n}»`:`“${n}”`;
+}
+
+/* ---------- Onboarding (first launch, no nickname) ---------- */
+function maybeShowOnboarding(){
+if((state.name||'').trim()) return;
+if(document.getElementById('obOverlay')) return;
+ensureNickUI();
+const ru=state.lang==='ru';
+const ov=document.createElement('div');
+ov.className='ob-overlay';
+ov.id='obOverlay';
+ov.setAttribute('role','dialog');
+ov.setAttribute('aria-modal','true');
+ov.innerHTML=`
+<div class="ob-glow"></div>
+<div class="ob-stage ob-welcome" id="obWelcome">
+<div class="ob-logo">✦</div>
+<h1>${ru?'Добро пожаловать':'Welcome'}</h1>
+<p class="ob-sub">${ru?'в Habit':'to Habit'}</p>
+</div>
+<div class="ob-stage ob-name" id="obName">
+<h2>${ru?'Введите ваш ник':'Enter your nickname'}</h2>
+<p class="ob-hint">${ru?'Он появится в приветствии и на аватаре. Его же нужно будет ввести для сброса прогресса.':'It appears in the greeting and avatar. You will also need it to reset progress.'}</p>
+<input class="ob-input" id="obInput" maxlength="24" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="${ru?'Ваш ник':'Your nickname'}">
+<button class="ob-btn" id="obBtn" type="button" disabled>${ru?'Продолжить':'Continue'}</button>
+</div>`;
+document.body.appendChild(ov);
+const prevOverflow=document.body.style.overflow;
+document.body.style.overflow='hidden';
+const welcome=ov.querySelector('#obWelcome');
+const nameStage=ov.querySelector('#obName');
+const input=ov.querySelector('#obInput');
+const btn=ov.querySelector('#obBtn');
+let done=false;
+const finish=()=>{
+if(done) return;
+const v=input.value.trim().slice(0,24);
+if(!v){
+input.classList.remove('shake');
+void input.offsetWidth;
+input.classList.add('shake');
+input.focus();
+return;
+}
+done=true;
+state.name=v;
+save();
+render();
+ov.classList.add('leave');
+document.body.style.overflow=prevOverflow;
+setTimeout(()=>ov.remove(),600);
+};
+input.addEventListener('input',()=>{btn.disabled=!input.value.trim();});
+input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();finish();}});
+btn.addEventListener('click',finish);
+setTimeout(()=>welcome.classList.add('show'),80);
+setTimeout(()=>welcome.classList.add('out'),2100);
+setTimeout(()=>{
+nameStage.classList.add('show');
+setTimeout(()=>input.focus(),500);
+},2550);
+}
+
+/* ---------- Nickname in Settings can never be empty ---------- */
+function bindNickGuard(){
+const inp=$('#nameInput');
+if(!inp||inp.dataset.guard) return;
+inp.dataset.guard='1';
+inp.addEventListener('blur',()=>{
+if(!inp.value.trim()){
+inp.value=state.name||'';
+toast(state.lang==='ru'?'Ник не может быть пустым':'Nickname cannot be empty');
+}
+});
+}
+
+/* ---------- Reset progress: type your nickname ---------- */
+function ensureResetDialog(){
+ensureNickUI();
+if(document.getElementById('resetDialog')) return;
+document.body.insertAdjacentHTML('beforeend',`
+<div class="confirm-dialog" id="resetDialog" aria-hidden="true">
+<div class="confirm-card" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
+<div class="reset-head">
+<h3 id="resetTitle"></h3>
+<button type="button" class="reset-tip-btn" id="resetTipBtn" aria-expanded="false" aria-controls="resetTip">💡</button>
+</div>
+<div class="reset-tip" id="resetTip"><div><div class="reset-tip-body"><span id="resetTipText"></span><button type="button" id="resetTipExport"></button></div></div></div>
+<p id="resetText"></p>
+<label class="reset-label" for="resetNick" id="resetLabel"></label>
+<input class="reset-input" id="resetNick" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+<div class="confirm-actions">
+<button type="button" class="confirm-cancel" id="resetCancel"></button>
+<button type="button" class="confirm-ok danger" id="resetOk" disabled></button>
+</div>
+</div>
+</div>`);
+const d=$('#resetDialog');
+$('#resetCancel').addEventListener('click',closeResetDialog);
+$('#resetOk').addEventListener('click',runReset);
+d.addEventListener('click',e=>{if(e.target===d) closeResetDialog();});
+$('#resetTipBtn').addEventListener('click',()=>{
+const tip=$('#resetTip');
+const open=!tip.classList.contains('open');
+tip.classList.toggle('open',open);
+$('#resetTipBtn').setAttribute('aria-expanded',String(open));
+});
+$('#resetTipExport').addEventListener('click',()=>{$('#exportData')?.click();});
+$('#resetNick').addEventListener('input',updateResetBtn);
+$('#resetNick').addEventListener('keydown',e=>{
+if(e.key==='Enter'){e.preventDefault();if(!$('#resetOk').disabled) runReset();}
+});
+document.addEventListener('keydown',e=>{
+if(e.key==='Escape') closeResetDialog();
+});
+}
+function updateResetBtn(){
+const nick=(state.name||'').trim();
+$('#resetOk').disabled=nick?($('#resetNick').value.trim()!==nick):false;
+}
+function closeResetDialog(){
+const d=$('#resetDialog');
+if(!d) return;
+d.classList.remove('open');
+d.setAttribute('aria-hidden','true');
+}
+function runReset(){
+const nick=(state.name||'').trim();
+if(nick && $('#resetNick').value.trim()!==nick) return;
+closeResetDialog();
+state=structuredClone(defaultState);
+state.name=nick;
+state.joinedAt=key(new Date());
+activityMode='all';
+currentFilter='all';
+selectedDate=key(new Date());
+selectedIcon='📚';
+selectedColor='#9a7cff';
+save();
+render();
+toast(state.lang==='ru'?'Прогресс сброшен':'Progress reset');
+}
+function resetProgress(){
+ensureResetDialog();
+const ru=state.lang==='ru';
+const nick=(state.name||'').trim();
+$('#resetTitle').textContent=ru?'Сбросить прогресс?':'Reset progress?';
+$('#resetText').textContent=ru
+?'Все отметки, XP и добавленные фокусы будут сброшены. Вернутся стартовые фокусы.'
+:'All marks, XP and added focuses will be reset. Starter focuses will be restored.';
+$('#resetLabel').innerHTML='';
+if(nick){
+$('#resetLabel').append(
+document.createTextNode(ru?'Чтобы сбросить прогресс, введите ваш ник: ':'To reset progress, enter your nickname: ')
+);
+const b=document.createElement('b');
+b.textContent=nickQuote(nick);
+$('#resetLabel').appendChild(b);
+}
+$('#resetNick').placeholder=ru?'Ваш ник':'Your nickname';
+$('#resetNick').value='';
+$('#resetNick').style.display=nick?'':'none';
+$('#resetLabel').style.display=nick?'':'none';
+$('#resetTipText').textContent=ru?'Совет: перед сбросом экспортируйте все данные.':'Tip: export all your data before resetting.';
+$('#resetTipExport').textContent=ru?'↓ Экспорт':'↓ Export';
+$('#resetTipBtn').setAttribute('aria-label',ru?'Совет':'Tip');
+$('#resetTip').classList.remove('open');
+$('#resetTipBtn').setAttribute('aria-expanded','false');
+$('#resetCancel').textContent=ru?'Отмена':'Cancel';
+$('#resetOk').textContent=ru?'Сбросить':'Reset';
+updateResetBtn();
+const d=$('#resetDialog');
+d.classList.add('open');
+d.setAttribute('aria-hidden','false');
+setTimeout(()=>{(nick?$('#resetNick'):$('#resetOk'))?.focus();},60);
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+ensureNickUI();
+bindNickGuard();
+maybeShowOnboarding();
+});
