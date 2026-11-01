@@ -1628,6 +1628,7 @@ for(let i=0;i<lead;i++){cells.push(null);}
 monthCols.push({date:first,col:Math.floor(monthStartIdx/7)});
 const dim=new Date(y,m+1,0).getDate();
 for(let day=1;day<=dim;day++){cells.push(new Date(y,m,day,12,0,0,0));}
+monthCols[monthCols.length-1].end=Math.floor((cells.length-1)/7);
 }
 while(cells.length%7){cells.push(null);}
 
@@ -1703,11 +1704,15 @@ monthCols.forEach(m=>{
 const x=document.createElement('span');
 x.className='month-label';
 x.style.setProperty('--month-col',String(m.col));
+x.dataset.col=String(m.col);
+x.dataset.end=String(m.end);
 const txt=fmt.format(m.date);
 x.textContent=txt.charAt(0).toUpperCase()+txt.slice(1);
 months.appendChild(x);
 });
 }
+positionMonthLabels();
+requestAnimationFrame(positionMonthLabels);
 if(!window.__heatScrolled){
 requestAnimationFrame(()=>{
 const sc=grid.closest('.heatmap-scroll');
@@ -4336,16 +4341,6 @@ opacity:.16!important;
 box-shadow:none!important;
 }
 .activity-cell.future:hover{transform:none;filter:none;}
-.activity-cell.today{
-opacity:1!important;
-}
-:root:not([data-theme="light"]) .activity-cell.today{
-box-shadow:inset 0 0 0 2px #fff,inset 0 0 0 3px rgba(9,10,15,.4)!important;
-}
-:root[data-theme="light"] .activity-cell.today{
-box-shadow:inset 0 0 0 2px #15171d!important;
-}
-
 /* ---------- Onboarding ---------- */
 .ob-overlay{
 position:fixed;
@@ -4747,6 +4742,32 @@ background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 14%,var(--surf
 document.head.appendChild(st);
 }
 
+
+/* ---------- Month labels centred over their own squares ---------- */
+function positionMonthLabels(){
+const grid=$('#activityGrid'),box=$('#monthLabels');
+if(!grid||!box) return;
+const cells=grid.children;
+if(!cells.length) return;
+const boxRect=box.getBoundingClientRect();
+if(!boxRect.width) return;
+box.querySelectorAll('.month-label').forEach(l=>{
+const c0=cells[Number(l.dataset.col)*7],c1=cells[Number(l.dataset.end)*7];
+if(!c0||!c1) return;
+const a=c0.getBoundingClientRect(),b=c1.getBoundingClientRect();
+if(!a.width) return;
+l.style.setProperty('left',((a.left+b.right)/2-boxRect.left)+'px','important');
+l.style.transform='translateX(-50%)';
+});
+}
+function watchMonthLabels(){
+const grid=$('#activityGrid');
+if(!grid||grid.dataset.watch) return;
+grid.dataset.watch='1';
+if(window.ResizeObserver) new ResizeObserver(positionMonthLabels).observe(grid);
+window.addEventListener('resize',positionMonthLabels);
+}
+
 function nickQuote(n){
 return state.lang==='ru'?`«${n}»`:`“${n}”`;
 }
@@ -4975,5 +4996,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 ensureNickUI();
 ensurePolishUI();
 bindNickGuard();
+watchMonthLabels();
 showWelcome();
 });
