@@ -112,11 +112,11 @@ creatorChip:'Автор',
 createdLabel:'Дата создания',
 createdDate:'4 октября 2026',
 updatedLabel:'Последнее обновление',
-updatedDate:'6 ноября 2026',
+updatedDate:'7 октября 2026',
 aboutFooter:'Создано для маленьких шагов и больших целей',
 dataPrivacy:'Данные и приватность',dataSub:'Твои данные остаются в этом браузере.',exportData:'Экспортировать данные',importData:'Импортировать копию',dataHelp:'Регулярно сохраняй резервную копию, чтобы не потерять прогресс.',stableHabits:'Самые стабильные',
 plans:'Планы',plansEyebrow:'МОИ ПЛАНЫ',tasks:'Задачи',goals:'Цели',addTask:'Добавить задачу',addGoal:'Добавить цель',goalActive:'В процессе',goalDone:'Достигнуто',goalFailed:'Провалено',planLeft:'Осталось',planDoneLabel:'Выполнено',planTotal:'Всего',planDeadline:'Выполнить до',planDeadlineHint:'Отметь цель галочкой до этой даты включительно — иначе она автоматически станет крестиком.',
-newTitle:'Что нового в v1.8',new1:'Масштабное обновление дизайна: стеклянный стиль в духе iOS и новое плавающее нижнее меню.',new2:'Исправлена система восстановления огонька.',new3:''
+newTitle:'Что нового в v1.8',new1:'Масштабное обновление дизайна: стеклянный стиль в духе iOS.',new2:'Исправлена система восстановления огонька.',new3:''
 },
 
 en:{
@@ -185,11 +185,11 @@ creatorChip:'Author',
 createdLabel:'Created on',
 createdDate:'October 4, 2026',
 updatedLabel:'Last updated',
-updatedDate:'November 6, 2026',
+updatedDate:'October 7, 2026',
 aboutFooter:'Built for small steps and big goals',
 dataPrivacy:'Data & privacy',dataSub:'Your data stays in this browser.',exportData:'Export data',importData:'Import backup',dataHelp:'Export a backup regularly to keep your progress safe.',stableHabits:'Most consistent',
 plans:'Plans',plansEyebrow:'MY PLANS',tasks:'Tasks',goals:'Goals',addTask:'Add task',addGoal:'Add goal',goalActive:'In progress',goalDone:'Achieved',goalFailed:'Failed',planLeft:'Left',planDoneLabel:'Completed',planTotal:'Total',planDeadline:'Complete by',planDeadlineHint:'Tick the goal on or before this date — otherwise it automatically turns into a cross.',
-newTitle:'What\'s new in v1.8',new1:'Major design update: iOS-style glass look and a new floating bottom menu.',new2:'Fixed the streak recovery system.',new3:''
+newTitle:'What\'s new in v1.8',new1:'Major design update: iOS-style glass look.',new2:'Fixed the streak recovery system.',new3:''
 }
 };
 

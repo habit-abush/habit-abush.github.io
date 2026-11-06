@@ -1733,7 +1733,7 @@ html body .mobile-menu{display:none!important}
 
 /* ---------- Floating glass bottom bar ---------- */
 html body #mobileNav.mobile-nav.bottom-nav{
-  --lift:-26px;
+  --lift:-26px;--pad:8px;
   position:fixed!important;z-index:2000!important;display:grid!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;
   left:50%!important;right:auto!important;top:auto!important;bottom:calc(16px + env(safe-area-inset-bottom,0px))!important;
   width:min(640px,calc(100vw - 20px))!important;height:68px!important;max-height:none!important;overflow:visible!important;
@@ -1754,8 +1754,8 @@ html body #mobileNav.bottom-nav::before{
   border:1px solid var(--nav-edge);
   box-shadow:inset 0 1px 1px rgba(255,255,255,.38),inset 0 -12px 26px rgba(255,255,255,.04);
   backdrop-filter:blur(30px) saturate(1.9);-webkit-backdrop-filter:blur(30px) saturate(1.9);
-  -webkit-mask:radial-gradient(circle at calc(8px + (100% - 16px) / 6 * (var(--ni) + .5)) 4px,transparent 31.5px,#000 32.5px);
-          mask:radial-gradient(circle at calc(8px + (100% - 16px) / 6 * (var(--ni) + .5)) 4px,transparent 31.5px,#000 32.5px);
+  -webkit-mask:radial-gradient(circle at calc(var(--pad) + (100% - 2 * var(--pad)) / 6 * (var(--ni) + .5)) 4px,transparent 26.5px,#000 27.5px);
+          mask:radial-gradient(circle at calc(var(--pad) + (100% - 2 * var(--pad)) / 6 * (var(--ni) + .5)) 4px,transparent 26.5px,#000 27.5px);
 }
 /* soft ground shadow */
 html body #mobileNav.bottom-nav::after{
@@ -1766,13 +1766,13 @@ html:root[data-theme="light"] body #mobileNav.bottom-nav::after{background:rgba(
 
 /* the raised bubble */
 html body #mobileNav .nav-bubble{
-  position:absolute;z-index:0;pointer-events:none;top:-22px;width:52px;height:52px;border-radius:50%;
-  left:calc(8px + (100% - 16px) / 6 * (var(--ni) + .5) - 26px);
+  position:absolute;z-index:0;pointer-events:none;top:-18px;width:44px;height:44px;border-radius:50%;
+  left:calc(var(--pad) + (100% - 2 * var(--pad)) / 6 * (var(--ni) + .5) - 22px);
   background:radial-gradient(circle at 30% 22%,#c8bbff 0%,#8d72fb 42%,#5b3fe4 100%);
   box-shadow:0 10px 24px rgba(102,72,238,.55),inset 0 1px 1px rgba(255,255,255,.65),inset 0 -7px 12px rgba(38,18,140,.38);
 }
 html body #mobileNav .nav-bubble::after{
-  content:"";position:absolute;inset:-6px;border-radius:50%;border:1px solid var(--nav-edge);
+  content:"";position:absolute;inset:-5px;border-radius:50%;border:1px solid var(--nav-edge);
   box-shadow:inset 0 1px 1px rgba(255,255,255,.18);
 }
 
@@ -1792,7 +1792,7 @@ html body #mobileNav.bottom-nav button span{
 }
 html body #mobileNav.bottom-nav button span svg{display:block;width:24px;height:24px}
 html body #mobileNav.bottom-nav button b{
-  position:absolute!important;left:-6px;right:-6px;bottom:5px;display:block!important;max-width:none!important;
+  position:absolute!important;left:0!important;right:0!important;width:100%!important;margin:0!important;padding:0!important;bottom:5px;display:block!important;max-width:none!important;
   font-size:10px!important;font-weight:750!important;line-height:1!important;letter-spacing:.1px;text-align:center;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;
   opacity:0;transform:translateY(4px);transition:opacity .35s ease,transform .45s var(--ease-spring);
 }
@@ -1815,7 +1815,7 @@ html body #mobileNav.bottom-nav button.active b{opacity:1;transform:none}
   html body #mobileNav.bottom-nav button:hover:not(.active){color:var(--text)!important}
 }
 @media(max-width:380px){
-  html body #mobileNav.mobile-nav.bottom-nav{width:calc(100vw - 12px)!important;padding-left:5px!important;padding-right:5px!important}
+  html body #mobileNav.mobile-nav.bottom-nav{width:calc(100vw - 12px)!important;--pad:5px;padding-left:5px!important;padding-right:5px!important}
   html body #mobileNav.bottom-nav button b{font-size:9px!important}
 }
 /* browsers without registered-property transitions simply snap, nothing breaks */
@@ -1830,3 +1830,72 @@ html body #mobileNav.bottom-nav button.active b{opacity:1;transform:none}
 html body #mobileNav.bottom-nav button::before,html body #mobileNav.bottom-nav button::after{display:none!important}
 
 html body #mobileNav .mobile-nav-heading{display:none!important}
+
+
+/* =====================================================================
+   v1.8 refinements: calmer glass, nicer switches, stats layout
+   ===================================================================== */
+/* Segmented switches (theme, language, 30/90/180/year) — Tasks/Goals switch is left alone */
+html body .segmented:not(.plans-switch),
+html body .stats-switch:not(.plans-switch){
+  background:color-mix(in srgb,var(--text) 5%,transparent)!important;
+  border:1px solid color-mix(in srgb,var(--text) 11%,transparent)!important;
+  border-radius:17px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 6px 18px rgba(0,0,0,.10)!important;
+  backdrop-filter:blur(14px) saturate(1.5);-webkit-backdrop-filter:blur(14px) saturate(1.5);
+  padding:4px!important;
+}
+html body .segmented:not(.plans-switch).has-slider::before,
+html body .stats-switch:not(.plans-switch).has-slider::before{
+  border-radius:13px!important;
+  background:linear-gradient(155deg,rgba(184,166,255,.92),rgba(118,90,246,.88))!important;
+  border:1px solid rgba(255,255,255,.34)!important;
+  box-shadow:0 6px 16px rgba(111,82,244,.34),inset 0 1px 0 rgba(255,255,255,.45)!important;
+  transition:left .5s cubic-bezier(.34,1.32,.5,1),width .5s cubic-bezier(.34,1.32,.5,1),height .25s ease!important;
+}
+html body .segmented:not(.plans-switch) button,
+html body .stats-switch:not(.plans-switch) .stats-tab{
+  border-radius:13px!important;font-weight:750;letter-spacing:.1px;
+  transition:color .3s ease,transform .3s cubic-bezier(.34,1.45,.5,1)!important;
+}
+html body .segmented:not(.plans-switch) button.active,
+html body .stats-switch:not(.plans-switch) .stats-tab.active{color:#fff!important;text-shadow:0 1px 6px rgba(50,25,150,.35)}
+html body .segmented:not(.plans-switch) button:not(.active):hover,
+html body .stats-switch:not(.plans-switch) .stats-tab:not(.active):hover{color:var(--text)!important}
+html body .segmented:not(.plans-switch) button:active,
+html body .stats-switch:not(.plans-switch) .stats-tab:active{transform:scale(.93)!important}
+html body .segmented:not(.plans-switch) button.active{animation:segPop .45s cubic-bezier(.34,1.5,.5,1)}
+@keyframes segPop{0%{transform:scale(.92)}100%{transform:scale(1)}}
+
+/* Top-right: theme pill + avatar */
+html body .theme-toggle{
+  background:linear-gradient(155deg,rgba(255,255,255,.12),rgba(255,255,255,.04))!important;
+  border:1px solid color-mix(in srgb,var(--text) 14%,transparent)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 8px 22px rgba(0,0,0,.16)!important;
+  backdrop-filter:blur(18px) saturate(1.6);-webkit-backdrop-filter:blur(18px) saturate(1.6);
+  transition:transform .3s cubic-bezier(.34,1.45,.5,1),box-shadow .3s ease,border-color .3s ease;
+}
+html:root[data-theme="light"] body .theme-toggle{background:linear-gradient(155deg,rgba(255,255,255,.9),rgba(255,255,255,.55))!important;border-color:rgba(255,255,255,.95)!important;box-shadow:inset 0 1px 0 #fff,0 8px 22px rgba(76,62,150,.14)!important}
+html body .theme-toggle:active{transform:scale(.94)}
+html body .theme-toggle .theme-icon{box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
+html body .theme-toggle.light .theme-icon{background:linear-gradient(150deg,#b3a1ff,#7e60f7)!important;animation:themeSpinA .65s cubic-bezier(.34,1.4,.5,1)}
+html body .theme-toggle.dark .theme-icon{background:rgba(255,255,255,.12)!important;animation:themeSpinB .65s cubic-bezier(.34,1.4,.5,1)}
+@keyframes themeSpinA{0%{transform:rotate(-140deg) scale(.6);opacity:.3}100%{transform:none;opacity:1}}
+@keyframes themeSpinB{0%{transform:rotate(140deg) scale(.6);opacity:.3}100%{transform:none;opacity:1}}
+html body .avatar{
+  background:linear-gradient(150deg,rgba(196,182,255,.95),rgba(116,86,246,.82))!important;
+  border:1px solid rgba(255,255,255,.42)!important;
+  box-shadow:0 8px 22px rgba(111,82,244,.38),inset 0 1px 0 rgba(255,255,255,.55)!important;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  transition:transform .3s cubic-bezier(.34,1.45,.5,1),box-shadow .3s ease;
+}
+html body .avatar:hover{transform:translateY(-2px) scale(1.04)}
+html body .avatar:active{transform:scale(.92)}
+
+/* Stats: "most stable" spans the whole row on desktop too */
+html body .stats-extra-grid{grid-template-columns:minmax(0,1fr)!important}
+html body .stats-extra-grid .chart-panel{grid-column:1/-1}
+@media(prefers-reduced-motion:reduce){
+  html body .theme-toggle .theme-icon,html body .segmented button.active{animation:none!important}
+  html body .segmented.has-slider::before,html body .stats-switch.has-slider::before{transition:none!important}
+}
