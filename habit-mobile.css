@@ -1587,3 +1587,246 @@ button.about-version .tap-hint{opacity:.85;flex:0 0 auto}
 .version-pop li:before{content:"✦";position:absolute;left:0;top:0;color:var(--accent);font-size:10px;line-height:1.9}
 .version-close{position:absolute;right:10px;top:10px;width:26px;height:26px;border-radius:9px;background:var(--surface2);color:var(--muted);font-size:16px;line-height:1;display:grid;place-items:center}
 .modal-card input[type="date"]{justify-content:space-between}
+
+
+/* =====================================================================
+   Habit v1.8 — large visual refresh: iOS-style glass, floating glass
+   bottom bar on phones AND laptops, softer surfaces, richer motion.
+   Visual layer only: no layout logic, no behaviour changes.
+   ===================================================================== */
+@property --ni{syntax:'<number>';inherits:true;initial-value:0}
+
+:root{
+  --glass-bg:linear-gradient(155deg,rgba(255,255,255,.095),rgba(255,255,255,.032));
+  --glass-bd:rgba(255,255,255,.13);
+  --glass-sh:0 14px 44px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.13);
+  --glass-modal:rgba(24,25,38,.80);
+  --nav-fill:linear-gradient(180deg,rgba(255,255,255,.20),rgba(255,255,255,.07) 52%,rgba(255,255,255,.11)),rgba(22,22,34,.50);
+  --nav-edge:rgba(255,255,255,.30);
+  --nav-ink:rgba(255,255,255,.66);
+  --ease-spring:cubic-bezier(.34,1.45,.5,1);
+}
+:root[data-theme="light"]{
+  --glass-bg:linear-gradient(155deg,rgba(255,255,255,.92),rgba(255,255,255,.62));
+  --glass-bd:rgba(255,255,255,.95);
+  --glass-sh:0 14px 44px rgba(76,62,150,.13),0 1px 3px rgba(76,62,150,.06),inset 0 1px 0 #fff;
+  --glass-modal:rgba(255,255,255,.86);
+  --nav-fill:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,255,255,.56) 55%,rgba(255,255,255,.72)),rgba(255,255,255,.35);
+  --nav-edge:rgba(255,255,255,.95);
+  --nav-ink:rgba(40,36,70,.58);
+}
+
+/* ---------- Ambient aurora background ---------- */
+body::before{
+  content:"";position:fixed;inset:-18%;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(38% 34% at 14% 18%,rgba(146,117,255,.34),transparent 70%),
+    radial-gradient(34% 30% at 88% 12%,rgba(64,196,255,.18),transparent 70%),
+    radial-gradient(36% 34% at 78% 88%,rgba(255,112,170,.18),transparent 70%),
+    radial-gradient(30% 30% at 6% 92%,rgba(70,230,170,.14),transparent 70%);
+  animation:habitAurora 26s ease-in-out infinite alternate;will-change:transform;
+}
+:root[data-theme="light"] body::before{
+  background:
+    radial-gradient(38% 34% at 14% 18%,rgba(150,125,255,.30),transparent 70%),
+    radial-gradient(34% 30% at 88% 12%,rgba(90,190,255,.24),transparent 70%),
+    radial-gradient(36% 34% at 78% 88%,rgba(255,150,190,.24),transparent 70%),
+    radial-gradient(30% 30% at 6% 92%,rgba(110,225,190,.20),transparent 70%);
+}
+@keyframes habitAurora{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(2.5%,-2%,0) scale(1.06)}100%{transform:translate3d(-2%,2.5%,0) scale(1.03)}}
+html body .app{background:none!important}
+
+/* ---------- Glass surfaces ---------- */
+html body .streak-hero,
+html body .activity-card,
+html body .chart-panel,
+html body .stat-cards article,
+html body .settings-card,
+html body .about-card,
+html body .achievement,
+html body .manage-habit-card:not(.is-dragging):not(.drag-over),
+html body .focus-card:not(.completed):not(.failed){
+  background:var(--glass-bg)!important;
+  border:1px solid var(--glass-bd)!important;
+  box-shadow:var(--glass-sh)!important;
+  border-radius:26px;
+}
+html body .focus-card:not(.completed):not(.failed),
+html body .manage-habit-card{border-radius:22px}
+html body .stat-cards article{border-radius:22px}
+html body .streak-hero{
+  background:
+    radial-gradient(560px 280px at 88% -12%,rgba(146,117,255,.34),transparent 70%),
+    radial-gradient(440px 260px at -4% 112%,rgba(255,150,90,.17),transparent 70%),
+    var(--glass-bg)!important;
+  border-radius:32px;
+}
+html body .level-pill{background:var(--glass-bg)!important;border:1px solid var(--glass-bd)!important;box-shadow:var(--glass-sh)!important;backdrop-filter:blur(16px)}
+html body .recovery-pill{background:var(--glass-bg)!important;border:1px solid var(--glass-bd)!important}
+html body .theme-toggle,html body .avatar{box-shadow:var(--glass-sh)}
+
+/* Primary buttons — soft glossy violet like system tint buttons */
+html body .primary-btn{
+  background:linear-gradient(150deg,#b3a1ff 0%,#7e60f7 55%,#6544ec 100%)!important;
+  border:1px solid rgba(255,255,255,.28)!important;color:#fff!important;border-radius:16px;
+  box-shadow:0 10px 26px rgba(111,82,244,.38),inset 0 1px 0 rgba(255,255,255,.42)!important;
+  transition:transform .25s var(--ease-spring),box-shadow .25s ease,filter .25s ease;
+}
+html body .primary-btn:active{transform:scale(.95)}
+@media(hover:hover){
+  html body .primary-btn:hover{transform:translateY(-2px);filter:brightness(1.06)}
+  html body .focus-card:not(.completed):not(.failed):hover,
+  html body .manage-habit-card:not(.is-dragging):hover,
+  html body .achievement:hover,
+  html body .stat-cards article:hover{transform:translateY(-3px)}
+}
+html body .focus-card,html body .achievement,html body .stat-cards article{transition:transform .3s var(--ease-spring),box-shadow .3s ease,border-color .3s ease}
+html body .focus-card:active{transform:scale(.985)}
+
+/* Sheets, dialogs, toasts */
+html body .modal{background:rgba(6,7,14,.46)!important;backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4)}
+html body .modal-card,
+html body .version-pop,
+html body .info-pop,
+html body .recovery-card{
+  background:var(--glass-modal)!important;
+  border:1px solid var(--glass-bd)!important;
+  box-shadow:0 30px 90px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.16)!important;
+  backdrop-filter:blur(34px) saturate(1.8);-webkit-backdrop-filter:blur(34px) saturate(1.8);
+  border-radius:30px;
+}
+html body .recovery-dialog{background:rgba(5,6,12,.52)!important;backdrop-filter:blur(16px) saturate(1.4)!important;-webkit-backdrop-filter:blur(16px) saturate(1.4)!important}
+html body .recovery-card{animation:habitPop .5s var(--ease-spring) both}
+html body .recovery-fire{animation:habitFlame 1.8s ease-in-out infinite;filter:drop-shadow(0 6px 18px rgba(255,140,60,.55))}
+html body .recovery-left{background:rgba(255,255,255,.07)!important;border:1px solid var(--glass-bd)}
+html body .recovery-actions button{border-radius:16px!important;transition:transform .22s var(--ease-spring)}
+html body .recovery-actions button:active{transform:scale(.95)}
+html body .recovery-cancel{background:rgba(255,255,255,.08)!important}
+html body .recovery-ok{background:linear-gradient(150deg,#b3a1ff,#7e60f7 55%,#6544ec)!important;box-shadow:0 10px 24px rgba(111,82,244,.4),inset 0 1px 0 rgba(255,255,255,.4)}
+html body .toast{background:var(--glass-modal)!important;border:1px solid var(--glass-bd)!important;backdrop-filter:blur(26px) saturate(1.7);-webkit-backdrop-filter:blur(26px) saturate(1.7);border-radius:99px!important;box-shadow:0 16px 40px rgba(0,0,0,.35)!important}
+@keyframes habitPop{0%{opacity:0;transform:translateY(22px) scale(.92)}100%{opacity:1;transform:none}}
+@keyframes habitFlame{0%,100%{transform:scale(1) rotate(-2deg)}50%{transform:scale(1.1) rotate(3deg)}}
+
+/* Cards float in softly when a page opens */
+html body .page.active .focus-card,
+html body .page.active .stat-cards article,
+html body .page.active .achievement,
+html body .page.active .manage-habit-card{animation:habitRise .55s var(--ease-spring) both}
+html body .page.active .focus-card:nth-child(2),html body .page.active .stat-cards article:nth-child(2),html body .page.active .achievement:nth-child(2){animation-delay:.05s}
+html body .page.active .focus-card:nth-child(3),html body .page.active .stat-cards article:nth-child(3),html body .page.active .achievement:nth-child(3){animation-delay:.1s}
+html body .page.active .focus-card:nth-child(n+4),html body .page.active .stat-cards article:nth-child(n+4),html body .page.active .achievement:nth-child(n+4){animation-delay:.15s}
+@keyframes habitRise{0%{opacity:0;transform:translateY(16px)}100%{opacity:1;transform:none}}
+
+/* ---------- Layout: no sidebar, bar lives at the bottom everywhere ---------- */
+html body .sidebar{display:none!important}
+html body .mobile-menu{display:none!important}
+@media(min-width:761px){
+  html body .main{margin-left:auto!important;margin-right:auto!important;max-width:1200px!important;padding:0 38px calc(138px + env(safe-area-inset-bottom,0px))!important}
+  html body .main:not(:has(#home.active)) .mobile-brand{display:none!important}
+  html body .main:has(#home.active) .mobile-brand{display:block!important;position:static!important;flex:0 0 auto;margin:0 6px 0 0!important;padding:0 18px 0 0!important;border-right:1px solid var(--glass-bd);font-size:26px!important;font-weight:900!important;letter-spacing:-1px!important;line-height:1!important;background:linear-gradient(105deg,#c9bdff,#8f7bf5 55%,#b8a9ff)!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important}
+}
+@media(max-width:760px){
+  html body .main{padding-bottom:calc(128px + env(safe-area-inset-bottom,0px))!important}
+  html body .topbar{background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;isolation:isolate}
+  html body .topbar::before{content:"";position:absolute;z-index:-1;inset:0 -16px;pointer-events:none;background:color-mix(in srgb,var(--bg) 58%,transparent);backdrop-filter:blur(22px) saturate(1.7);-webkit-backdrop-filter:blur(22px) saturate(1.7);-webkit-mask:linear-gradient(#000 72%,transparent);mask:linear-gradient(#000 72%,transparent)}
+}
+
+/* ---------- Floating glass bottom bar ---------- */
+html body #mobileNav.mobile-nav.bottom-nav{
+  --lift:-26px;
+  position:fixed!important;z-index:2000!important;display:grid!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+  left:50%!important;right:auto!important;top:auto!important;bottom:calc(16px + env(safe-area-inset-bottom,0px))!important;
+  width:min(640px,calc(100vw - 20px))!important;height:68px!important;max-height:none!important;overflow:visible!important;
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:0!important;padding:8px!important;margin:0!important;
+  border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  transform:translateX(-50%)!important;transform-origin:center!important;
+  transition:--ni .6s var(--ease-spring)!important;
+  animation:habitNavIn .7s var(--ease-spring) both;
+}
+@keyframes habitNavIn{0%{opacity:0;transform:translate(-50%,40px)}100%{opacity:1;transform:translate(-50%,0)}}
+html body.habit-modal-open #mobileNav.mobile-nav.bottom-nav{display:none!important;pointer-events:none!important}
+
+/* the glass pill itself, with a round scoop under the active item */
+html body #mobileNav.bottom-nav::before{
+  content:"";position:absolute;inset:0;z-index:-1;border-radius:34px;
+  background:var(--nav-fill);
+  border:1px solid var(--nav-edge);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.38),inset 0 -12px 26px rgba(255,255,255,.04);
+  backdrop-filter:blur(30px) saturate(1.9);-webkit-backdrop-filter:blur(30px) saturate(1.9);
+  -webkit-mask:radial-gradient(circle at calc(8px + (100% - 16px) / 6 * (var(--ni) + .5)) 4px,transparent 31.5px,#000 32.5px);
+          mask:radial-gradient(circle at calc(8px + (100% - 16px) / 6 * (var(--ni) + .5)) 4px,transparent 31.5px,#000 32.5px);
+}
+/* soft ground shadow */
+html body #mobileNav.bottom-nav::after{
+  content:"";position:absolute;left:14px;right:14px;bottom:-6px;height:30px;z-index:-2;border-radius:50%;
+  background:rgba(0,0,0,.42);filter:blur(18px);opacity:.75;
+}
+html:root[data-theme="light"] body #mobileNav.bottom-nav::after{background:rgba(76,62,150,.30)}
+
+/* the raised bubble */
+html body #mobileNav .nav-bubble{
+  position:absolute;z-index:0;pointer-events:none;top:-22px;width:52px;height:52px;border-radius:50%;
+  left:calc(8px + (100% - 16px) / 6 * (var(--ni) + .5) - 26px);
+  background:radial-gradient(circle at 30% 22%,#c8bbff 0%,#8d72fb 42%,#5b3fe4 100%);
+  box-shadow:0 10px 24px rgba(102,72,238,.55),inset 0 1px 1px rgba(255,255,255,.65),inset 0 -7px 12px rgba(38,18,140,.38);
+}
+html body #mobileNav .nav-bubble::after{
+  content:"";position:absolute;inset:-6px;border-radius:50%;border:1px solid var(--nav-edge);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.18);
+}
+
+/* items */
+html body #mobileNav.bottom-nav button{
+  position:relative!important;z-index:1;display:block!important;height:52px!important;min-height:0!important;min-width:0!important;padding:0!important;margin:0!important;
+  border:0!important;border-radius:20px!important;background:transparent!important;box-shadow:none!important;
+  color:var(--nav-ink)!important;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  transform:none!important;transition:color .3s ease!important;
+}
+html body #mobileNav.bottom-nav button:active span{transform:scale(.86)!important}
+html body #mobileNav.bottom-nav button span{
+  position:absolute!important;left:50%!important;top:13px!important;margin:-0px 0 0 -13px!important;width:26px!important;height:26px!important;
+  display:grid!important;place-items:center!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;filter:none!important;
+  font-size:0!important;line-height:1!important;transform:none!important;
+  transition:transform .6s var(--ease-spring),color .3s ease!important;
+}
+html body #mobileNav.bottom-nav button span svg{display:block;width:24px;height:24px}
+html body #mobileNav.bottom-nav button b{
+  position:absolute!important;left:-6px;right:-6px;bottom:5px;display:block!important;max-width:none!important;
+  font-size:10px!important;font-weight:750!important;line-height:1!important;letter-spacing:.1px;text-align:center;white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;
+  opacity:0;transform:translateY(4px);transition:opacity .35s ease,transform .45s var(--ease-spring);
+}
+html body #mobileNav.bottom-nav button.active{color:var(--text)!important}
+html body #mobileNav.bottom-nav button.active span{transform:translateY(var(--lift)) scale(1.06)!important;color:#fff!important}
+html body #mobileNav.bottom-nav button.active b{opacity:1;transform:none}
+
+/* phones: icons only, label for the active item; laptops: all labels visible */
+@media(max-width:760px){
+  html body #mobileNav.mobile-nav.bottom-nav{--lift:-30px}
+  html body #mobileNav.bottom-nav button span{top:11px!important}
+}
+@media(min-width:761px){
+  html body #mobileNav.mobile-nav.bottom-nav{height:72px!important;--lift:-26px}
+  html body #mobileNav.bottom-nav button{height:56px!important}
+  html body #mobileNav.bottom-nav button span{top:9px!important}
+  html body #mobileNav.bottom-nav button b{opacity:.85;transform:none;font-size:11px!important;bottom:6px}
+  html body #mobileNav.bottom-nav button.active b{opacity:1}
+  html body #mobileNav.bottom-nav button:hover:not(.active) span{transform:translateY(-3px)!important;color:var(--text)!important}
+  html body #mobileNav.bottom-nav button:hover:not(.active){color:var(--text)!important}
+}
+@media(max-width:380px){
+  html body #mobileNav.mobile-nav.bottom-nav{width:calc(100vw - 12px)!important;padding-left:5px!important;padding-right:5px!important}
+  html body #mobileNav.bottom-nav button b{font-size:9px!important}
+}
+/* browsers without registered-property transitions simply snap, nothing breaks */
+@media(prefers-reduced-motion:reduce){
+  body::before,
+  html body .page.active .focus-card,html body .page.active .stat-cards article,html body .page.active .achievement,html body .page.active .manage-habit-card,
+  html body .recovery-card,html body .recovery-fire,html body #mobileNav.mobile-nav.bottom-nav{animation:none!important}
+  html body #mobileNav.mobile-nav.bottom-nav{transition:none!important}
+  html body #mobileNav.bottom-nav button span,html body #mobileNav.bottom-nav button b{transition:none!important}
+}
+
+html body #mobileNav.bottom-nav button::before,html body #mobileNav.bottom-nav button::after{display:none!important}
+
+html body #mobileNav .mobile-nav-heading{display:none!important}

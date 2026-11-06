@@ -112,11 +112,11 @@ creatorChip:'Автор',
 createdLabel:'Дата создания',
 createdDate:'4 октября 2026',
 updatedLabel:'Последнее обновление',
-updatedDate:'1 ноября 2026',
+updatedDate:'6 ноября 2026',
 aboutFooter:'Создано для маленьких шагов и больших целей',
 dataPrivacy:'Данные и приватность',dataSub:'Твои данные остаются в этом браузере.',exportData:'Экспортировать данные',importData:'Импортировать копию',dataHelp:'Регулярно сохраняй резервную копию, чтобы не потерять прогресс.',stableHabits:'Самые стабильные',
 plans:'Планы',plansEyebrow:'МОИ ПЛАНЫ',tasks:'Задачи',goals:'Цели',addTask:'Добавить задачу',addGoal:'Добавить цель',goalActive:'В процессе',goalDone:'Достигнуто',goalFailed:'Провалено',planLeft:'Осталось',planDoneLabel:'Выполнено',planTotal:'Всего',planDeadline:'Выполнить до',planDeadlineHint:'Отметь цель галочкой до этой даты включительно — иначе она автоматически станет крестиком.',
-newTitle:'Что нового в v1.7',new1:'Новая анимация приветствия при входе и ввод ника.',new2:'Более безопасный сброс прогресса.',new3:'Улучшения дизайна.'
+newTitle:'Что нового в v1.8',new1:'Масштабное обновление дизайна: стеклянный стиль в духе iOS и новое плавающее нижнее меню.',new2:'Исправлена система восстановления огонька.',new3:''
 },
 
 en:{
@@ -185,11 +185,11 @@ creatorChip:'Author',
 createdLabel:'Created on',
 createdDate:'October 4, 2026',
 updatedLabel:'Last updated',
-updatedDate:'November 1, 2026',
+updatedDate:'November 6, 2026',
 aboutFooter:'Built for small steps and big goals',
 dataPrivacy:'Data & privacy',dataSub:'Your data stays in this browser.',exportData:'Export data',importData:'Import backup',dataHelp:'Export a backup regularly to keep your progress safe.',stableHabits:'Most consistent',
 plans:'Plans',plansEyebrow:'MY PLANS',tasks:'Tasks',goals:'Goals',addTask:'Add task',addGoal:'Add goal',goalActive:'In progress',goalDone:'Achieved',goalFailed:'Failed',planLeft:'Left',planDoneLabel:'Completed',planTotal:'Total',planDeadline:'Complete by',planDeadlineHint:'Tick the goal on or before this date — otherwise it automatically turns into a cross.',
-newTitle:'What\'s new in v1.7',new1:'New welcome animation on launch and nickname setup.',new2:'Safer progress reset.',new3:'Design improvements.'
+newTitle:'What\'s new in v1.8',new1:'Major design update: iOS-style glass look and a new floating bottom menu.',new2:'Fixed the streak recovery system.',new3:''
 }
 };
 
@@ -687,16 +687,41 @@ return firstMissing;
 
 }
 
+function recoveryRun(first){
+
+// Every consecutive missed day from the first missed one up to yesterday.
+const run=[];
+const yesterday=new Date();
+yesterday.setHours(12,0,0,0);
+yesterday.setDate(yesterday.getDate()-1);
+const endKey=key(yesterday);
+let d=new Date(first+'T12:00:00');
+
+for(let i=0;i<366;i++){
+const k=key(d);
+if(k>endKey) break;
+run.push(k);
+d.setDate(d.getDate()+1);
+}
+
+return run;
+
+}
+
 function recoverStreak(){
 
 syncRecovery();
 const target=recoveryTarget();
 if(!target || state.recovery<=0) return;
 
-state.habits.forEach(h=>{ if(habitActiveOn(h,target)) h.done[target]=true; });
+// One restore covers the whole gap, however many days were missed.
+const run=recoveryRun(target);
+run.forEach(day=>{
+state.habits.forEach(h=>{ if(habitActiveOn(h,day)){ if(!h.done) h.done={}; h.done[day]=true; } });
+state.recoveredDates[day]=true;
+state.recoveryDismissed[day]=true;
+});
 state.recovery--;
-state.recoveredDates[target]=true;
-state.recoveryDismissed[target]=true;
 save();
 render();
 setTimeout(maybeShowRecovery,80);
@@ -710,8 +735,12 @@ syncRecovery();
 const target=recoveryTarget();
 if(!target || $('#recoveryDialog')) return;
 
-const d=new Date(target+'T12:00:00');
-const label=d.toLocaleDateString(state.lang==='ru'?'ru-RU':'en-US',{day:'numeric',month:'long'});
+const run=recoveryRun(target);
+const loc=state.lang==='ru'?'ru-RU':'en-US';
+const fmt=s=>new Date(s+'T12:00:00').toLocaleDateString(loc,{day:'numeric',month:'long'});
+const label=run.length>1
+?(state.lang==='ru'?`${run.length} дн. (${fmt(run[0])} — ${fmt(run[run.length-1])})`:`${run.length} days (${fmt(run[0])} – ${fmt(run[run.length-1])})`)
+:fmt(target);
 
 const box=document.createElement('div');
 box.id='recoveryDialog';
@@ -720,7 +749,7 @@ box.innerHTML=`
 <div class="recovery-card">
 <div class="recovery-fire">🔥</div>
 <h3>${state.lang==='ru'?'Серия прервалась':'Your streak was broken'}</h3>
-<p>${state.lang==='ru'?`Можно восстановить ${label} и вернуть общий огонёк.`:`You can restore ${label} and bring back your overall streak.`}</p>
+<p>${state.lang==='ru'?`Можно восстановить ${label} одним нажатием и вернуть общий огонёк.`:`You can restore ${label} with a single tap and bring back your overall streak.`}</p>
 <div class="recovery-left">${state.lang==='ru'?'Осталось восстановлений':'Restores left'}: <b>${state.recovery}</b></div>
 <div class="recovery-actions">
 <button type="button" class="recovery-cancel">${state.lang==='ru'?'Не сейчас':'Not now'}</button>
@@ -729,7 +758,7 @@ box.innerHTML=`
 </div>`;
 
 document.body.appendChild(box);
-box.querySelector('.recovery-cancel').onclick=()=>{state.recoveryDismissed[target]=true;save();box.remove();};
+box.querySelector('.recovery-cancel').onclick=()=>{run.forEach(day=>{state.recoveryDismissed[day]=true;});save();box.remove();};
 box.querySelector('.recovery-ok').onclick=()=>{box.remove();recoverStreak();};
 
 }
@@ -3491,13 +3520,19 @@ nav.id='mobileNav';
 nav.className='mobile-nav bottom-nav';
 nav.innerHTML=`
 <div class="mobile-nav-heading"><strong>${state.lang==='ru'?'Навигация':'Navigation'}</strong><span>${state.lang==='ru'?'Разделы приложения':'App sections'}</div>
-<button data-mobile-page="home" type="button"><span>⌂</span><b data-i18n="home">Главная</b></button>
-<button data-mobile-page="habits" type="button"><span>☷</span><b data-i18n="habits">Привычки</b></button>
-<button data-mobile-page="plans" type="button"><span>◎</span><b data-i18n="plans">Планы</b></button>
-<button data-mobile-page="stats" type="button"><span>◒</span><b data-i18n="stats">Статистика</b></button>
-<button data-mobile-page="achievements" type="button"><span>✦</span><b data-i18n="achievements">Достижения</b></button>
-<button data-mobile-page="settings" type="button"><span>⚙</span><b data-i18n="settings">Настройки</b></button>`;
+<i class="nav-bubble" aria-hidden="true"></i>
+<button data-mobile-page="home" type="button"><span><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 11.2 12 4l8.5 7.2"/><path d="M5.5 9.8V19a1 1 0 0 0 1 1H10v-5.2h4V20h3.5a1 1 0 0 0 1-1V9.8"/></svg></span><b data-i18n="home">Главная</b></button>
+<button data-mobile-page="habits" type="button"><span><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2"/></svg></span><b data-i18n="habits">Привычки</b></button>
+<button data-mobile-page="plans" type="button"><span><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r=".8" fill="currentColor"/></svg></span><b data-i18n="plans">Планы</b></button>
+<button data-mobile-page="stats" type="button"><span><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11"/><path d="M12 20V4"/><path d="M19 20v-6.5"/></svg></span><b data-i18n="stats">Статистика</b></button>
+<button data-mobile-page="achievements" type="button"><span><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.5l-5.1 2.7 1-5.7-4.1-4 5.7-.8z"/></svg></span><b data-i18n="achievements">Достижения</b></button>
+<button data-mobile-page="settings" type="button"><span><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 14.6a1.6 1.6 0 0 0 .3 1.8l.1.1a1.9 1.9 0 1 1-2.7 2.7l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V20a1.9 1.9 0 1 1-3.8 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a1.9 1.9 0 1 1-2.7-2.7l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H4a1.9 1.9 0 1 1 0-3.8h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a1.9 1.9 0 1 1 2.7-2.7l.1.1a1.6 1.6 0 0 0 1.8.3h0a1.6 1.6 0 0 0 1-1.5V4a1.9 1.9 0 1 1 3.8 0v.1a1.6 1.6 0 0 0 1 1.5h0a1.6 1.6 0 0 0 1.8-.3l.1-.1a1.9 1.9 0 1 1 2.7 2.7l-.1.1a1.6 1.6 0 0 0-.3 1.8v0a1.6 1.6 0 0 0 1.5 1h.1a1.9 1.9 0 1 1 0 3.8h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></span><b data-i18n="settings">Настройки</b></button>`;
 document.body.appendChild(nav);
+(function(){
+  const sync=()=>{const btns=[...nav.querySelectorAll('[data-mobile-page]')];const i=btns.findIndex(b=>b.classList.contains('active'));nav.style.setProperty('--ni',i<0?0:i);};
+  sync();
+  new MutationObserver(sync).observe(nav,{subtree:true,attributes:true,attributeFilter:['class']});
+})();
 updateSegmentSliders();
 $('#menuBtn')?.setAttribute('aria-label',state.lang==='ru'?'Открыть меню':'Open menu');
 $('#menuBtn')?.setAttribute('aria-expanded','false');
