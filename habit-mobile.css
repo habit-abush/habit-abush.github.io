@@ -1864,8 +1864,6 @@ html body .segmented:not(.plans-switch) button:not(.active):hover,
 html body .stats-switch:not(.plans-switch) .stats-tab:not(.active):hover{color:var(--text)!important}
 html body .segmented:not(.plans-switch) button:active,
 html body .stats-switch:not(.plans-switch) .stats-tab:active{transform:scale(.93)!important}
-html body .segmented:not(.plans-switch) button.active{animation:segPop .45s cubic-bezier(.34,1.5,.5,1)}
-@keyframes segPop{0%{transform:scale(.92)}100%{transform:scale(1)}}
 
 /* Top-right: theme pill + avatar */
 html body .theme-toggle{
@@ -1878,8 +1876,10 @@ html body .theme-toggle{
 html:root[data-theme="light"] body .theme-toggle{background:linear-gradient(155deg,rgba(255,255,255,.9),rgba(255,255,255,.55))!important;border-color:rgba(255,255,255,.95)!important;box-shadow:inset 0 1px 0 #fff,0 8px 22px rgba(76,62,150,.14)!important}
 html body .theme-toggle:active{transform:scale(.94)}
 html body .theme-toggle .theme-icon{box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
-html body .theme-toggle.light .theme-icon{background:linear-gradient(150deg,#b3a1ff,#7e60f7)!important;animation:themeSpinA .65s cubic-bezier(.34,1.4,.5,1)}
-html body .theme-toggle.dark .theme-icon{background:rgba(255,255,255,.12)!important;animation:themeSpinB .65s cubic-bezier(.34,1.4,.5,1)}
+html body .theme-toggle.light .theme-icon{background:linear-gradient(150deg,#b3a1ff,#7e60f7)!important}
+html body .theme-toggle.light.spin .theme-icon{animation:themeSpinA .65s cubic-bezier(.34,1.4,.5,1)}
+html body .theme-toggle.dark .theme-icon{background:rgba(255,255,255,.12)!important}
+html body .theme-toggle.dark.spin .theme-icon{animation:themeSpinB .65s cubic-bezier(.34,1.4,.5,1)}
 @keyframes themeSpinA{0%{transform:rotate(-140deg) scale(.6);opacity:.3}100%{transform:none;opacity:1}}
 @keyframes themeSpinB{0%{transform:rotate(140deg) scale(.6);opacity:.3}100%{transform:none;opacity:1}}
 html body .avatar{
@@ -1896,6 +1896,58 @@ html body .avatar:active{transform:scale(.92)}
 html body .stats-extra-grid{grid-template-columns:minmax(0,1fr)!important}
 html body .stats-extra-grid .chart-panel{grid-column:1/-1}
 @media(prefers-reduced-motion:reduce){
-  html body .theme-toggle .theme-icon,html body .segmented button.active{animation:none!important}
+  html body .theme-toggle .theme-icon{animation:none!important}
   html body .segmented.has-slider::before,html body .stats-switch.has-slider::before{transition:none!important}
 }
+
+/* =====================================================================
+   v1.8 follow-up: achievements green outline (phone + laptop, readable in
+   light theme), glassy Tasks/Goals switch (Goals stays violet)
+   ===================================================================== */
+html body .achievement:not(.locked){
+  border:1.5px solid color-mix(in srgb,#34c77b 58%,transparent)!important;
+  background:linear-gradient(135deg,rgba(52,199,123,.10),rgba(52,199,123,0) 62%),var(--glass-bg)!important;
+  box-shadow:0 0 0 1px rgba(52,199,123,.10),0 10px 30px rgba(52,199,123,.12),inset 0 1px 0 rgba(255,255,255,.14)!important;
+}
+html body .achievement:not(.locked) .achievement-icon{
+  border:1px solid color-mix(in srgb,#34c77b 52%,transparent)!important;
+  background:color-mix(in srgb,#34c77b 16%,var(--surface2))!important;
+  box-shadow:0 6px 16px rgba(52,199,123,.20)!important;
+}
+html:root[data-theme="light"] body .achievement:not(.locked){
+  border-color:#1fa965!important;
+  background:linear-gradient(135deg,rgba(31,169,101,.13),rgba(31,169,101,.02) 65%),var(--glass-bg)!important;
+  box-shadow:0 0 0 1px rgba(31,169,101,.22),0 10px 28px rgba(31,169,101,.18),inset 0 1px 0 #fff!important;
+}
+html:root[data-theme="light"] body .achievement:not(.locked) .achievement-icon{
+  border-color:#1fa965!important;background:rgba(31,169,101,.16)!important;box-shadow:0 6px 16px rgba(31,169,101,.22)!important;
+}
+
+/* Tasks / Goals switch: same soft glass as the other switches */
+html body .stats-switch.plans-switch{
+  background:color-mix(in srgb,var(--text) 5%,transparent)!important;
+  border:1px solid color-mix(in srgb,var(--text) 11%,transparent)!important;
+  border-radius:17px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 6px 18px rgba(0,0,0,.10)!important;
+  backdrop-filter:blur(14px) saturate(1.5);-webkit-backdrop-filter:blur(14px) saturate(1.5);
+}
+html body .stats-switch.plans-switch.has-slider:not(:has([data-plans-tab="goals"].active))::before{
+  border-radius:13px!important;
+  background:linear-gradient(155deg,rgba(255,255,255,.26),rgba(255,255,255,.09))!important;
+  border:1px solid rgba(255,255,255,.34)!important;
+  box-shadow:0 6px 16px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.4)!important;
+}
+html:root[data-theme="light"] body .stats-switch.plans-switch.has-slider:not(:has([data-plans-tab="goals"].active))::before{
+  background:linear-gradient(155deg,#fff,rgba(255,255,255,.7))!important;border-color:#fff!important;
+  box-shadow:0 6px 16px rgba(76,62,150,.16),inset 0 1px 0 #fff!important;
+}
+html body .stats-switch.plans-switch.has-slider::before{
+  border-radius:13px!important;
+  transition:left .5s cubic-bezier(.34,1.32,.5,1),width .5s cubic-bezier(.34,1.32,.5,1),height .25s ease,background .3s ease,box-shadow .3s ease!important;
+}
+html body .stats-switch.plans-switch .stats-tab{border-radius:13px!important;transition:color .3s ease,transform .3s cubic-bezier(.34,1.45,.5,1)!important}
+html body .stats-switch.plans-switch .stats-tab:active{transform:scale(.93)!important}
+
+/* No slider entrance animation when a section opens; switching itself still animates */
+html body .segmented.seg-instant.seg-instant.seg-instant.has-slider::before,
+html body .stats-switch.seg-instant.seg-instant.seg-instant.has-slider::before{transition:none!important}

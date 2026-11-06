@@ -112,7 +112,7 @@ creatorChip:'Автор',
 createdLabel:'Дата создания',
 createdDate:'4 октября 2026',
 updatedLabel:'Последнее обновление',
-updatedDate:'7 октября 2026',
+updatedDate:'7 ноября 2026',
 aboutFooter:'Создано для маленьких шагов и больших целей',
 dataPrivacy:'Данные и приватность',dataSub:'Твои данные остаются в этом браузере.',exportData:'Экспортировать данные',importData:'Импортировать копию',dataHelp:'Регулярно сохраняй резервную копию, чтобы не потерять прогресс.',stableHabits:'Самые стабильные',
 plans:'Планы',plansEyebrow:'МОИ ПЛАНЫ',tasks:'Задачи',goals:'Цели',addTask:'Добавить задачу',addGoal:'Добавить цель',goalActive:'В процессе',goalDone:'Достигнуто',goalFailed:'Провалено',planLeft:'Осталось',planDoneLabel:'Выполнено',planTotal:'Всего',planDeadline:'Выполнить до',planDeadlineHint:'Отметь цель галочкой до этой даты включительно — иначе она автоматически станет крестиком.',
@@ -185,7 +185,7 @@ creatorChip:'Author',
 createdLabel:'Created on',
 createdDate:'October 4, 2026',
 updatedLabel:'Last updated',
-updatedDate:'October 7, 2026',
+updatedDate:'November 7, 2026',
 aboutFooter:'Built for small steps and big goals',
 dataPrivacy:'Data & privacy',dataSub:'Your data stays in this browser.',exportData:'Export data',importData:'Import backup',dataHelp:'Export a backup regularly to keep your progress safe.',stableHabits:'Most consistent',
 plans:'Plans',plansEyebrow:'MY PLANS',tasks:'Tasks',goals:'Goals',addTask:'Add task',addGoal:'Add goal',goalActive:'In progress',goalDone:'Achieved',goalFailed:'Failed',planLeft:'Left',planDoneLabel:'Completed',planTotal:'Total',planDeadline:'Complete by',planDeadlineHint:'Tick the goal on or before this date — otherwise it automatically turns into a cross.',
@@ -306,10 +306,15 @@ function updateSegmentSliders(){
     if(!container) return;
     const active=container.querySelector('button.active');
     if(!active){container.classList.remove('has-slider');return;}
+    // First measurement (e.g. when a section is opened): place the slider instantly, no entrance animation.
+    const prevW=parseFloat(container.style.getPropertyValue('--slider-width'))||0;
+    const instant=!container.classList.contains('has-slider')||prevW===0||active.offsetWidth===0;
+    if(instant) container.classList.add('seg-instant');
     container.classList.add('has-slider');
     container.style.setProperty('--slider-left',`${active.offsetLeft}px`);
     container.style.setProperty('--slider-width',`${active.offsetWidth}px`);
     container.style.setProperty('--slider-height',`${active.offsetHeight}px`);
+    if(instant){void container.offsetWidth;requestAnimationFrame(()=>requestAnimationFrame(()=>container.classList.remove('seg-instant')));}
   };
   const updateNav=()=>{
     const nav=$('#mobileNav');
@@ -3526,7 +3531,7 @@ nav.innerHTML=`
 <button data-mobile-page="plans" type="button"><span><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r=".8" fill="currentColor"/></svg></span><b data-i18n="plans">Планы</b></button>
 <button data-mobile-page="stats" type="button"><span><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V11"/><path d="M12 20V4"/><path d="M19 20v-6.5"/></svg></span><b data-i18n="stats">Статистика</b></button>
 <button data-mobile-page="achievements" type="button"><span><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5l2.5 5.2 5.7.8-4.1 4 1 5.7L12 16.5l-5.1 2.7 1-5.7-4.1-4 5.7-.8z"/></svg></span><b data-i18n="achievements">Достижения</b></button>
-<button data-mobile-page="settings" type="button"><span><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 14.6a1.6 1.6 0 0 0 .3 1.8l.1.1a1.9 1.9 0 1 1-2.7 2.7l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V20a1.9 1.9 0 1 1-3.8 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a1.9 1.9 0 1 1-2.7-2.7l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H4a1.9 1.9 0 1 1 0-3.8h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a1.9 1.9 0 1 1 2.7-2.7l.1.1a1.6 1.6 0 0 0 1.8.3h0a1.6 1.6 0 0 0 1-1.5V4a1.9 1.9 0 1 1 3.8 0v.1a1.6 1.6 0 0 0 1 1.5h0a1.6 1.6 0 0 0 1.8-.3l.1-.1a1.9 1.9 0 1 1 2.7 2.7l-.1.1a1.6 1.6 0 0 0-.3 1.8v0a1.6 1.6 0 0 0 1.5 1h.1a1.9 1.9 0 1 1 0 3.8h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg></span><b data-i18n="settings">Настройки</b></button>`;
+<button data-mobile-page="settings" type="button"><span><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.05 4.97 L10.42 2.53 L13.58 2.53 L13.95 4.97 A7.30 7.30 0 0 1 15.59 5.65 L17.57 4.18 L19.82 6.43 L18.35 8.41 A7.30 7.30 0 0 1 19.03 10.05 L21.47 10.42 L21.47 13.58 L19.03 13.95 A7.30 7.30 0 0 1 18.35 15.59 L19.82 17.57 L17.57 19.82 L15.59 18.35 A7.30 7.30 0 0 1 13.95 19.03 L13.58 21.47 L10.42 21.47 L10.05 19.03 A7.30 7.30 0 0 1 8.41 18.35 L6.43 19.82 L4.18 17.57 L5.65 15.59 A7.30 7.30 0 0 1 4.97 13.95 L2.53 13.58 L2.53 10.42 L4.97 10.05 A7.30 7.30 0 0 1 5.65 8.41 L4.18 6.43 L6.43 4.18 L8.41 5.65 A7.30 7.30 0 0 1 10.05 4.97 Z"/><circle cx="12" cy="12" r="3.1"/></svg></span><b data-i18n="settings">Настройки</b></button>`;
 document.body.appendChild(nav);
 (function(){
   const sync=()=>{const btns=[...nav.querySelectorAll('[data-mobile-page]')];const i=btns.findIndex(b=>b.classList.contains('active'));nav.style.setProperty('--ni',i<0?0:i);};
@@ -5034,3 +5039,14 @@ bindNickGuard();
 watchMonthLabels();
 showWelcome();
 });
+
+
+// Theme icon spins only when the person actually toggles the theme (not on load).
+(function(){
+  const t=document.getElementById('themeToggle');
+  if(!t) return;
+  t.addEventListener('click',()=>{
+    t.classList.remove('spin');void t.offsetWidth;t.classList.add('spin');
+    setTimeout(()=>t.classList.remove('spin'),750);
+  });
+})();
