@@ -1951,3 +1951,23 @@ html body .stats-switch.plans-switch .stats-tab:active{transform:scale(.93)!impo
 /* No slider entrance animation when a section opens; switching itself still animates */
 html body .segmented.seg-instant.seg-instant.seg-instant.has-slider::before,
 html body .stats-switch.seg-instant.seg-instant.seg-instant.has-slider::before{transition:none!important}
+
+
+/* =====================================================================
+   v1.8 fixes: identical "Habit" wordmark on every phone page, version
+   card slides UNDER the bottom bar, restore note
+   ===================================================================== */
+@media(max-width:760px){
+  html body .main:not(:has(#home.active)) .topbar .mobile-brand{
+    order:2!important;position:static!important;transform:none!important;left:auto!important;top:auto!important;
+    margin:0!important;padding:0 2px!important;font-size:25px!important;letter-spacing:-.55px!important;
+    color:color-mix(in srgb,var(--accent) 48%,var(--text))!important;
+    -webkit-text-fill-color:color-mix(in srgb,var(--accent) 48%,var(--text))!important;
+    text-shadow:0 2px 14px rgba(130,95,255,.12)!important;
+  }
+}
+@media(max-width:380px){
+  html body .main:not(:has(#home.active)) .topbar .mobile-brand{font-size:23px!important}
+}
+html body .version-pop{z-index:1900!important}
+html body .recovery-note{margin:2px 0 12px;font-size:11.5px;line-height:1.45;color:var(--muted);text-align:center}

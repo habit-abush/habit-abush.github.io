@@ -567,18 +567,24 @@ const active=state.habits.filter(h=>habitActiveOn(h,dateKey));
 return active.every(h=>!!h.done?.[dateKey]);
 }
 
+// A day counts for the main streak if all its habits are done OR the day was restored.
+// Restoring never touches habit marks, so squares/check-marks stay exactly as they were.
+function dayCountsForStreak(dateKey){
+return isDayComplete(dateKey) || !!state.recoveredDates?.[dateKey];
+}
+
 function overallStreak(asOf=key()){
 if(!state.habits.length) return 0;
 let d=new Date(asOf+'T12:00:00');
 const todayKey=key(new Date());
 // Until today's tasks are due/completed, preserve the streak earned through yesterday.
-if(asOf===todayKey && !isDayComplete(todayKey)) d.setDate(d.getDate()-1);
+if(asOf===todayKey && !dayCountsForStreak(todayKey)) d.setDate(d.getDate()-1);
 let n=0;
 for(let i=0;i<366;i++){
   const k=key(d);
   const active=state.habits.some(h=>habitActiveOn(h,k));
   if(!active){ d.setDate(d.getDate()-1); continue; }
-  if(!isDayComplete(k)) break;
+  if(!dayCountsForStreak(k)) break;
   n++;
   d.setDate(d.getDate()-1);
 }
@@ -598,7 +604,7 @@ for(let i=0;i<5000 && d<=end;i++){
   const k=key(d);
   const active=state.habits.some(h=>habitActiveOn(h,k));
   if(active){
-    if(isDayComplete(k)){ cur++; bestAll=Math.max(bestAll,cur); }
+    if(dayCountsForStreak(k)){ cur++; bestAll=Math.max(bestAll,cur); }
     else cur=0;
   }
   d.setDate(d.getDate()+1);
@@ -667,7 +673,7 @@ today.setHours(12,0,0,0);
 const yesterday=new Date(today);
 yesterday.setDate(yesterday.getDate()-1);
 
-if(isDayComplete(key(yesterday)))
+if(dayCountsForStreak(key(yesterday)))
 return null;
 
 let d=new Date(yesterday);
@@ -675,7 +681,7 @@ let firstMissing=null;
 
 for(let i=0;i<366;i++){
 const k=key(d);
-if(isDayComplete(k)) break;
+if(dayCountsForStreak(k)) break;
 firstMissing=k;
 d.setDate(d.getDate()-1);
 }
@@ -685,7 +691,7 @@ return null;
 
 let probe=new Date(firstMissing+'T12:00:00');
 probe.setDate(probe.getDate()-1);
-if(!isDayComplete(key(probe)))
+if(!dayCountsForStreak(key(probe)))
 return null;
 
 return firstMissing;
@@ -722,7 +728,6 @@ if(!target || state.recovery<=0) return;
 // One restore covers the whole gap, however many days were missed.
 const run=recoveryRun(target);
 run.forEach(day=>{
-state.habits.forEach(h=>{ if(habitActiveOn(h,day)){ if(!h.done) h.done={}; h.done[day]=true; } });
 state.recoveredDates[day]=true;
 state.recoveryDismissed[day]=true;
 });
@@ -755,6 +760,7 @@ box.innerHTML=`
 <div class="recovery-fire">🔥</div>
 <h3>${state.lang==='ru'?'Серия прервалась':'Your streak was broken'}</h3>
 <p>${state.lang==='ru'?`Можно восстановить ${label} одним нажатием и вернуть общий огонёк.`:`You can restore ${label} with a single tap and bring back your overall streak.`}</p>
+<div class="recovery-note">${state.lang==='ru'?'Восстанавливается только основной огонёк — число серии. Отметки привычек и квадратики активности не изменятся.':'Only the main streak number is restored. Habit check-marks and activity squares stay unchanged.'}</div>
 <div class="recovery-left">${state.lang==='ru'?'Осталось восстановлений':'Restores left'}: <b>${state.recovery}</b></div>
 <div class="recovery-actions">
 <button type="button" class="recovery-cancel">${state.lang==='ru'?'Не сейчас':'Not now'}</button>
